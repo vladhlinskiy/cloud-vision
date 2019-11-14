@@ -62,8 +62,7 @@ public class FilePathSource extends BatchSource<NullWritable, String, Structured
     FailureCollector collector = stageConfigurer.getFailureCollector();
     config.validate(collector);
     collector.getOrThrowException();
-//    Schema schema = config.getParsedSchema();
-//    pipelineConfigurer.getStageConfigurer().setOutputSchema(schema);
+    pipelineConfigurer.getStageConfigurer().setOutputSchema(FilePathSourceConfig.SCHEMA);
   }
 
   @Override

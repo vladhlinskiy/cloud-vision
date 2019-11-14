@@ -34,7 +34,7 @@
             "label": "Browse",
             "widget": "connection-browser",
             "widget-attributes": {
-              "connectionType": "FILEPATH"
+              "connectionType": "GCS"
             }
           }
         },
@@ -59,7 +59,7 @@
               "value": "false",
               "label": "No"
             },
-            "default": "true"
+            "default": "false"
           }
         },
         {
@@ -108,19 +108,16 @@
   ],
   "outputs": [
     {
-      "name": "schema",
-      "label": "schema",
-      "widget-type": "schema",
-      "widget-attributes": {
-        "schema-types": [
-          "boolean",
-          "long",
-          "double",
-          "bytes",
-          "string",
-          "array"
-        ],
-        "schema-default-type": "string"
+      "widget-type": "non-editable-schema-editor",
+      "schema": {
+        "name": "schema",
+        "type": "record",
+        "fields": [
+          {
+            "name": "path",
+            "type": "string"
+          }
+        ]
       }
     }
   ],

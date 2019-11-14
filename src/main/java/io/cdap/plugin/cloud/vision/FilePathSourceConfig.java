@@ -20,6 +20,7 @@ import com.google.common.base.Strings;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.annotation.Name;
+import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.api.plugin.PluginConfig;
 import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.plugin.common.Constants;
@@ -31,6 +32,8 @@ import javax.annotation.Nullable;
  * Defines a {@link PluginConfig} that File Path batch source can use.
  */
 public class FilePathSourceConfig extends PluginConfig {
+
+  public static final Schema SCHEMA = Schema.recordOf("schema", Schema.Field.of("path", Schema.of(Schema.Type.STRING)));
 
   @Name(Constants.Reference.REFERENCE_NAME)
   @Description(Constants.Reference.REFERENCE_NAME_DESCRIPTION)
