@@ -1,2 +1,2 @@
-# cloud-vision
-A collection of GCP Cloud Vision plugins
+# Cloud Vision Plugins
+A collection of Google Cloud Vision plugins
