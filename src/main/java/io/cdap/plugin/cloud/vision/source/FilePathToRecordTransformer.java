@@ -17,7 +17,7 @@
 package io.cdap.plugin.cloud.vision.source;
 
 import io.cdap.cdap.api.data.format.StructuredRecord;
-import io.cdap.cdap.api.data.schema.Schema;
+import io.cdap.plugin.cloud.vision.CloudVisionConstants;
 import io.cdap.plugin.cloud.vision.FilePathSourceConfig;
 
 /**
@@ -26,11 +26,9 @@ import io.cdap.plugin.cloud.vision.FilePathSourceConfig;
 public class FilePathToRecordTransformer {
 
   private final FilePathSourceConfig config;
-  private final Schema schema;
 
-  public FilePathToRecordTransformer(FilePathSourceConfig config, Schema schema) {
+  public FilePathToRecordTransformer(FilePathSourceConfig config) {
     this.config = config;
-    this.schema = schema;
   }
 
   /**
@@ -40,7 +38,8 @@ public class FilePathToRecordTransformer {
    * @return {@link StructuredRecord} that corresponds to the given {@link String}.
    */
   public StructuredRecord transform(String filePath) {
-    // TODO implement
-    return null;
+    return StructuredRecord.builder(FilePathSourceConfig.SCHEMA)
+      .set(CloudVisionConstants.PATH_FIELD_NAME, filePath)
+      .build();
   }
 }

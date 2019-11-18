@@ -37,6 +37,6 @@ public class FilePathInputFormat extends InputFormat {
   @Override
   public RecordReader<NullWritable, String> createRecordReader(
     InputSplit inputSplit, TaskAttemptContext taskAttemptContext) {
-    return new FilePathRecordReader();
+    return new GCSFilePathRecordReader();
   }
 }

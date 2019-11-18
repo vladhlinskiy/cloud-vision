@@ -18,23 +18,19 @@ package io.cdap.plugin.cloud.vision.source;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.cdap.plugin.cloud.vision.FilePathSourceConfig;
-import org.apache.commons.collections.iterators.EmptyIterator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Iterator;
 
 /**
- * RecordReader implementation, which reads String entries.
+ * RecordReader implementation, which reads names of files stored in GCS bucket.
  */
-public class FilePathRecordReader extends RecordReader<NullWritable, String> {
-  private static final Logger LOG = LoggerFactory.getLogger(FilePathRecordReader.class);
+public class GCSFilePathRecordReader extends RecordReader<NullWritable, String> {
   private static final Gson gson = new GsonBuilder().create();
 
   private Iterator<String> iterator;
@@ -47,13 +43,13 @@ public class FilePathRecordReader extends RecordReader<NullWritable, String> {
    * @param taskAttemptContext task context
    */
   @Override
-  public void initialize(InputSplit inputSplit, TaskAttemptContext taskAttemptContext) {
+  public void initialize(InputSplit inputSplit, TaskAttemptContext taskAttemptContext) throws IOException {
     Configuration conf = taskAttemptContext.getConfiguration();
     String confJson = conf.get(FilePathInputFormatProvider.PROPERTY_CONFIG_JSON);
     FilePathSourceConfig config = gson.fromJson(confJson, FilePathSourceConfig.class);
-
-    // TODO implement
-    this.iterator = EmptyIterator.INSTANCE;
+    // TODO splits
+    this.iterator = GCSFilePathIterator.create(config.getProject(), config.getServiceAccountFilePath(),
+                                               config.getPath(), config.isRecursive());
   }
 
   @Override
@@ -83,7 +79,5 @@ public class FilePathRecordReader extends RecordReader<NullWritable, String> {
 
   @Override
   public void close() throws IOException {
-    LOG.trace("Closing Record reader");
-    // TODO
   }
 }

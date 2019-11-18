@@ -16,6 +16,7 @@
 
 package io.cdap.plugin.cloud.vision;
 
+import com.google.cloud.ServiceOptions;
 import com.google.common.base.Strings;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
@@ -33,7 +34,8 @@ import javax.annotation.Nullable;
  */
 public class FilePathSourceConfig extends PluginConfig {
 
-  public static final Schema SCHEMA = Schema.recordOf("schema", Schema.Field.of("path", Schema.of(Schema.Type.STRING)));
+  public static final Schema SCHEMA = Schema.recordOf("schema", Schema.Field.of(CloudVisionConstants.PATH_FIELD_NAME,
+                                                                                Schema.of(Schema.Type.STRING)));
 
   @Name(Constants.Reference.REFERENCE_NAME)
   @Description(Constants.Reference.REFERENCE_NAME_DESCRIPTION)
@@ -99,16 +101,6 @@ public class FilePathSourceConfig extends PluginConfig {
     return referenceName;
   }
 
-  @Nullable
-  public String getProject() {
-    return project;
-  }
-
-  @Nullable
-  public String getServiceFilePath() {
-    return serviceFilePath;
-  }
-
   public String getPath() {
     return path;
   }
@@ -132,6 +124,36 @@ public class FilePathSourceConfig extends PluginConfig {
     return batchSize;
   }
 
+  public String getProject() {
+    String projectId = tryGetProject();
+    if (projectId == null) {
+      throw new IllegalArgumentException(
+        "Could not detect Google Cloud project id from the environment. Please specify a project id.");
+    }
+    return projectId;
+  }
+
+  @Nullable
+  public String tryGetProject() {
+    if (containsMacro(CloudVisionConstants.PROJECT) && Strings.isNullOrEmpty(project)) {
+      return null;
+    }
+    String projectId = project;
+    if (Strings.isNullOrEmpty(project) || CloudVisionConstants.AUTO_DETECT.equals(project)) {
+      projectId = ServiceOptions.getDefaultProjectId();
+    }
+    return projectId;
+  }
+
+  @Nullable
+  public String getServiceAccountFilePath() {
+    if (containsMacro(CloudVisionConstants.SERVICE_ACCOUNT_FILE_PATH) || Strings.isNullOrEmpty(serviceFilePath)
+      || CloudVisionConstants.AUTO_DETECT.equals(serviceFilePath)) {
+      return null;
+    }
+    return serviceFilePath;
+  }
+
   /**
    * Validates {@link FilePathSourceConfig} instance.
    *
@@ -148,6 +170,6 @@ public class FilePathSourceConfig extends PluginConfig {
       collector.addFailure("Path must be specified", null)
         .withConfigProperty(CloudVisionConstants.PATH);
     }
-    // TODO should we allow to specify single-string-field schema?
+    // TODO review
   }
 }

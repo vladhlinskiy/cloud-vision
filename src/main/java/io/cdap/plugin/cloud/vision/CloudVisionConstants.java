@@ -38,7 +38,7 @@ public class CloudVisionConstants {
 
   /**
    * Configuration property name used to specify path on the local file system of the service account key used for
-   * authorization.
+   * authorization. Can be set to {@value AUTO_DETECT} when running on a Dataproc cluster.
    */
   public static final String SERVICE_ACCOUNT_FILE_PATH = "serviceFilePath";
 
@@ -71,7 +71,14 @@ public class CloudVisionConstants {
   public static final String BATCH_SIZE = "batchSize";
 
   /**
-   * TODO
+   * {@link CloudVisionConstants#SERVICE_ACCOUNT_FILE_PATH} configuration property used to specify path on the local
+   * file system of the service account key used for authorization. Can be set to {@value AUTO_DETECT} when running on
+   * a Dataproc cluster.
    */
   public static final String AUTO_DETECT = "auto-detect";
+
+  /**
+   * File paths mapped to a record with a single {@value PATH_FIELD_NAME} string field.
+   */
+  public static final String PATH_FIELD_NAME = "path";
 }

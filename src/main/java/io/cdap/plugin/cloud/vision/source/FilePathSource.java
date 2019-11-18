@@ -84,8 +84,7 @@ public class FilePathSource extends BatchSource<NullWritable, String, Structured
   @Override
   public void initialize(BatchRuntimeContext context) throws Exception {
     super.initialize(context);
-    Schema schema = context.getOutputSchema();
-    this.transformer = new FilePathToRecordTransformer(config, schema);
+    this.transformer = new FilePathToRecordTransformer(config);
   }
 
   @Override
