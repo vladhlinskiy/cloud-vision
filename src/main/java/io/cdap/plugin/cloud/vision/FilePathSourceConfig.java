@@ -28,6 +28,7 @@ import io.cdap.plugin.common.Constants;
 import io.cdap.plugin.common.IdUtils;
 
 import java.time.Instant;
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 /**
@@ -75,19 +76,12 @@ public class FilePathSourceConfig extends PluginConfig {
 
   @Name(CloudVisionConstants.SPLIT_BY)
   @Description("Determines splitting mechanisms. Choose amongst default (uses the default splitting mechanism of " +
-    "file input format), batch size (by number of files in a batch), directory (by each sub directory).")
+    "file input format), directory (by each sub directory).")
   @Macro
-  @Nullable
   protected String splitBy;
 
-  @Name(CloudVisionConstants.BATCH_SIZE)
-  @Description("Specifies the number of files to process in a single batch.")
-  @Macro
-  @Nullable
-  protected Integer batchSize;
-
   public FilePathSourceConfig(String referenceName, String project, String serviceFilePath, String path,
-                              boolean recursive, String lastModified, String splitBy, Integer batchSize) {
+                              boolean recursive, String lastModified, String splitBy) {
     this.referenceName = referenceName;
     this.project = project;
     this.serviceFilePath = serviceFilePath;
@@ -95,7 +89,6 @@ public class FilePathSourceConfig extends PluginConfig {
     this.recursive = recursive;
     this.lastModified = lastModified;
     this.splitBy = splitBy;
-    this.batchSize = batchSize;
   }
 
   public String getReferenceName() {
@@ -120,14 +113,12 @@ public class FilePathSourceConfig extends PluginConfig {
     return Strings.isNullOrEmpty(lastModified) ? null : Instant.parse(lastModified).toEpochMilli();
   }
 
-  @Nullable
   public String getSplitBy() {
     return splitBy;
   }
 
-  @Nullable
-  public Integer getBatchSize() {
-    return batchSize;
+  public SplittingMechanism getSplittingMechanism() {
+    return Objects.requireNonNull(SplittingMechanism.fromDisplayName(splitBy));
   }
 
   public String getProject() {

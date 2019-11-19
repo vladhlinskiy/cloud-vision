@@ -66,11 +66,6 @@ public class CloudVisionConstants {
   public static final String SPLIT_BY = "splitBy";
 
   /**
-   * Configuration property name used to specify the number of files to process in a single batch.
-   */
-  public static final String BATCH_SIZE = "batchSize";
-
-  /**
    * {@link CloudVisionConstants#SERVICE_ACCOUNT_FILE_PATH} configuration property used to specify path on the local
    * file system of the service account key used for authorization. Can be set to {@value AUTO_DETECT} when running on
    * a Dataproc cluster.

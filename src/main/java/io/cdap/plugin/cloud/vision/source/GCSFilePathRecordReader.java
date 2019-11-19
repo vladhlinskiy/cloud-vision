@@ -25,15 +25,15 @@ import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 /**
  * RecordReader implementation, which reads names of files stored in GCS bucket.
  */
 public class GCSFilePathRecordReader extends RecordReader<NullWritable, String> {
+
   private static final Gson gson = new GsonBuilder().create();
 
-  private Iterator<String> iterator;
+  private GCSPathIterator iterator;
   private String value;
 
   /**
@@ -46,10 +46,15 @@ public class GCSFilePathRecordReader extends RecordReader<NullWritable, String> 
   public void initialize(InputSplit inputSplit, TaskAttemptContext taskAttemptContext) throws IOException {
     Configuration configuration = taskAttemptContext.getConfiguration();
     String confJson = configuration.get(FilePathInputFormatProvider.PROPERTY_CONFIG_JSON);
-    FilePathSourceConfig conf = gson.fromJson(confJson, FilePathSourceConfig.class);
-    // TODO splits
-    this.iterator = GCSFilePathIterator.create(conf.getProject(), conf.getServiceAccountFilePath(), conf.getPath(),
-                                               conf.getLastModifiedEpochMilli(), conf.isRecursive());
+    FilePathSourceConfig config = gson.fromJson(confJson, FilePathSourceConfig.class);
+
+    FilePathSplit split = (FilePathSplit) inputSplit;
+    this.iterator = GCSPathIterator.builder(split.getPath())
+      .setRecursive(split.isRecursive())
+      .setProject(config.getProject())
+      .setServiceAccountFilePath(config.getServiceAccountFilePath())
+      .setLastModifiedEpochMilli(config.getLastModifiedEpochMilli())
+      .build();
   }
 
   @Override

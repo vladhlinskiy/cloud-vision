@@ -24,24 +24,23 @@ import javax.annotation.Nullable;
 
 /**
  * Determines splitting mechanisms. Choose amongst default (uses the default splitting mechanism of file input format),
- * batch size (by number of files in a batch), directory (by each sub directory).
+ * directory (by each sub directory).
  */
-public enum SplitBy {
+public enum SplittingMechanism {
   DEFAULT("default"),
-  DIRECTORY("directory"),
-  BATCH_SIZE("batch");
+  DIRECTORY("directory");
 
-  private static final Map<String, SplitBy> byDisplayName = Arrays.stream(values())
-    .collect(Collectors.toMap(SplitBy::getDisplayName, Function.identity()));
+  private static final Map<String, SplittingMechanism> byDisplayName = Arrays.stream(values())
+    .collect(Collectors.toMap(SplittingMechanism::getDisplayName, Function.identity()));
 
   private final String displayName;
 
-  SplitBy(String displayName) {
+  SplittingMechanism(String displayName) {
     this.displayName = displayName;
   }
 
   @Nullable
-  public static SplitBy fromDisplayName(String displayName) {
+  public static SplittingMechanism fromDisplayName(String displayName) {
     return byDisplayName.get(displayName);
   }
 

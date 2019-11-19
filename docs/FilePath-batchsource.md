@@ -38,7 +38,4 @@ must be in the ISO-8601 format without the timezone offset (always ends in Z).
 Expected pattern: `yyyy-MM-dd'T'HH:mm:ss.SSSZ`, for example: `2019-10-02T13:12:55.123Z`.
 
 **Split By:** Determines splitting mechanisms. Choose amongst default (uses the default splitting mechanism of file
-input format), batch size (by number of files in a batch), directory (by each sub directory).
-
-**Batch Size:** Specifies the number of files to process in a single batch. Only required when Split By is set to batch
-size.
+input format), directory (by each sub directory).

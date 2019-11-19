@@ -90,18 +90,9 @@
               {
                 "id": "directory",
                 "label": "Directory"
-              },
-              {
-                "id": "batch",
-                "label": "Batch Size"
               }
             ]
           }
-        },
-        {
-          "widget-type": "number",
-          "label": "Batch Size",
-          "name": "batchSize"
         }
       ]
     }
@@ -119,22 +110,6 @@
           }
         ]
       }
-    }
-  ],
-  "filters": [
-    {
-      "name": "Split By Batch Size",
-      "condition": {
-        "property": "splitBy",
-        "operator": "equal to",
-        "value": "batch"
-      },
-      "show": [
-        {
-          "name": "batchSize",
-          "type": "property"
-        }
-      ]
     }
   ],
   "jump-config": {
