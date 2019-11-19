@@ -43,7 +43,7 @@
           "label": "Path",
           "name": "path",
           "widget-attributes": {
-            "placeholder": "Path to the directory where the files whose paths are to be emitted are located"
+            "placeholder": "gs://<bucket>/path/to/input/"
           }
         },
         {
@@ -67,7 +67,7 @@
           "label": "Last Modified After",
           "name": "lastModified",
           "widget-attributes": {
-            "placeholder": "Last modified date in format yyyy-MM-dd"
+            "placeholder": "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
           }
         }
       ]

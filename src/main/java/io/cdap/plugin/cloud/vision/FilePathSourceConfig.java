@@ -27,6 +27,7 @@ import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.plugin.common.Constants;
 import io.cdap.plugin.common.IdUtils;
 
+import java.time.Instant;
 import javax.annotation.Nullable;
 
 /**
@@ -112,6 +113,11 @@ public class FilePathSourceConfig extends PluginConfig {
   @Nullable
   public String getLastModified() {
     return lastModified;
+  }
+
+  @Nullable
+  public Long getLastModifiedEpochMilli() {
+    return Strings.isNullOrEmpty(lastModified) ? null : Instant.parse(lastModified).toEpochMilli();
   }
 
   @Nullable

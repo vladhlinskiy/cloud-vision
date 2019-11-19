@@ -22,8 +22,6 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,16 +34,20 @@ import javax.annotation.Nullable;
  */
 public class GCSFilePathIterator implements Iterator<String> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(GCSFilePathIterator.class);
-
+  @Nullable
+  private final Long lastModifiedEpochMilli;
   private final Iterator<Blob> blobIterator;
   private Blob value;
 
-  private GCSFilePathIterator(Iterator<Blob> blobIterator) {
+  private GCSFilePathIterator(Iterator<Blob> blobIterator, @Nullable Long lastModifiedEpochMilli) {
     this.blobIterator = blobIterator;
+    this.lastModifiedEpochMilli = lastModifiedEpochMilli;
   }
 
-  public static GCSFilePathIterator create(String project, @Nullable String serviceAccountFilePath, String path,
+  public static GCSFilePathIterator create(String project,
+                                           @Nullable String serviceAccountFilePath,
+                                           String path,
+                                           @Nullable Long lastModifiedEpochMilli,
                                            boolean isRecursive) throws IOException {
     Credentials credentials = serviceAccountFilePath == null ? null : loadCredentials(serviceAccountFilePath);
     Storage storage = getStorage(project, credentials);
@@ -54,7 +56,7 @@ public class GCSFilePathIterator implements Iterator<String> {
     Page<Blob> blobList = isRecursive ? bucket.list(Storage.BlobListOption.prefix(gcsPath.getName()))
       : bucket.list(Storage.BlobListOption.currentDirectory(), Storage.BlobListOption.prefix(gcsPath.getName()));
 
-    return new GCSFilePathIterator(blobList.iterateAll().iterator());
+    return new GCSFilePathIterator(blobList.iterateAll().iterator(), lastModifiedEpochMilli);
   }
 
   private static ServiceAccountCredentials loadCredentials(String path) throws IOException {
@@ -84,20 +86,38 @@ public class GCSFilePathIterator implements Iterator<String> {
     return blob.getName().endsWith("/");
   }
 
+  private String toPath(Blob blob) {
+    return String.format("gs://%s/%s", blob.getBucket(), blob.getName());
+  }
+
+  /**
+   * Checks whether specified blob must be skipped according to the last modified timestamp. Returns {@code true} if
+   * blob's last modification timestamp is less than or equal to the configured one.
+   *
+   * @param blob blob to check.
+   * @return {@code true} if blob's last modification timestamp is less than or equal to the configured one.
+   */
+  private boolean mustBeSkippedByTimestamp(Blob blob) {
+    if (lastModifiedEpochMilli == null || blob.getUpdateTime() == null) {
+      return false;
+    }
+    return blob.getUpdateTime() <= lastModifiedEpochMilli;
+  }
+
   @Override
   public boolean hasNext() {
     if (!blobIterator.hasNext()) {
       return false;
     }
     value = blobIterator.next();
-    while (isDirectory(value) && blobIterator.hasNext()) {
+    while ((isDirectory(value) || mustBeSkippedByTimestamp(value)) && blobIterator.hasNext()) {
       value = blobIterator.next();
     }
-    return !isDirectory(value);
+    return !isDirectory(value) && !mustBeSkippedByTimestamp(value);
   }
 
   @Override
   public String next() {
-    return String.format("gs://%s/%s", value.getBucket(), value.getName());
+    return toPath(value);
   }
 }

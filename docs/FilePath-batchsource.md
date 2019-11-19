@@ -33,7 +33,9 @@ Google Cloud Platform Console.
 
 **Recursive:** Whether the plugin should recursively traverse the directory for subdirectories.
 
-**Last Modified After:** A way to filter files to be returned based on their last modified timestamp.
+**Last Modified After:** A way to filter files to be returned based on their last modified timestamp. Timestamp string
+must be in the ISO-8601 format without the timezone offset (always ends in Z).
+Expected pattern: `yyyy-MM-dd'T'HH:mm:ss.SSSZ`, for example: `2019-10-02T13:12:55.123Z`.
 
 **Split By:** Determines splitting mechanisms. Choose amongst default (uses the default splitting mechanism of file
 input format), batch size (by number of files in a batch), directory (by each sub directory).

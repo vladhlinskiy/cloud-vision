@@ -44,12 +44,12 @@ public class GCSFilePathRecordReader extends RecordReader<NullWritable, String> 
    */
   @Override
   public void initialize(InputSplit inputSplit, TaskAttemptContext taskAttemptContext) throws IOException {
-    Configuration conf = taskAttemptContext.getConfiguration();
-    String confJson = conf.get(FilePathInputFormatProvider.PROPERTY_CONFIG_JSON);
-    FilePathSourceConfig config = gson.fromJson(confJson, FilePathSourceConfig.class);
+    Configuration configuration = taskAttemptContext.getConfiguration();
+    String confJson = configuration.get(FilePathInputFormatProvider.PROPERTY_CONFIG_JSON);
+    FilePathSourceConfig conf = gson.fromJson(confJson, FilePathSourceConfig.class);
     // TODO splits
-    this.iterator = GCSFilePathIterator.create(config.getProject(), config.getServiceAccountFilePath(),
-                                               config.getPath(), config.isRecursive());
+    this.iterator = GCSFilePathIterator.create(conf.getProject(), conf.getServiceAccountFilePath(), conf.getPath(),
+                                               conf.getLastModifiedEpochMilli(), conf.isRecursive());
   }
 
   @Override
