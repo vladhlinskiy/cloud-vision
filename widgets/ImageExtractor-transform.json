@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "spec-version": "1.5"
+  },
+  "display-name": "Image Extractor",
+  "configuration-groups": [
+    {
+      "label": "Basic",
+      "properties": [
+        {
+          "widget-type": "textbox",
+          "label": "Original Field",
+          "name": "original"
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Transformed Field",
+          "name": "transformed"
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "schema",
+      "widget-type": "schema",
+      "widget-attributes": {
+        "schema-types": [
+          "boolean",
+          "int",
+          "long",
+          "float",
+          "double",
+          "bytes",
+          "string",
+          "map<string, string>"
+        ],
+        "schema-default-type": "string"
+      }
+    }
+  ]
+}
