@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import javax.annotation.Nullable;
 
 /**
@@ -39,7 +40,10 @@ public class GCSPathIterator implements Iterator<String> {
   private final boolean skipDirectories;
   private final boolean skipFiles;
   private final Iterator<Blob> blobIterator;
+
+  private boolean currentPathReturned = false;
   private Blob value;
+
 
   private GCSPathIterator(Iterator<Blob> blobIterator, boolean skipDirectories, boolean skipFiles,
                           @Nullable Long lastModifiedEpochMilli) {
@@ -47,6 +51,7 @@ public class GCSPathIterator implements Iterator<String> {
     this.skipDirectories = skipDirectories;
     this.skipFiles = skipFiles;
     this.lastModifiedEpoch = lastModifiedEpochMilli;
+    this.currentPathReturned = true;
   }
 
   /**
@@ -95,6 +100,31 @@ public class GCSPathIterator implements Iterator<String> {
       return this;
     }
 
+    /**
+     * Blobs that represent bucket's top-level and empty directories will be included.
+     * Note, that non-empty nested directories will be skipped if {@link GCSPathIterator} instance created using
+     * {@link Builder#recursive()} along with this method. Can be used along with {@link Builder#skipFiles()}.
+     * <p>
+     * For example, an instance created using {@link Builder#recursive()} and {@link Builder#includeDirectories()}
+     * methods with the path pointing to the following bucket:
+     * <pre>
+     * * test-bucket
+     * ├── top-level-dir-1/
+     * │   └── ...
+     * ├── top-level-dir-2/
+     * │   ├── nested-empty-dir-2/
+     * │   ├── nested-non-empty-dir/
+     * │   │   └── ...
+     * │   └── ...
+     * ├── top-level-empty-dir/
+     * └── ...
+     * </pre>
+     * <p>
+     * will iterate over "top-level-dir-1/", "top-level-dir-2/", "nested-empty-dir-2/", "top-level-empty-dir/" and
+     * "nested-non-empty-dir/" directory blob will be skipped.
+     *
+     * @return {@link GCSPathIterator} instance to iterate over directories blobs.
+     */
     public Builder includeDirectories() {
       return setSkipDirectories(false);
     }
@@ -104,6 +134,11 @@ public class GCSPathIterator implements Iterator<String> {
       return this;
     }
 
+    /**
+     * Indicates that file blobs must be skipped.
+     *
+     * @return {@link GCSPathIterator} instance to iterate over only on directories blobs and skip file blobs.
+     */
     public Builder skipFiles() {
       return setSkipFiles(true);
     }
@@ -180,18 +215,25 @@ public class GCSPathIterator implements Iterator<String> {
 
   @Override
   public boolean hasNext() {
-    if (!blobIterator.hasNext()) {
-      return false;
-    }
-    value = blobIterator.next();
-    while ((mustBeSkippedByType(value) || mustBeSkippedByTimestamp(value)) && blobIterator.hasNext()) {
+    if (currentPathReturned) {
+      if (!blobIterator.hasNext()) {
+        return false;
+      }
       value = blobIterator.next();
+      while ((mustBeSkippedByType(value) || mustBeSkippedByTimestamp(value)) && blobIterator.hasNext()) {
+        value = blobIterator.next();
+      }
+      currentPathReturned = false;
     }
     return !mustBeSkippedByType(value) && !mustBeSkippedByTimestamp(value);
   }
 
   @Override
   public String next() {
+    if (!hasNext()) {
+      throw new NoSuchElementException("No more paths.");
+    }
+    currentPathReturned = true;
     return toPath(value);
   }
 }

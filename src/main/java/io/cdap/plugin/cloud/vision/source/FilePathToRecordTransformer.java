@@ -25,12 +25,6 @@ import io.cdap.plugin.cloud.vision.FilePathSourceConfig;
  */
 public class FilePathToRecordTransformer {
 
-  private final FilePathSourceConfig config;
-
-  public FilePathToRecordTransformer(FilePathSourceConfig config) {
-    this.config = config;
-  }
-
   /**
    * Transforms given {@link String} to {@link StructuredRecord}.
    *

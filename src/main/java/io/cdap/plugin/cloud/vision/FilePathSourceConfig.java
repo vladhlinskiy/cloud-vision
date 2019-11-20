@@ -28,6 +28,7 @@ import io.cdap.plugin.common.Constants;
 import io.cdap.plugin.common.IdUtils;
 
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -167,6 +168,23 @@ public class FilePathSourceConfig extends PluginConfig {
       collector.addFailure("Path must be specified", null)
         .withConfigProperty(CloudVisionConstants.PATH);
     }
-    // TODO review
+    if (!containsMacro(CloudVisionConstants.LAST_MODIFIED) && !Strings.isNullOrEmpty(lastModified)) {
+      try {
+        getLastModifiedEpochMilli();
+      } catch (DateTimeParseException e) {
+        collector.addFailure("Timestamp string is expected to be in the following format: " +
+                               "\"yyyy-MM-dd'T'HH:mm:ss.SSSZ\". For example: \"2019-10-02T13:12:55.123Z\".", null)
+          .withConfigProperty(CloudVisionConstants.LAST_MODIFIED);
+      }
+    }
+    if (!containsMacro(CloudVisionConstants.SPLIT_BY)) {
+      if (Strings.isNullOrEmpty(splitBy)) {
+        collector.addFailure("Splitting mechanism must be specified", null)
+          .withConfigProperty(CloudVisionConstants.SPLIT_BY);
+      } else if (SplittingMechanism.fromDisplayName(splitBy) == null) {
+        collector.addFailure("Invalid splitting mechanism name", null)
+          .withConfigProperty(CloudVisionConstants.SPLIT_BY);
+      }
+    }
   }
 }

@@ -73,7 +73,7 @@ public class FilePathSource extends BatchSource<NullWritable, String, Structured
     Schema schema = context.getOutputSchema();
     LineageRecorder lineageRecorder = new LineageRecorder(context, config.getReferenceName());
     lineageRecorder.createExternalDataset(schema);
-    lineageRecorder.recordRead("Read", String.format("Read path 's' from GCP.", config.getPath()),
+    lineageRecorder.recordRead("Read", String.format("Read path 's' from GCS.", config.getPath()),
                                Preconditions.checkNotNull(schema.getFields()).stream()
                                  .map(Schema.Field::getName)
                                  .collect(Collectors.toList()));
@@ -84,7 +84,7 @@ public class FilePathSource extends BatchSource<NullWritable, String, Structured
   @Override
   public void initialize(BatchRuntimeContext context) throws Exception {
     super.initialize(context);
-    this.transformer = new FilePathToRecordTransformer(config);
+    this.transformer = new FilePathToRecordTransformer();
   }
 
   @Override
