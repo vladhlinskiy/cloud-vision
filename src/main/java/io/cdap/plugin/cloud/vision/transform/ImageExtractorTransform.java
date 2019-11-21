@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 Cask Data, Inc.
+ * Copyright © 2019 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,18 +16,21 @@
 
 package io.cdap.plugin.cloud.vision.transform;
 
+import com.google.cloud.vision.v1.AnnotateImageResponse;
 import io.cdap.cdap.api.annotation.Description;
-import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.cdap.api.plugin.PluginConfig;
 import io.cdap.cdap.etl.api.Emitter;
+import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.cdap.etl.api.PipelineConfigurer;
+import io.cdap.cdap.etl.api.StageConfigurer;
 import io.cdap.cdap.etl.api.StageSubmitterContext;
 import io.cdap.cdap.etl.api.Transform;
 import io.cdap.cdap.etl.api.TransformContext;
+import io.cdap.plugin.cloud.vision.transform.transformer.FaceAnnotationsToRecordTransformer;
+import io.cdap.plugin.cloud.vision.transform.transformer.ImageAnnotationToRecordTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,94 +40,83 @@ import java.util.List;
  * extract enrichments from each image based on selected features.
  */
 @Plugin(type = Transform.PLUGIN_TYPE)
-@Name(ImageExtractorTransform.NAME)
-@Description(ImageExtractorTransform.DESCRIPTION)
+@Name(ImageExtractorConstants.PLUGIN_NAME)
+@Description("Extracts enrichments from each image based on selected features.")
 public class ImageExtractorTransform extends Transform<StructuredRecord, StructuredRecord> {
 
-  public static final String NAME = "ImageExtractor";
-  public static final String DESCRIPTION = "Extracts enrichments from each image based on selected features.";
+  private CloudVisionClient cloudVisionClient;
+  private ImageAnnotationToRecordTransformer transformer;
+  private ImageExtractorTransformConfig config;
 
-  private SpeechTransformConfig config;
-  private Schema outputSchema = null;
+  public ImageExtractorTransform(ImageExtractorTransformConfig config) {
+    this.config = config;
+  }
 
   @Override
   public void configurePipeline(PipelineConfigurer configurer) throws IllegalArgumentException {
     super.configurePipeline(configurer);
     Schema inputSchema = configurer.getStageConfigurer().getInputSchema();
-//    config.validate(inputSchema);
-    configurer.getStageConfigurer().setOutputSchema(getSchema(inputSchema));
+    StageConfigurer stageConfigurer = configurer.getStageConfigurer();
+    FailureCollector collector = stageConfigurer.getFailureCollector();
+    config.validate(collector);
+    collector.getOrThrowException();
+    Schema schema = getSchema(inputSchema);
+    Schema configuredSchema = config.getParsedSchema();
+    if (configuredSchema == null) {
+      configurer.getStageConfigurer().setOutputSchema(schema);
+      return;
+    }
+    ImageExtractorTransformConfig.validateFieldsMatch(schema, configuredSchema, collector);
+    collector.getOrThrowException();
+    configurer.getStageConfigurer().setOutputSchema(configuredSchema);
+//    configurer.getStageConfigurer().setErrorSchema(ERROR_SCHEMA);
   }
 
   @Override
   public void prepareRun(StageSubmitterContext context) throws Exception {
     super.prepareRun(context);
-//    config.validate(context.getInputSchema());
+    FailureCollector collector = context.getFailureCollector();
+    config.validate(collector);
+    collector.getOrThrowException();
   }
 
   @Override
   public void initialize(TransformContext context) throws Exception {
     super.initialize(context);
-    outputSchema = context.getOutputSchema();
+    Schema schema = context.getOutputSchema();
+    // todo create transformed according to the feature type
+    transformer = new FaceAnnotationsToRecordTransformer(schema, config.getOutputField());
+    cloudVisionClient = new CloudVisionClient(config);
   }
 
   @Override
-  public void transform(StructuredRecord input, Emitter<StructuredRecord> emitter) {
-    // if an output schema is available then use it or else use the schema for the given input record
-    Schema currentSchema;
-    if (outputSchema != null) {
-      currentSchema = outputSchema;
-    } else {
-      currentSchema = getSchema(input.getSchema());
-    }
-
-    StructuredRecord.Builder outputBuilder = StructuredRecord.builder(currentSchema);
-    String orig = input.get(config.originalField);
-    outputBuilder.set(config.transformedField, orig == null ? "" : new StringBuilder(orig).reverse().toString());
-    copyFields(input, outputBuilder);
-
-    emitter.emit(outputBuilder.build());
+  public void transform(StructuredRecord input, Emitter<StructuredRecord> emitter) throws Exception {
+    String imagePath = input.get(config.getPathField());
+    AnnotateImageResponse response = cloudVisionClient.extractFaces(imagePath);
+    StructuredRecord transformed = transformer.transform(input, response);
+    emitter.emit(transformed);
   }
 
   @Override
   public void destroy() {
     super.destroy();
-    // TODO
-  }
-
-  private Schema getSchema(Schema inputSchema) {
-    // TODO move to the config, perform validation
-    List<Schema.Field> fields = new ArrayList<>();
-    if (inputSchema.getFields() != null) {
-      fields.addAll(inputSchema.getFields());
-    }
-    fields.add(Schema.Field.of(config.transformedField, Schema.nullableOf(Schema.of(Schema.Type.STRING))));
-
-    return Schema.recordOf("record", fields);
-  }
-
-  private void copyFields(StructuredRecord input, StructuredRecord.Builder outputBuilder) {
-    // copy other schema field values
-    List<Schema.Field> fields = input.getSchema().getFields();
-    if (fields != null) {
-      for (Schema.Field field : fields) {
-        outputBuilder.set(field.getName(), input.get(field.getName()));
+    if (cloudVisionClient != null) {
+      try {
+        cloudVisionClient.close();
+      } catch (Exception e) {
+        // no-op
       }
     }
   }
 
-
-  private static class SpeechTransformConfig extends PluginConfig {
-
-    @Macro
-    @Description("The name of the field to be transformed.")
-    @Name("original")
-    private String originalField;
-
-    @Macro
-    @Description("The name of the field to store transformation result.")
-    @Name("transformed")
-    private String transformedField;
-
-    // TODO
+  private Schema getSchema(Schema inputSchema) {
+    List<Schema.Field> fields = new ArrayList<>();
+    if (inputSchema.getFields() != null) {
+      fields.addAll(inputSchema.getFields());
+    }
+    // TODO infer schema according to the specified feature type
+    fields.add(Schema.Field.of(config.getOutputField(), Schema.arrayOf(ImageExtractorConstants.FaceAnnotation.SCHEMA)));
+    return Schema.recordOf("record", fields);
   }
+
 }
