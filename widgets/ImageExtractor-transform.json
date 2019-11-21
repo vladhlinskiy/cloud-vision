@@ -9,13 +9,36 @@
       "properties": [
         {
           "widget-type": "textbox",
-          "label": "Original Field",
-          "name": "original"
+          "label": "Service Account File Path",
+          "name": "serviceFilePath",
+          "widget-attributes": {
+            "default": "auto-detect"
+          }
         },
         {
           "widget-type": "textbox",
-          "label": "Transformed Field",
-          "name": "transformed"
+          "label": "Project ID",
+          "name": "project",
+          "widget-attributes": {
+            "default": "auto-detect"
+          },
+          "plugin-function": {
+            "label": "Browse",
+            "widget": "connection-browser",
+            "widget-attributes": {
+              "connectionType": "GCS"
+            }
+          }
+        },
+        {
+          "widget-type": "input-field-selector",
+          "label": "Path Field",
+          "name": "pathField"
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Output Field",
+          "name": "outputField"
         }
       ]
     }
