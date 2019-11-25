@@ -27,6 +27,7 @@ import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.plugin.cloud.vision.CloudVisionConstants;
 
 import java.io.IOException;
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 /**
@@ -49,18 +50,21 @@ public class ImageExtractorTransformConfig extends PluginConfig {
   @Nullable
   protected String serviceFilePath;
 
-  // TODO features and feature-specific configs
-
   @Name(ImageExtractorConstants.PATH_FIELD)
   @Description("Field in the input schema containing the path to the image.")
   @Macro
   protected String pathField;
 
   @Name(ImageExtractorConstants.OUTPUT_FIELD)
-  @Description("The field to store the extracted image features. If the specified output field name already exists " +
+  @Description("Field to store the extracted image features. If the specified output field name already exists " +
     "in the input record, it will be overwritten.")
   @Macro
   protected String outputField;
+
+  @Name(ImageExtractorConstants.FEATURES)
+  @Description("Features to extract from images.")
+  @Macro
+  protected String features;
 
   @Name(ImageExtractorConstants.SCHEMA)
   @Description("Schema of records output by the transform.")
@@ -68,11 +72,12 @@ public class ImageExtractorTransformConfig extends PluginConfig {
   private String schema;
 
   public ImageExtractorTransformConfig(String project, String serviceFilePath, String pathField, String outputField,
-                                       String schema) {
+                                       String features, String schema) {
     this.project = project;
     this.serviceFilePath = serviceFilePath;
     this.pathField = pathField;
     this.outputField = outputField;
+    this.features = features;
     this.schema = schema;
   }
 
@@ -89,9 +94,17 @@ public class ImageExtractorTransformConfig extends PluginConfig {
     return outputField;
   }
 
+  public String getFeatures() {
+    return features;
+  }
+
   @Nullable
   public String getSchema() {
     return schema;
+  }
+
+  public ImageFeature getImageFeature() {
+    return Objects.requireNonNull(ImageFeature.fromDisplayName(features));
   }
 
   /**

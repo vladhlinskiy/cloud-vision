@@ -17,6 +17,7 @@
 package io.cdap.plugin.cloud.vision.transform;
 
 import com.google.cloud.vision.v1.AnnotateImageResponse;
+import com.google.cloud.vision.v1.Feature;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
@@ -29,8 +30,8 @@ import io.cdap.cdap.etl.api.StageConfigurer;
 import io.cdap.cdap.etl.api.StageSubmitterContext;
 import io.cdap.cdap.etl.api.Transform;
 import io.cdap.cdap.etl.api.TransformContext;
-import io.cdap.plugin.cloud.vision.transform.transformer.FaceAnnotationsToRecordTransformer;
 import io.cdap.plugin.cloud.vision.transform.transformer.ImageAnnotationToRecordTransformer;
+import io.cdap.plugin.cloud.vision.transform.transformer.TransformerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,7 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
   private CloudVisionClient cloudVisionClient;
   private ImageAnnotationToRecordTransformer transformer;
   private ImageExtractorTransformConfig config;
+  private Schema inputSchema;
 
   public ImageExtractorTransform(ImageExtractorTransformConfig config) {
     this.config = config;
@@ -55,12 +57,12 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
   @Override
   public void configurePipeline(PipelineConfigurer configurer) throws IllegalArgumentException {
     super.configurePipeline(configurer);
-    Schema inputSchema = configurer.getStageConfigurer().getInputSchema();
+    inputSchema = configurer.getStageConfigurer().getInputSchema();
     StageConfigurer stageConfigurer = configurer.getStageConfigurer();
     FailureCollector collector = stageConfigurer.getFailureCollector();
     config.validate(collector);
     collector.getOrThrowException();
-    Schema schema = getSchema(inputSchema);
+    Schema schema = getSchema();
     Schema configuredSchema = config.getParsedSchema();
     if (configuredSchema == null) {
       configurer.getStageConfigurer().setOutputSchema(schema);
@@ -84,15 +86,15 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
   public void initialize(TransformContext context) throws Exception {
     super.initialize(context);
     Schema schema = context.getOutputSchema();
-    // todo create transformed according to the feature type
-    transformer = new FaceAnnotationsToRecordTransformer(schema, config.getOutputField());
+    transformer = TransformerFactory.createInstance(config, schema);
     cloudVisionClient = new CloudVisionClient(config);
   }
 
   @Override
   public void transform(StructuredRecord input, Emitter<StructuredRecord> emitter) throws Exception {
     String imagePath = input.get(config.getPathField());
-    AnnotateImageResponse response = cloudVisionClient.extractFaces(imagePath);
+    Feature.Type featureType = config.getImageFeature().getFeatureType();
+    AnnotateImageResponse response = cloudVisionClient.extractFeature(imagePath, featureType);
     StructuredRecord transformed = transformer.transform(input, response);
     emitter.emit(transformed);
   }
@@ -109,14 +111,13 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
     }
   }
 
-  private Schema getSchema(Schema inputSchema) {
+  public Schema getSchema() {
     List<Schema.Field> fields = new ArrayList<>();
     if (inputSchema.getFields() != null) {
       fields.addAll(inputSchema.getFields());
     }
-    // TODO infer schema according to the specified feature type
-    fields.add(Schema.Field.of(config.getOutputField(), Schema.arrayOf(ImageExtractorConstants.FaceAnnotation.SCHEMA)));
+
+    fields.add(Schema.Field.of(config.getOutputField(), config.getImageFeature().getSchema()));
     return Schema.recordOf("record", fields);
   }
-
 }

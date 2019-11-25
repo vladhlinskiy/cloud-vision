@@ -31,6 +31,29 @@
           }
         },
         {
+          "name": "features",
+          "label": "Features",
+          "widget-type": "select",
+          "widget-attributes": {
+            "default": "Face",
+            "values": [
+              "Face",
+              "Text",
+              "Handwriting",
+              "Crop Hints",
+              "Image Properties",
+              "Labels",
+              "Landmarks",
+              "Logos",
+              "Multiple Objects",
+              "Explicit Content",
+              "Web Detection",
+              "Product Search",
+              "Object Localization"
+            ]
+          }
+        },
+        {
           "widget-type": "input-field-selector",
           "label": "Path Field",
           "name": "pathField"
@@ -38,7 +61,16 @@
         {
           "widget-type": "textbox",
           "label": "Output Field",
-          "name": "outputField"
+          "name": "outputField",
+          "plugin-function": {
+            "widget": "outputSchema",
+            "output-property": "schema",
+            "omit-properties": [
+              {
+                "name": "schema"
+              }
+            ]
+          }
         }
       ]
     }

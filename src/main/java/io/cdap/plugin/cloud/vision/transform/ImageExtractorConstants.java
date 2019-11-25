@@ -43,6 +43,11 @@ public class ImageExtractorConstants {
   public static final String OUTPUT_FIELD = "outputField";
 
   /**
+   * Configuration property name used to specify the features to extract from images.
+   */
+  public static final String FEATURES = "features";
+
+  /**
    * Configuration property name used to specify schema of records output by the transform.
    */
   public static final String SCHEMA = "schema";
@@ -73,6 +78,19 @@ public class ImageExtractorConstants {
       Schema.Field.of(ANGER_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(JOY_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(SURPRISE_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)));
+  }
+
+  /**
+   * TODO document
+   */
+  public static class TextAnnotation {
+    public static final String DESCRIPTION_FIELD_NAME = "description";
+    public static final String POSITION_FIELD_NAME = "position";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "text-annotation-component-record",
+      Schema.Field.of(DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)));
   }
 }
