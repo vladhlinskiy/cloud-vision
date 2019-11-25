@@ -32,7 +32,8 @@ public enum ImageFeature {
 
   FACE("Face", Feature.Type.FACE_DETECTION, Schema.arrayOf(ImageExtractorConstants.FaceAnnotation.SCHEMA)),
   TEXT("Text", Feature.Type.TEXT_DETECTION, Schema.arrayOf(ImageExtractorConstants.TextAnnotation.SCHEMA)),
-  HANDWRITING("Handwriting", null, null),
+  HANDWRITING("Handwriting", Feature.Type.DOCUMENT_TEXT_DETECTION,
+              ImageExtractorConstants.HandwritingAnnotation.SCHEMA),
   CROP_HINTS("Crop Hints", null, null),
   IMAGE_PROPERTIES("Image Properties", null, null),
   LABELS("Labels", null, null),
