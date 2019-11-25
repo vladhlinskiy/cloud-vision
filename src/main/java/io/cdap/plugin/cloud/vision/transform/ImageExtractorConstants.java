@@ -175,4 +175,15 @@ public class ImageExtractorConstants {
       Schema.Field.of(TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(PAGES_FIELD_NAME, Schema.arrayOf(TextPage.SCHEMA)));
   }
+
+  /**
+   * TODO document
+   */
+  public static class CropHintAnnotation {
+    public static final String POSITION_FIELD_NAME = "position";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "crop-hint-annotation-component-record",
+      Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)));
+  }
 }
