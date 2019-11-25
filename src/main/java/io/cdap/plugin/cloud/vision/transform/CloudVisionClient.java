@@ -46,13 +46,13 @@ public class CloudVisionClient implements AutoCloseable {
     this.config = config;
   }
 
-  public AnnotateImageResponse extractFaces(String gcsPath) throws Exception {
+  public AnnotateImageResponse extractFeature(String gcsPath, Feature.Type featureType) throws Exception {
     ensureClientInitialized();
 
     List<AnnotateImageRequest> requests = new ArrayList<>();
     ImageSource imgSource = ImageSource.newBuilder().setGcsImageUri(gcsPath).build();
     Image img = Image.newBuilder().setSource(imgSource).build();
-    Feature feat = Feature.newBuilder().setType(Feature.Type.FACE_DETECTION).build();
+    Feature feat = Feature.newBuilder().setType(featureType).build();
 
     AnnotateImageRequest request =
       AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
@@ -64,7 +64,6 @@ public class CloudVisionClient implements AutoCloseable {
     // todo avoid hardcode. investigate an ability using batches
     return responses.get(0);
   }
-
 
   private void ensureClientInitialized() throws IOException {
     if (client != null) {
