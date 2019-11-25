@@ -93,4 +93,86 @@ public class ImageExtractorConstants {
       Schema.Field.of(DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)));
   }
+
+  /**
+   * TODO document
+   */
+  public static class TextSymbol {
+    public static final String TEXT_FIELD_NAME = "text";
+    public static final String CONFIDENCE_FIELD_NAME = "confidence";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "document-text-page-symbol-record",
+      Schema.Field.of(TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
+  }
+
+  /**
+   * TODO document
+   */
+  public static class TextWord {
+    public static final String TEXT_FIELD_NAME = "text";
+    public static final String CONFIDENCE_FIELD_NAME = "confidence";
+    public static final String SYMBOLS_FIELD_NAME = "symbols";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "document-text-page-word-record",
+      Schema.Field.of(TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(SYMBOLS_FIELD_NAME, Schema.arrayOf(TextSymbol.SCHEMA)));
+  }
+
+  /**
+   * TODO document
+   */
+  public static class TextParagraph {
+    public static final String TEXT_FIELD_NAME = "text";
+    public static final String CONFIDENCE_FIELD_NAME = "confidence";
+    public static final String WORDS_FIELD_NAME = "words";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "document-text-page-paragraph-record",
+      Schema.Field.of(TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(WORDS_FIELD_NAME, Schema.arrayOf(TextWord.SCHEMA)));
+  }
+
+  /**
+   * TODO document
+   */
+  public static class TextBlock {
+    public static final String TEXT_FIELD_NAME = "text";
+    public static final String PARAGRAPHS_FIELD_NAME = "paragraphs";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "document-text-page-block-record",
+      Schema.Field.of(TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(PARAGRAPHS_FIELD_NAME, Schema.arrayOf(TextParagraph.SCHEMA)));
+  }
+
+  /**
+   * TODO document
+   */
+  public static class TextPage {
+    public static final String TEXT_FIELD_NAME = "text";
+    public static final String BLOCKS_FIELD_NAME = "blocks";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "document-text-page-record",
+      Schema.Field.of(TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(BLOCKS_FIELD_NAME, Schema.arrayOf(TextBlock.SCHEMA)));
+  }
+
+  /**
+   * TODO document
+   */
+  public static class HandwritingAnnotation {
+    public static final String TEXT_FIELD_NAME = "text";
+    public static final String PAGES_FIELD_NAME = "pages";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "document-text-annotation-component-record",
+      Schema.Field.of(TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(PAGES_FIELD_NAME, Schema.arrayOf(TextPage.SCHEMA)));
+  }
 }

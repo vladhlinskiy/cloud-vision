@@ -29,6 +29,8 @@ public class TransformerFactory {
         return new FaceAnnotationsToRecordTransformer(schema, config.getOutputField());
       case TEXT:
         return new TextAnnotationsToRecordTransformer(schema, config.getOutputField());
+      case HANDWRITING:
+        return new DocumentTextAnnotationsToRecordTransformer(schema, config.getOutputField());
       default:
         throw new IllegalArgumentException(String.format("Unsupported image feature: '%s'", config.getImageFeature()));
     }
