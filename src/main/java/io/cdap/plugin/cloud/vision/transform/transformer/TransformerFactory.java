@@ -31,6 +31,8 @@ public class TransformerFactory {
         return new TextAnnotationsToRecordTransformer(schema, config.getOutputField());
       case HANDWRITING:
         return new DocumentTextAnnotationsToRecordTransformer(schema, config.getOutputField());
+      case CROP_HINTS:
+        return new CropHintsAnnotationsToRecordTransformer(schema, config.getOutputField());
       default:
         throw new IllegalArgumentException(String.format("Unsupported image feature: '%s'", config.getImageFeature()));
     }
