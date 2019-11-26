@@ -35,6 +35,8 @@ public class TransformerFactory {
         return new CropHintsAnnotationsToRecordTransformer(schema, config.getOutputField());
       case IMAGE_PROPERTIES:
         return new ImagePropertiesAnnotationsToRecordTransformer(schema, config.getOutputField());
+      case LABELS:
+        return new LabelAnnotationsToRecordTransformer(schema, config.getOutputField());
       default:
         throw new IllegalArgumentException(String.format("Unsupported image feature: '%s'", config.getImageFeature()));
     }
