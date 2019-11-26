@@ -86,6 +86,9 @@ public class CloudVisionClient implements AutoCloseable {
 
   @Override
   public void close() throws Exception {
-
+    if (client != null) {
+      // TODO check if exception may be thrown
+      client.close();
+    }
   }
 }
