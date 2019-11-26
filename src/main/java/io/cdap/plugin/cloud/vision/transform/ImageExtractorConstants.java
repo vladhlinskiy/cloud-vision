@@ -186,4 +186,23 @@ public class ImageExtractorConstants {
       "crop-hint-annotation-component-record",
       Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)));
   }
+
+  /**
+   * TODO document
+   */
+  public static class ColorInfo {
+    public static final String PIXEL_FRACTION_FIELD_NAME = "pixelFraction";
+    public static final String SCORE_FIELD_NAME = "score";
+    public static final String RED_FIELD_NAME = "red";
+    public static final String GREEN_FIELD_NAME = "green";
+    public static final String BLUE_FIELD_NAME = "blue";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "dominant-colors-annotation-component-record",
+      Schema.Field.of(PIXEL_FRACTION_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(RED_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(GREEN_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(BLUE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
+  }
 }
