@@ -45,11 +45,10 @@
               "Labels",
               "Landmarks",
               "Logos",
-              "Multiple Objects",
+              "Object Localization",
               "Explicit Content",
               "Web Detection",
-              "Product Search",
-              "Object Localization"
+              "Product Search"
             ]
           }
         },

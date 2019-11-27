@@ -263,4 +263,25 @@ public class ImageExtractorConstants {
       Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA))
     );
   }
+
+  /**
+   * TODO document
+   */
+  public static class LocalizedObjectAnnotation {
+    /**
+     * TODO document
+     */
+    public static final String MID_FIELD_NAME = "mid";
+    public static final String NAME_FIELD_NAME = "name";
+    public static final String SCORE_FIELD_NAME = "score";
+    public static final String POSITION_FIELD_NAME = "position";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "localized-object-annotation-component-record",
+      Schema.Field.of(MID_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(NAME_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA))
+    );
+  }
 }
