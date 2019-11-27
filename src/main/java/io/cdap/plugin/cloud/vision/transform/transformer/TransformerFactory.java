@@ -39,6 +39,8 @@ public class TransformerFactory {
         return new LabelAnnotationsToRecordTransformer(schema, config.getOutputField());
       case LANDMARKS:
         return new LandmarkAnnotationsToRecordTransformer(schema, config.getOutputField());
+      case LOGOS:
+        return new LogoAnnotationsToRecordTransformer(schema, config.getOutputField());
       default:
         throw new IllegalArgumentException(String.format("Unsupported image feature: '%s'", config.getImageFeature()));
     }
