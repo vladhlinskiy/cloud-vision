@@ -231,7 +231,7 @@ public class ImageExtractorConstants {
     public static final String DESCRIPTION_FIELD_NAME = "description";
     public static final String SCORE_FIELD_NAME = "score";
     public static final String POSITION_FIELD_NAME = "position";
-    public static final String LOCATION_INFO_FIELD_NAME = "locationInfo";
+    public static final String LOCATION_FIELD_NAME = "locationInfo";
 
     public static final Schema SCHEMA = Schema.recordOf(
       "landmark-annotation-component-record",
@@ -239,7 +239,28 @@ public class ImageExtractorConstants {
       Schema.Field.of(DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
       Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)),
-      Schema.Field.of(LOCATION_INFO_FIELD_NAME, Schema.arrayOf(LandmarkLocation.SCHEMA))
+      Schema.Field.of(LOCATION_FIELD_NAME, Schema.arrayOf(LandmarkLocation.SCHEMA))
+    );
+  }
+
+  /**
+   * TODO document
+   */
+  public static class LogoAnnotation {
+    /**
+     * TODO document
+     */
+    public static final String MID_FIELD_NAME = "mid";
+    public static final String DESCRIPTION_FIELD_NAME = "description";
+    public static final String SCORE_FIELD_NAME = "score";
+    public static final String POSITION_FIELD_NAME = "position";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "logo-annotation-component-record",
+      Schema.Field.of(MID_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA))
     );
   }
 }

@@ -52,8 +52,8 @@ public class LandmarkAnnotationsToRecordTransformer extends ImageAnnotationToRec
   }
 
   private StructuredRecord extractLandmarkAnnotationRecord(EntityAnnotation annotation) {
-    // here we retrieve landmark annotation schema instead of using constant schema since users are free to choose to not
-    // include some of the fields
+    // here we retrieve landmark annotation schema instead of using constant schema since users are free to choose to
+    // not include some of the fields
     Schema landmarkSchema = getLandmarkAnnotationSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(landmarkSchema);
 
@@ -67,12 +67,12 @@ public class LandmarkAnnotationsToRecordTransformer extends ImageAnnotationToRec
       builder.set(ImageExtractorConstants.LandmarkAnnotation.SCORE_FIELD_NAME, annotation.getScore());
     }
 
-    Schema.Field positionField = landmarkSchema.getField(ImageExtractorConstants.LandmarkAnnotation.POSITION_FIELD_NAME);
-    if (positionField != null) {
+    Schema.Field posField = landmarkSchema.getField(ImageExtractorConstants.LandmarkAnnotation.POSITION_FIELD_NAME);
+    if (posField != null) {
       // here we retrieve schema instead of using constant schema since users are free to choose to not include some of
       // the fields
-      Schema positionArraySchema = positionField.getSchema().isNullable() ? positionField.getSchema().getNonNullable()
-        : positionField.getSchema();
+      Schema positionArraySchema = posField.getSchema().isNullable() ? posField.getSchema().getNonNullable()
+        : posField.getSchema();
       Schema positionSchema = positionArraySchema.getComponentSchema().isNullable()
         ? positionArraySchema.getComponentSchema().getNonNullable()
         : positionArraySchema.getComponentSchema();
@@ -83,7 +83,7 @@ public class LandmarkAnnotationsToRecordTransformer extends ImageAnnotationToRec
       builder.set(ImageExtractorConstants.LandmarkAnnotation.POSITION_FIELD_NAME, position);
     }
 
-    Schema.Field locField = landmarkSchema.getField(ImageExtractorConstants.LandmarkAnnotation.LOCATION_INFO_FIELD_NAME);
+    Schema.Field locField = landmarkSchema.getField(ImageExtractorConstants.LandmarkAnnotation.LOCATION_FIELD_NAME);
     if (locField != null) {
       // here we retrieve schema instead of using constant schema since users are free to choose to not include some of
       // the fields
@@ -96,7 +96,7 @@ public class LandmarkAnnotationsToRecordTransformer extends ImageAnnotationToRec
       List<StructuredRecord> location = annotation.getLocationsList().stream()
         .map(v -> extractLocation(v, locationSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.LandmarkAnnotation.LOCATION_INFO_FIELD_NAME, location);
+      builder.set(ImageExtractorConstants.LandmarkAnnotation.LOCATION_FIELD_NAME, location);
     }
 
     return builder.build();

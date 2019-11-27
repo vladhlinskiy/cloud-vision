@@ -53,7 +53,7 @@ public enum ImageFeature {
     Feature.Type.LANDMARK_DETECTION,
     Schema.arrayOf(ImageExtractorConstants.LandmarkAnnotation.SCHEMA)
   ),
-  LOGOS("Logos", null, null),
+  LOGOS("Logos", Feature.Type.LOGO_DETECTION, Schema.arrayOf(ImageExtractorConstants.LogoAnnotation.SCHEMA)),
   MULTIPLE_OBJECTS("Multiple Objects", null, null),
   EXPLICIT_CONTENT("Explicit Content", null, null),
   WEB_DETECTION("Web Detection", null, null),
