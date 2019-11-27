@@ -60,7 +60,11 @@ public enum ImageFeature {
     Feature.Type.OBJECT_LOCALIZATION,
     Schema.arrayOf(ImageExtractorConstants.LocalizedObjectAnnotation.SCHEMA)
   ),
-  EXPLICIT_CONTENT("Explicit Content", null, null),
+  EXPLICIT_CONTENT(
+    "Explicit Content",
+    Feature.Type.SAFE_SEARCH_DETECTION,
+    ImageExtractorConstants.SafeSearchAnnotation.SCHEMA
+  ),
   WEB_DETECTION("Web Detection", null, null);
 
   private static final Map<String, ImageFeature> byDisplayName = Arrays.stream(values())

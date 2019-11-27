@@ -284,4 +284,24 @@ public class ImageExtractorConstants {
       Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA))
     );
   }
+
+  /**
+   * TODO document
+   */
+  public static class SafeSearchAnnotation {
+    public static final String ADULT_FIELD_NAME = "adult";
+    public static final String SPOOF_FIELD_NAME = "spoof";
+    public static final String MEDICAL_FIELD_NAME = "medical";
+    public static final String VIOLENCE_FIELD_NAME = "violence";
+    public static final String RACY_FIELD_NAME = "racy";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "safe-search-annotation-record",
+      Schema.Field.of(ADULT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(SPOOF_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(MEDICAL_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(VIOLENCE_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(RACY_FIELD_NAME, Schema.of(Schema.Type.STRING))
+    );
+  }
 }
