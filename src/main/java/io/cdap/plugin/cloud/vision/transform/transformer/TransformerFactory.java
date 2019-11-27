@@ -43,6 +43,8 @@ public class TransformerFactory {
         return new LogoAnnotationsToRecordTransformer(schema, config.getOutputField());
       case OBJECT_LOCALIZATION:
         return new LocalizedObjectAnnotationsToRecordTransformer(schema, config.getOutputField());
+      case EXPLICIT_CONTENT:
+        return new SafeSearchAnnotationsToRecordTransformer(schema, config.getOutputField());
       default:
         throw new IllegalArgumentException(String.format("Unsupported image feature: '%s'", config.getImageFeature()));
     }

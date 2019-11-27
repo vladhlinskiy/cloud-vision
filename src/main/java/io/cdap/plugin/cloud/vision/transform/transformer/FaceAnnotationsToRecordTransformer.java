@@ -57,13 +57,14 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
     StructuredRecord.Builder builder = StructuredRecord.builder(faceSchema);
 
     if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.ANGER_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.FaceAnnotation.ANGER_FIELD_NAME, annotation.getAngerLikelihood());
+      builder.set(ImageExtractorConstants.FaceAnnotation.ANGER_FIELD_NAME, annotation.getAngerLikelihood().name());
     }
     if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.JOY_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.FaceAnnotation.JOY_FIELD_NAME, annotation.getJoyLikelihood());
+      builder.set(ImageExtractorConstants.FaceAnnotation.JOY_FIELD_NAME, annotation.getJoyLikelihood().name());
     }
     if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.SURPRISE_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.FaceAnnotation.SURPRISE_FIELD_NAME, annotation.getSurpriseLikelihood());
+      String surprise = annotation.getSurpriseLikelihood().name();
+      builder.set(ImageExtractorConstants.FaceAnnotation.SURPRISE_FIELD_NAME, surprise);
     }
     Schema.Field positionField = faceSchema.getField(ImageExtractorConstants.FaceAnnotation.POSITION_FIELD_NAME);
     if (positionField != null) {
