@@ -304,4 +304,88 @@ public class ImageExtractorConstants {
       Schema.Field.of(RACY_FIELD_NAME, Schema.of(Schema.Type.STRING))
     );
   }
+
+  /**
+   * TODO document
+   */
+  public static class WebEntity {
+    public static final String ENTITY_ID_FIELD_NAME = "entityId";
+    public static final String SCORE_FIELD_NAME = "score";
+    public static final String DESCRIPTION_FIELD_NAME = "description";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "web-entity-record",
+      Schema.Field.of(ENTITY_ID_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING))
+    );
+  }
+
+  /**
+   * TODO document
+   */
+  public static class PageWithMatchingImages {
+    public static final String URL_FIELD_NAME = "url";
+    public static final String PAGE_TITLE_FIELD_NAME = "pageTitle";
+    public static final String SCORE_FIELD_NAME = "score";
+    public static final String FULL_MATCHING_IMAGES_FIELD_NAME = "fullMatchingImages";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "page-with-matching-images-record",
+      Schema.Field.of(URL_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(PAGE_TITLE_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(FULL_MATCHING_IMAGES_FIELD_NAME, Schema.arrayOf(WebImage.SCHEMA))
+    );
+  }
+
+  /**
+   * TODO document
+   */
+  public static class BestGuessLabel {
+    public static final String LABEL_FIELD_NAME = "label";
+    public static final String LANGUAGE_CODE_FIELD_NAME = "languageCode";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "best-guess-label-record",
+      Schema.Field.of(LABEL_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(LANGUAGE_CODE_FIELD_NAME, Schema.of(Schema.Type.STRING))
+    );
+  }
+
+  /**
+   * TODO document
+   */
+  public static class WebImage {
+    public static final String URL_FIELD_NAME = "url";
+    public static final String SCORE_FIELD_NAME = "score";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "web-image-record",
+      Schema.Field.of(URL_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT))
+    );
+  }
+
+  /**
+   * TODO document
+   */
+  public static class WebDetection {
+    public static final String ENTITIES_FIELD_NAME = "webEntities";
+    public static final String FULL_MATCHING_IMAGES_FIELD_NAME = "fullMatchingImages";
+    public static final String PARTIAL_MATCHING_IMAGES_FIELD_NAME = "partialMatchingImages";
+    public static final String PAGES_WITH_MATCHING_IMAGES_FIELD_NAME = "pagesWithMatchingImages";
+    public static final String VISUALLY_SIMILAR_IMAGES = "visuallySimilarImages";
+    public static final String BEST_GUESS_LABELS_FIELD_NAME = "bestGuessLabels";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "web-detection-record",
+      Schema.Field.of(ENTITIES_FIELD_NAME, Schema.arrayOf(WebEntity.SCHEMA)),
+      Schema.Field.of(FULL_MATCHING_IMAGES_FIELD_NAME, Schema.arrayOf(WebImage.SCHEMA)),
+      Schema.Field.of(PARTIAL_MATCHING_IMAGES_FIELD_NAME, Schema.arrayOf(WebImage.SCHEMA)),
+      Schema.Field.of(PAGES_WITH_MATCHING_IMAGES_FIELD_NAME, Schema.arrayOf(PageWithMatchingImages.SCHEMA)),
+      Schema.Field.of(VISUALLY_SIMILAR_IMAGES, Schema.arrayOf(WebImage.SCHEMA)),
+      Schema.Field.of(BEST_GUESS_LABELS_FIELD_NAME, Schema.arrayOf(BestGuessLabel.SCHEMA))
+    );
+  }
 }

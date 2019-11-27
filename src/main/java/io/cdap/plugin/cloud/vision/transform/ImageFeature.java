@@ -65,7 +65,8 @@ public enum ImageFeature {
     Feature.Type.SAFE_SEARCH_DETECTION,
     ImageExtractorConstants.SafeSearchAnnotation.SCHEMA
   ),
-  WEB_DETECTION("Web Detection", null, null);
+  WEB_DETECTION("Web Detection", Feature.Type.WEB_DETECTION, ImageExtractorConstants.WebDetection.SCHEMA),
+  PRODUCT_SEARCH("Product Search", Feature.Type.PRODUCT_SEARCH, null);
 
   private static final Map<String, ImageFeature> byDisplayName = Arrays.stream(values())
     .collect(Collectors.toMap(ImageFeature::getDisplayName, Function.identity()));
