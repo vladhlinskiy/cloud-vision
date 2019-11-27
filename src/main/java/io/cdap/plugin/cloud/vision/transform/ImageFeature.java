@@ -54,10 +54,14 @@ public enum ImageFeature {
     Schema.arrayOf(ImageExtractorConstants.LandmarkAnnotation.SCHEMA)
   ),
   LOGOS("Logos", Feature.Type.LOGO_DETECTION, Schema.arrayOf(ImageExtractorConstants.LogoAnnotation.SCHEMA)),
-  MULTIPLE_OBJECTS("Multiple Objects", null, null),
+  // Object localization is used to detect multiple objects
+  OBJECT_LOCALIZATION(
+    "Object Localization",
+    Feature.Type.OBJECT_LOCALIZATION,
+    Schema.arrayOf(ImageExtractorConstants.LocalizedObjectAnnotation.SCHEMA)
+  ),
   EXPLICIT_CONTENT("Explicit Content", null, null),
-  WEB_DETECTION("Web Detection", null, null),
-  OBJECT_LOCALIZATION("Object Localization", null, null);
+  WEB_DETECTION("Web Detection", null, null);
 
   private static final Map<String, ImageFeature> byDisplayName = Arrays.stream(values())
     .collect(Collectors.toMap(ImageFeature::getDisplayName, Function.identity()));
