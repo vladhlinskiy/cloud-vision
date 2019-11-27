@@ -32,14 +32,27 @@ public enum ImageFeature {
 
   FACE("Face", Feature.Type.FACE_DETECTION, Schema.arrayOf(ImageExtractorConstants.FaceAnnotation.SCHEMA)),
   TEXT("Text", Feature.Type.TEXT_DETECTION, Schema.arrayOf(ImageExtractorConstants.TextAnnotation.SCHEMA)),
-  HANDWRITING("Handwriting", Feature.Type.DOCUMENT_TEXT_DETECTION,
-              ImageExtractorConstants.HandwritingAnnotation.SCHEMA),
   CROP_HINTS("Crop Hints", Feature.Type.CROP_HINTS, Schema.arrayOf(ImageExtractorConstants.CropHintAnnotation.SCHEMA)),
-  IMAGE_PROPERTIES("Image Properties", Feature.Type.IMAGE_PROPERTIES,
-                   Schema.arrayOf(ImageExtractorConstants.ColorInfo.SCHEMA)),
-  LABELS("Labels", Feature.Type.LABEL_DETECTION,
-         Schema.arrayOf(Schema.mapOf(Schema.of(Schema.Type.STRING), Schema.of(Schema.Type.STRING)))),
-  LANDMARKS("Landmarks", null, null),
+  HANDWRITING(
+    "Handwriting",
+    Feature.Type.DOCUMENT_TEXT_DETECTION,
+    ImageExtractorConstants.HandwritingAnnotation.SCHEMA
+  ),
+  IMAGE_PROPERTIES(
+    "Image Properties",
+    Feature.Type.IMAGE_PROPERTIES,
+    Schema.arrayOf(ImageExtractorConstants.ColorInfo.SCHEMA)
+  ),
+  LABELS(
+    "Labels",
+    Feature.Type.LABEL_DETECTION,
+    Schema.arrayOf(Schema.mapOf(Schema.of(Schema.Type.STRING), Schema.of(Schema.Type.STRING)))
+  ),
+  LANDMARKS(
+    "Landmarks",
+    Feature.Type.LANDMARK_DETECTION,
+    Schema.arrayOf(ImageExtractorConstants.LandmarkAnnotation.SCHEMA)
+  ),
   LOGOS("Logos", null, null),
   MULTIPLE_OBJECTS("Multiple Objects", null, null),
   EXPLICIT_CONTENT("Explicit Content", null, null),
