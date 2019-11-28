@@ -31,64 +31,42 @@ import com.google.cloud.vision.v1.ImageSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 /**
  * Provides handy methods to access Google Cloud Vision.
  */
-public class CloudVisionClient implements AutoCloseable {
+public class CloudVisionClient {
+
+  private static final int SINGLE_RESPONSE_INDEX = 0;
 
   private final ImageExtractorTransformConfig config;
-  private ImageAnnotatorClient client;
 
   public CloudVisionClient(ImageExtractorTransformConfig config) {
     this.config = config;
   }
 
   public AnnotateImageResponse extractFeature(String gcsPath, Feature.Type featureType) throws Exception {
-    ensureClientInitialized();
-
-    List<AnnotateImageRequest> requests = new ArrayList<>();
-    ImageSource imgSource = ImageSource.newBuilder().setGcsImageUri(gcsPath).build();
-    Image img = Image.newBuilder().setSource(imgSource).build();
-    Feature feat = Feature.newBuilder().setType(featureType).build();
-
-    AnnotateImageRequest request =
-      AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
-    requests.add(request);
-
-    BatchAnnotateImagesResponse response = client.batchAnnotateImages(requests);
-    List<AnnotateImageResponse> responses = response.getResponsesList();
-
-    // todo avoid hardcode. investigate an ability using batches
-    return responses.get(0);
-  }
-
-  private void ensureClientInitialized() throws IOException {
-    if (client != null) {
-      return;
-    }
-
     Credentials credentials = loadServiceAccountCredentials(config.getServiceFilePath());
     ImageAnnotatorSettings imageAnnotatorSettings = ImageAnnotatorSettings.newBuilder()
       .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
       .build();
-    client = ImageAnnotatorClient.create(imageAnnotatorSettings);
+    try (ImageAnnotatorClient client = ImageAnnotatorClient.create(imageAnnotatorSettings)) {
+      ImageSource imgSource = ImageSource.newBuilder().setGcsImageUri(gcsPath).build();
+      Image img = Image.newBuilder().setSource(imgSource).build();
+      Feature feature = Feature.newBuilder().setType(featureType).build();
+
+      AnnotateImageRequest request = AnnotateImageRequest.newBuilder().addFeatures(feature).setImage(img).build();
+      BatchAnnotateImagesResponse response = client.batchAnnotateImages(Collections.singletonList(request));
+
+      return response.getResponses(SINGLE_RESPONSE_INDEX);
+    }
   }
 
   private ServiceAccountCredentials loadServiceAccountCredentials(String path) throws IOException {
     File credentialsPath = new File(path);
     try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
       return ServiceAccountCredentials.fromStream(serviceAccountStream);
-    }
-  }
-
-  @Override
-  public void close() throws Exception {
-    if (client != null) {
-      // TODO check if exception may be thrown
-      client.close();
     }
   }
 }
