@@ -18,7 +18,6 @@ package io.cdap.plugin.cloud.vision.transform.transformer;
 
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.FaceAnnotation;
-import com.google.cloud.vision.v1.Vertex;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
@@ -51,8 +50,6 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
   }
 
   private StructuredRecord extractFaceAnnotationRecord(FaceAnnotation annotation) {
-    // here we retrieve face annotation schema instead of using constant schema since users are free to choose to not
-    // include some of the fields
     Schema faceSchema = getFaceAnnotationSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(faceSchema);
     if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.ROLL_ANGLE_FIELD_NAME) != null) {
@@ -141,18 +138,6 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
     return builder.build();
   }
 
-  private StructuredRecord extractVertex(Vertex vertex, Schema schema) {
-    StructuredRecord.Builder builder = StructuredRecord.builder(schema);
-    if (schema.getField(ImageExtractorConstants.Vertex.X_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.Vertex.X_FIELD_NAME, vertex.getX());
-    }
-    if (schema.getField(ImageExtractorConstants.Vertex.Y_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.Vertex.Y_FIELD_NAME, vertex.getY());
-    }
-
-    return builder.build();
-  }
-
   private StructuredRecord extractLandmark(FaceAnnotation.Landmark landmark, Schema schema) {
     StructuredRecord.Builder builder = StructuredRecord.builder(schema);
     if (schema.getField(ImageExtractorConstants.FaceLandmark.TYPE_FIELD_NAME) != null) {
@@ -172,7 +157,8 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
   }
 
   /**
-   * Retrieves Face Annotation's non-nullable component schema.
+   * Retrieves Face Annotation's non-nullable component schema. Face Annotation's schema is retrieved instead of using
+   * constant schema since users are free to choose to not include some of the fields.
    *
    * @return Face Annotation's non-nullable component schema.
    */

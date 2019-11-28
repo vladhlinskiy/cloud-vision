@@ -221,14 +221,29 @@ public class ImageExtractorConstants extends CloudVisionConstants {
   }
 
   /**
-   * TODO document
+   * {@link com.google.cloud.vision.v1.EntityAnnotation} mapped to a record with following fields.
    */
   public static class TextAnnotation {
+
+    /**
+     * The language code for the locale in which the entity textual {@value TextAnnotation#DESCRIPTION_FIELD_NAME} is
+     * expressed.
+     */
+    public static final String LOCALE_FIELD_NAME = "locale";
+
+    /**
+     * Entity textual description, expressed in its {@value TextAnnotation#LOCALE_FIELD_NAME} language.
+     */
     public static final String DESCRIPTION_FIELD_NAME = "description";
+
+    /**
+     * Image region to which this entity belongs.
+     */
     public static final String POSITION_FIELD_NAME = "position";
 
     public static final Schema SCHEMA = Schema.recordOf(
       "text-annotation-component-record",
+      Schema.Field.of(LOCALE_FIELD_NAME, Schema.nullableOf(Schema.of(Schema.Type.STRING))),
       Schema.Field.of(DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)));
   }
