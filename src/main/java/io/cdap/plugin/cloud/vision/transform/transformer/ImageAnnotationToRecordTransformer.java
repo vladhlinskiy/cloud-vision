@@ -17,8 +17,10 @@
 package io.cdap.plugin.cloud.vision.transform.transformer;
 
 import com.google.cloud.vision.v1.AnnotateImageResponse;
+import com.google.cloud.vision.v1.Vertex;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
+import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
 
 
 /**
@@ -78,5 +80,17 @@ public abstract class ImageAnnotationToRecordTransformer {
     }
 
     return outputRecordBuilder;
+  }
+
+  protected StructuredRecord extractVertex(Vertex vertex, Schema schema) {
+    StructuredRecord.Builder builder = StructuredRecord.builder(schema);
+    if (schema.getField(ImageExtractorConstants.Vertex.X_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.Vertex.X_FIELD_NAME, vertex.getX());
+    }
+    if (schema.getField(ImageExtractorConstants.Vertex.Y_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.Vertex.Y_FIELD_NAME, vertex.getY());
+    }
+
+    return builder.build();
   }
 }

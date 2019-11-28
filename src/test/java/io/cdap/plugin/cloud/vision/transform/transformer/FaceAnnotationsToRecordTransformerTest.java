@@ -17,11 +17,9 @@
 package io.cdap.plugin.cloud.vision.transform.transformer;
 
 import com.google.cloud.vision.v1.AnnotateImageResponse;
-import com.google.cloud.vision.v1.BoundingPoly;
 import com.google.cloud.vision.v1.FaceAnnotation;
 import com.google.cloud.vision.v1.Likelihood;
 import com.google.cloud.vision.v1.Position;
-import com.google.cloud.vision.v1.Vertex;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
@@ -29,30 +27,12 @@ import io.cdap.plugin.cloud.vision.transform.ImageFeature;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * {@link FaceAnnotationsToRecordTransformer} test.
  */
-public class FaceAnnotationsToRecordTransformerTest {
-
-  private static final Schema INPUT_RECORD_SCHEMA = Schema.recordOf(
-    "input-record-schema",
-    Schema.Field.of("path", Schema.of(Schema.Type.STRING)));
-
-  private static final StructuredRecord INPUT_RECORD = StructuredRecord.builder(INPUT_RECORD_SCHEMA)
-    .set("path", "gs://dummy/image.png")
-    .build();
-
-  private static final BoundingPoly POSITION = BoundingPoly.newBuilder()
-    .addAllVertices(Arrays.asList(
-      Vertex.newBuilder().setX(0).setY(0).build(),
-      Vertex.newBuilder().setX(100).setY(0).build(),
-      Vertex.newBuilder().setX(100).setY(100).build(),
-      Vertex.newBuilder().setX(0).setY(100).build()
-    ))
-    .build();
+public class FaceAnnotationsToRecordTransformerTest extends BaseAnnotationsToRecordTransformerTest {
 
   private static final FaceAnnotation FACE_ANNOTATION = FaceAnnotation.newBuilder()
     .setAngerLikelihood(Likelihood.UNLIKELY)
@@ -80,9 +60,6 @@ public class FaceAnnotationsToRecordTransformerTest {
     .addFaceAnnotations(FACE_ANNOTATION)
     .build();
 
-  private static final int SINGLE_FEATURE_INDEX = 0;
-  private static final double DELTA = 0.0001;
-
   @Test
   @SuppressWarnings("ConstantConditions")
   public void testTransform() {
@@ -104,7 +81,7 @@ public class FaceAnnotationsToRecordTransformerTest {
 
   @Test
   @SuppressWarnings("ConstantConditions")
-  public void testTransformEmptyFaceAnnotation() {
+  public void testTransformEmptyAnnotation() {
     String outputFieldName = "extracted";
     Schema schema = Schema.recordOf("transformed-record-schema",
                                     Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
@@ -188,18 +165,6 @@ public class FaceAnnotationsToRecordTransformerTest {
     assertPositionEqual(expected.getFdBoundingPoly(), fdPosition);
     List<StructuredRecord> landmarks = actual.get(ImageExtractorConstants.FaceAnnotation.LANDMARKS_FIELD_NAME);
     assertLandmarksEqual(expected.getLandmarksList(), landmarks);
-  }
-
-  private void assertPositionEqual(BoundingPoly expected, List<StructuredRecord> actual) {
-    Assert.assertNotNull(actual);
-    for (int i = 0; i < expected.getVerticesList().size(); i++) {
-      Vertex expectedVertex = expected.getVertices(i);
-      StructuredRecord actualVertex = actual.get(i);
-      Assert.assertNotNull(actualVertex);
-
-      Assert.assertEquals(expectedVertex.getX(), (int) actualVertex.get(ImageExtractorConstants.Vertex.X_FIELD_NAME));
-      Assert.assertEquals(expectedVertex.getY(), (int) actualVertex.get(ImageExtractorConstants.Vertex.Y_FIELD_NAME));
-    }
   }
 
   private void assertLandmarksEqual(List<FaceAnnotation.Landmark> expected, List<StructuredRecord> actual) {

@@ -114,7 +114,7 @@ public class WebDetectionToRecordTransformer extends ImageAnnotationToRecordTran
         .collect(Collectors.toList());
       builder.set(ImageExtractorConstants.WebDetection.PAGES_WITH_MATCHING_IMAGES_FIELD_NAME, pages);
     }
-    // TODO pages
+
     Schema.Field visuallySimilarImagesField =
       webDetectionSchema.getField(ImageExtractorConstants.WebDetection.VISUALLY_SIMILAR_IMAGES);
     if (visuallySimilarImagesField != null) {

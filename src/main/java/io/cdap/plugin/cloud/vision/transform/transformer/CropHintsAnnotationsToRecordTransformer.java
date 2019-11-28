@@ -18,7 +18,6 @@ package io.cdap.plugin.cloud.vision.transform.transformer;
 
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.CropHint;
-import com.google.cloud.vision.v1.Vertex;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
@@ -69,18 +68,6 @@ public class CropHintsAnnotationsToRecordTransformer extends ImageAnnotationToRe
         .map(v -> extractVertex(v, positionSchema))
         .collect(Collectors.toList());
       builder.set(ImageExtractorConstants.CropHintAnnotation.POSITION_FIELD_NAME, position);
-    }
-
-    return builder.build();
-  }
-
-  private StructuredRecord extractVertex(Vertex vertex, Schema schema) {
-    StructuredRecord.Builder builder = StructuredRecord.builder(schema);
-    if (schema.getField(ImageExtractorConstants.Vertex.X_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.Vertex.X_FIELD_NAME, vertex.getX());
-    }
-    if (schema.getField(ImageExtractorConstants.Vertex.Y_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.Vertex.Y_FIELD_NAME, vertex.getY());
     }
 
     return builder.build();
