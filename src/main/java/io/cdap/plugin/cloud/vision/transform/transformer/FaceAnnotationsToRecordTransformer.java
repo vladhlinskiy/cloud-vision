@@ -55,12 +55,42 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
     // include some of the fields
     Schema faceSchema = getFaceAnnotationSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(faceSchema);
-
+    if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.ROLL_ANGLE_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.FaceAnnotation.ROLL_ANGLE_FIELD_NAME, annotation.getRollAngle());
+    }
+    if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.PAN_ANGLE_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.FaceAnnotation.PAN_ANGLE_FIELD_NAME, annotation.getPanAngle());
+    }
+    if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.TILT_ANGLE_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.FaceAnnotation.TILT_ANGLE_FIELD_NAME, annotation.getTiltAngle());
+    }
+    if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.DETECTION_CONFIDENCE_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.FaceAnnotation.DETECTION_CONFIDENCE_FIELD_NAME,
+                  annotation.getDetectionConfidence());
+    }
+    if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.LANDMARKING_CONFIDENCE_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.FaceAnnotation.LANDMARKING_CONFIDENCE_FIELD_NAME,
+                  annotation.getLandmarkingConfidence());
+    }
     if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.ANGER_FIELD_NAME) != null) {
       builder.set(ImageExtractorConstants.FaceAnnotation.ANGER_FIELD_NAME, annotation.getAngerLikelihood().name());
     }
     if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.JOY_FIELD_NAME) != null) {
       builder.set(ImageExtractorConstants.FaceAnnotation.JOY_FIELD_NAME, annotation.getJoyLikelihood().name());
+    }
+    if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.BLURRED_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.FaceAnnotation.BLURRED_FIELD_NAME, annotation.getBlurredLikelihood().name());
+    }
+    if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.SORROW_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.FaceAnnotation.SORROW_FIELD_NAME, annotation.getSorrowLikelihood().name());
+    }
+    if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.UNDER_EXPOSED_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.FaceAnnotation.UNDER_EXPOSED_FIELD_NAME,
+                  annotation.getUnderExposedLikelihood().name());
+    }
+    if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.HEADWEAR_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.FaceAnnotation.HEADWEAR_FIELD_NAME,
+                  annotation.getHeadwearLikelihood().name());
     }
     if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.SURPRISE_FIELD_NAME) != null) {
       String surprise = annotation.getSurpriseLikelihood().name();
@@ -68,8 +98,6 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
     }
     Schema.Field positionField = faceSchema.getField(ImageExtractorConstants.FaceAnnotation.POSITION_FIELD_NAME);
     if (positionField != null) {
-      // here we retrieve schema instead of using constant schema since users are free to choose to not include some of
-      // the fields
       Schema positionArraySchema = positionField.getSchema().isNullable() ? positionField.getSchema().getNonNullable()
         : positionField.getSchema();
       Schema positionSchema = positionArraySchema.getComponentSchema().isNullable()
@@ -80,6 +108,34 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
         .map(v -> extractVertex(v, positionSchema))
         .collect(Collectors.toList());
       builder.set(ImageExtractorConstants.FaceAnnotation.POSITION_FIELD_NAME, position);
+    }
+    Schema.Field fdPositionField = faceSchema.getField(ImageExtractorConstants.FaceAnnotation.FD_POSITION_FIELD_NAME);
+    if (fdPositionField != null) {
+      Schema positionArraySchema = fdPositionField.getSchema().isNullable()
+        ? fdPositionField.getSchema().getNonNullable()
+        : fdPositionField.getSchema();
+      Schema positionSchema = positionArraySchema.getComponentSchema().isNullable()
+        ? positionArraySchema.getComponentSchema().getNonNullable()
+        : positionArraySchema.getComponentSchema();
+
+      List<StructuredRecord> position = annotation.getFdBoundingPoly().getVerticesList().stream()
+        .map(v -> extractVertex(v, positionSchema))
+        .collect(Collectors.toList());
+      builder.set(ImageExtractorConstants.FaceAnnotation.FD_POSITION_FIELD_NAME, position);
+    }
+    Schema.Field landmarksField = faceSchema.getField(ImageExtractorConstants.FaceAnnotation.LANDMARKS_FIELD_NAME);
+    if (landmarksField != null) {
+      Schema landmarkArraySchema = landmarksField.getSchema().isNullable()
+        ? landmarksField.getSchema().getNonNullable()
+        : landmarksField.getSchema();
+      Schema landmarkSchema = landmarkArraySchema.getComponentSchema().isNullable()
+        ? landmarkArraySchema.getComponentSchema().getNonNullable()
+        : landmarkArraySchema.getComponentSchema();
+
+      List<StructuredRecord> position = annotation.getLandmarksList().stream()
+        .map(v -> extractLandmark(v, landmarkSchema))
+        .collect(Collectors.toList());
+      builder.set(ImageExtractorConstants.FaceAnnotation.LANDMARKS_FIELD_NAME, position);
     }
 
     return builder.build();
@@ -92,6 +148,24 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
     }
     if (schema.getField(ImageExtractorConstants.Vertex.Y_FIELD_NAME) != null) {
       builder.set(ImageExtractorConstants.Vertex.Y_FIELD_NAME, vertex.getY());
+    }
+
+    return builder.build();
+  }
+
+  private StructuredRecord extractLandmark(FaceAnnotation.Landmark landmark, Schema schema) {
+    StructuredRecord.Builder builder = StructuredRecord.builder(schema);
+    if (schema.getField(ImageExtractorConstants.FaceLandmark.TYPE_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.FaceLandmark.TYPE_FIELD_NAME, landmark.getType());
+    }
+    if (schema.getField(ImageExtractorConstants.FaceLandmark.X_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.FaceLandmark.X_FIELD_NAME, landmark.getPosition().getX());
+    }
+    if (schema.getField(ImageExtractorConstants.FaceLandmark.Y_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.FaceLandmark.Y_FIELD_NAME, landmark.getPosition().getY());
+    }
+    if (schema.getField(ImageExtractorConstants.FaceLandmark.Z_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.FaceLandmark.Z_FIELD_NAME, landmark.getPosition().getZ());
     }
 
     return builder.build();
