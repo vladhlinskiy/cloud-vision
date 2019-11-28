@@ -50,6 +50,11 @@ public class ImageExtractorConstants extends CloudVisionConstants {
   public static final String FEATURES = "features";
 
   /**
+   * Configuration property name used to specify hints to detect the language of the text in the images.
+   */
+  public static final String LANGUAGE_HINTS = "languageHints";
+
+  /**
    * Configuration property name used to specify schema of records output by the transform.
    */
   public static final String SCHEMA = "schema";

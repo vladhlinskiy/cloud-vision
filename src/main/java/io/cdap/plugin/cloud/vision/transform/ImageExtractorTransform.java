@@ -17,7 +17,6 @@
 package io.cdap.plugin.cloud.vision.transform;
 
 import com.google.cloud.vision.v1.AnnotateImageResponse;
-import com.google.cloud.vision.v1.Feature;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
@@ -94,8 +93,7 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
   @Override
   public void transform(StructuredRecord input, Emitter<StructuredRecord> emitter) throws Exception {
     String imagePath = input.get(config.getPathField());
-    Feature.Type featureType = config.getImageFeature().getFeatureType();
-    AnnotateImageResponse response = cloudVisionClient.extractFeature(imagePath, featureType);
+    AnnotateImageResponse response = cloudVisionClient.extractFeature(imagePath);
     StructuredRecord transformed = transformer.transform(input, response);
     emitter.emit(transformed);
   }

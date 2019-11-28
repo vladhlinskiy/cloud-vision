@@ -24,9 +24,12 @@ import javax.annotation.Nullable;
  */
 public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageExtractorConfigBuilder> {
 
-  protected String pathField;
-  protected String outputField;
-  protected String features;
+  private String pathField;
+  private String outputField;
+  private String features;
+
+  @Nullable
+  private String languageHints;
 
   @Nullable
   private String schema;
@@ -42,6 +45,7 @@ public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageE
       .setPathField(original.getPathField())
       .setOutputField(original.getOutputField())
       .setFeatures(original.getFeatures())
+      .setLanguageHints(original.getLanguageHints())
       .setSchema(original.getSchema());
   }
 
@@ -60,12 +64,18 @@ public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageE
     return this;
   }
 
+  public ImageExtractorConfigBuilder setLanguageHints(@Nullable String languageHints) {
+    this.languageHints = languageHints;
+    return this;
+  }
+
   public ImageExtractorConfigBuilder setSchema(@Nullable String schema) {
     this.schema = schema;
     return this;
   }
 
   public ImageExtractorTransformConfig build() {
-    return new ImageExtractorTransformConfig(project, serviceFilePath, pathField, outputField, features, schema);
+    return new ImageExtractorTransformConfig(project, serviceFilePath, pathField, outputField, features, languageHints,
+                                             schema);
   }
 }

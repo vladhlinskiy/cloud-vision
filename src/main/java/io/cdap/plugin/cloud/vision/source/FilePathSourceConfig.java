@@ -47,24 +47,24 @@ public class FilePathSourceConfig extends CloudVisionConfig {
   @Name(FilePathSourceConstants.PATH)
   @Description("The path to the directory where the files whose paths are to be emitted are located.")
   @Macro
-  protected String path;
+  private String path;
 
   @Name(FilePathSourceConstants.RECURSIVE)
   @Description("Whether the plugin should recursively traverse the directory for subdirectories.")
   @Macro
-  protected boolean recursive;
+  private boolean recursive;
 
   @Name(FilePathSourceConstants.LAST_MODIFIED)
   @Description("A way to filter files to be returned based on their last modified timestamp.")
   @Macro
   @Nullable
-  protected String lastModified;
+  private String lastModified;
 
   @Name(FilePathSourceConstants.SPLIT_BY)
   @Description("Determines splitting mechanisms. Choose amongst default (uses the default splitting mechanism of " +
     "file input format), directory (by each sub directory).")
   @Macro
-  protected String splitBy;
+  private String splitBy;
 
   public FilePathSourceConfig(String project, String serviceFilePath, String referenceName, String path,
                               boolean recursive, String lastModified, String splitBy) {
