@@ -14,7 +14,7 @@
  * the License.
  */
 
-package io.cdap.plugin.cloud.vision;
+package io.cdap.plugin.cloud.vision.source;
 
 import java.util.Arrays;
 import java.util.Map;

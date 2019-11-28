@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.cdap.cdap.api.data.batch.InputFormatProvider;
-import io.cdap.plugin.cloud.vision.FilePathSourceConfig;
 
 import java.util.Map;
 

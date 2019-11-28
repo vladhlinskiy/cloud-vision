@@ -17,8 +17,6 @@ package io.cdap.plugin.cloud.vision.source;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.cdap.plugin.cloud.vision.FilePathSourceConfig;
-import io.cdap.plugin.cloud.vision.SplittingMechanism;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.InputFormat;
