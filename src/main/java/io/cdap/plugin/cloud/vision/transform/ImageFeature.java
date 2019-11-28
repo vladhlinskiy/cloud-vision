@@ -66,6 +66,7 @@ public enum ImageFeature {
     ImageExtractorConstants.SafeSearchAnnotation.SCHEMA
   ),
   WEB_DETECTION("Web Detection", Feature.Type.WEB_DETECTION, ImageExtractorConstants.WebDetection.SCHEMA),
+  // TODO Product Search support
   PRODUCT_SEARCH("Product Search", Feature.Type.PRODUCT_SEARCH, null);
 
   private static final Map<String, ImageFeature> byDisplayName = Arrays.stream(values())

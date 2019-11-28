@@ -71,6 +71,7 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
     ImageExtractorTransformConfig.validateFieldsMatch(schema, configuredSchema, collector);
     collector.getOrThrowException();
     configurer.getStageConfigurer().setOutputSchema(configuredSchema);
+    // TODO
 //    configurer.getStageConfigurer().setErrorSchema(ERROR_SCHEMA);
   }
 
@@ -97,18 +98,6 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
     AnnotateImageResponse response = cloudVisionClient.extractFeature(imagePath, featureType);
     StructuredRecord transformed = transformer.transform(input, response);
     emitter.emit(transformed);
-  }
-
-  @Override
-  public void destroy() {
-    super.destroy();
-    if (cloudVisionClient != null) {
-      try {
-        cloudVisionClient.close();
-      } catch (Exception e) {
-        // no-op
-      }
-    }
   }
 
   public Schema getSchema() {
