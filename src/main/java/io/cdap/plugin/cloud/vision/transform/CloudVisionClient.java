@@ -16,6 +16,7 @@
 
 package io.cdap.plugin.cloud.vision.transform;
 
+import com.google.api.client.util.Strings;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
@@ -26,6 +27,7 @@ import com.google.cloud.vision.v1.Feature;
 import com.google.cloud.vision.v1.Image;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.cloud.vision.v1.ImageAnnotatorSettings;
+import com.google.cloud.vision.v1.ImageContext;
 import com.google.cloud.vision.v1.ImageSource;
 
 import java.io.File;
@@ -46,7 +48,7 @@ public class CloudVisionClient {
     this.config = config;
   }
 
-  public AnnotateImageResponse extractFeature(String gcsPath, Feature.Type featureType) throws Exception {
+  public AnnotateImageResponse extractFeature(String gcsPath) throws Exception {
     Credentials credentials = loadServiceAccountCredentials(config.getServiceFilePath());
     ImageAnnotatorSettings imageAnnotatorSettings = ImageAnnotatorSettings.newBuilder()
       .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
@@ -54,10 +56,15 @@ public class CloudVisionClient {
     try (ImageAnnotatorClient client = ImageAnnotatorClient.create(imageAnnotatorSettings)) {
       ImageSource imgSource = ImageSource.newBuilder().setGcsImageUri(gcsPath).build();
       Image img = Image.newBuilder().setSource(imgSource).build();
-      Feature feature = Feature.newBuilder().setType(featureType).build();
 
-      AnnotateImageRequest request = AnnotateImageRequest.newBuilder().addFeatures(feature).setImage(img).build();
-      BatchAnnotateImagesResponse response = client.batchAnnotateImages(Collections.singletonList(request));
+      Feature.Type featureType = config.getImageFeature().getFeatureType();
+      Feature feature = Feature.newBuilder().setType(featureType).build();
+      AnnotateImageRequest.Builder request = AnnotateImageRequest.newBuilder().addFeatures(feature).setImage(img);
+      if (config.getImageFeature() == ImageFeature.TEXT && !Strings.isNullOrEmpty(config.getLanguageHints())) {
+        ImageContext context = ImageContext.newBuilder().addLanguageHints(config.getLanguage().getCode()).build();
+        request.setImageContext(context);
+      }
+      BatchAnnotateImagesResponse response = client.batchAnnotateImages(Collections.singletonList(request.build()));
 
       return response.getResponses(SINGLE_RESPONSE_INDEX);
     }

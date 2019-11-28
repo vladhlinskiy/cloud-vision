@@ -70,6 +70,76 @@
               }
             ]
           }
+        },
+        {
+          "name": "languageHints",
+          "label": "Language Hints",
+          "widget-type": "select",
+          "widget-attributes": {
+            "default": "English",
+            "values": [
+              "Afrikaans",
+              "Albanian",
+              "Arabic",
+              "Armenian",
+              "Belorussian",
+              "Bengali",
+              "Bulgarian",
+              "Catalan",
+              "Chinese",
+              "Croatian",
+              "Czech",
+              "Danish",
+              "Dutch",
+              "English",
+              "Estonian",
+              "Filipino",
+              "Finnish",
+              "French",
+              "German",
+              "Greek",
+              "Gujarati",
+              "Hebrew",
+              "Hindi",
+              "Hungarian",
+              "Icelandic",
+              "Indonesian",
+              "Italian",
+              "Japanese",
+              "Kannada",
+              "Khmer",
+              "Korean",
+              "Lao",
+              "Latvian",
+              "Lithuanian",
+              "Macedonian",
+              "Malay",
+              "Malayalam",
+              "Marathi",
+              "Nepali",
+              "Norwegian",
+              "Persian",
+              "Polish",
+              "Portuguese",
+              "Punjabi",
+              "Romanian",
+              "Russian",
+              "Russian(Old Orthography)",
+              "Serbian",
+              "Serbian(Latin)",
+              "Slovak",
+              "Slovenian",
+              "Spanish",
+              "Swedish",
+              "Tamil",
+              "Telugu",
+              "Thai",
+              "Turkish",
+              "Ukrainian",
+              "Vietnamese",
+              "Yiddish"
+            ]
+          }
         }
       ]
     }
@@ -91,6 +161,22 @@
         ],
         "schema-default-type": "string"
       }
+    }
+  ],
+  "filters": [
+    {
+      "name": "Language Hints For Text Detection",
+      "condition": {
+        "property": "features",
+        "operator": "equal to",
+        "value": "Text"
+      },
+      "show": [
+        {
+          "name": "languageHints",
+          "type": "property"
+        }
+      ]
     }
   ]
 }

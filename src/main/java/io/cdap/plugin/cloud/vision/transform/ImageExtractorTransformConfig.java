@@ -37,18 +37,24 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
   @Name(ImageExtractorConstants.PATH_FIELD)
   @Description("Field in the input schema containing the path to the image.")
   @Macro
-  protected String pathField;
+  private String pathField;
 
   @Name(ImageExtractorConstants.OUTPUT_FIELD)
   @Description("Field to store the extracted image features. If the specified output field name already exists " +
     "in the input record, it will be overwritten.")
   @Macro
-  protected String outputField;
+  private String outputField;
 
   @Name(ImageExtractorConstants.FEATURES)
   @Description("Features to extract from images.")
   @Macro
-  protected String features;
+  private String features;
+
+  @Name(ImageExtractorConstants.LANGUAGE_HINTS)
+  @Description("Hints to detect the language of the text in the images.")
+  @Macro
+  @Nullable
+  private String languageHints;
 
   @Name(ImageExtractorConstants.SCHEMA)
   @Description("Schema of records output by the transform.")
@@ -56,11 +62,12 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
   private String schema;
 
   public ImageExtractorTransformConfig(String project, String serviceFilePath, String pathField, String outputField,
-                                       String features, String schema) {
+                                       String features, String languageHints, String schema) {
     super(project, serviceFilePath);
     this.pathField = pathField;
     this.outputField = outputField;
     this.features = features;
+    this.languageHints = languageHints;
     this.schema = schema;
   }
 
@@ -74,6 +81,15 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
 
   public String getFeatures() {
     return features;
+  }
+
+  @Nullable
+  public String getLanguageHints() {
+    return languageHints;
+  }
+
+  public Language getLanguage() {
+    return Objects.requireNonNull(Language.fromDisplayName(languageHints));
   }
 
   @Nullable
