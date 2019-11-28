@@ -17,11 +17,12 @@
 package io.cdap.plugin.cloud.vision.transform;
 
 import io.cdap.cdap.api.data.schema.Schema;
+import io.cdap.plugin.cloud.vision.CloudVisionConstants;
 
 /**
  * Cloud Vision Image Extractor constants.
  */
-public class ImageExtractorConstants {
+public class ImageExtractorConstants extends CloudVisionConstants {
 
   private ImageExtractorConstants() {
     throw new AssertionError("Should not instantiate static utility class.");

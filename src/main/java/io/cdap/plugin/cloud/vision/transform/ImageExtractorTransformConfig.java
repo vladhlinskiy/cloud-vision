@@ -16,7 +16,6 @@
 
 package io.cdap.plugin.cloud.vision.transform;
 
-import com.google.cloud.ServiceOptions;
 import com.google.common.base.Strings;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
@@ -24,7 +23,7 @@ import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.api.plugin.PluginConfig;
 import io.cdap.cdap.etl.api.FailureCollector;
-import io.cdap.plugin.cloud.vision.CloudVisionConstants;
+import io.cdap.plugin.cloud.vision.CloudVisionConfig;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -33,22 +32,7 @@ import javax.annotation.Nullable;
 /**
  * Defines a {@link PluginConfig} that Image Extractor transform can use.
  */
-public class ImageExtractorTransformConfig extends PluginConfig {
-
-  @Name(CloudVisionConstants.PROJECT)
-  @Description("Google Cloud Project ID, which uniquely identifies a project. "
-    + "It can be found on the Dashboard in the Google Cloud Platform Console.")
-  @Macro
-  @Nullable
-  protected String project;
-
-  @Name(CloudVisionConstants.SERVICE_ACCOUNT_FILE_PATH)
-  @Description("Path on the local file system of the service account key used "
-    + "for authorization. Can be set to 'auto-detect' when running on a Dataproc cluster. "
-    + "When running on other clusters, the file must be present on every node in the cluster.")
-  @Macro
-  @Nullable
-  protected String serviceFilePath;
+public class ImageExtractorTransformConfig extends CloudVisionConfig {
 
   @Name(ImageExtractorConstants.PATH_FIELD)
   @Description("Field in the input schema containing the path to the image.")
@@ -73,17 +57,11 @@ public class ImageExtractorTransformConfig extends PluginConfig {
 
   public ImageExtractorTransformConfig(String project, String serviceFilePath, String pathField, String outputField,
                                        String features, String schema) {
-    this.project = project;
-    this.serviceFilePath = serviceFilePath;
+    super(project, serviceFilePath);
     this.pathField = pathField;
     this.outputField = outputField;
     this.features = features;
     this.schema = schema;
-  }
-
-  @Nullable
-  public String getServiceFilePath() {
-    return serviceFilePath;
   }
 
   public String getPathField() {
@@ -123,36 +101,6 @@ public class ImageExtractorTransformConfig extends PluginConfig {
     }
   }
 
-  public String getProject() {
-    String projectId = tryGetProject();
-    if (projectId == null) {
-      throw new IllegalArgumentException(
-        "Could not detect Google Cloud project id from the environment. Please specify a project id.");
-    }
-    return projectId;
-  }
-
-  @Nullable
-  public String tryGetProject() {
-    if (containsMacro(CloudVisionConstants.PROJECT) && Strings.isNullOrEmpty(project)) {
-      return null;
-    }
-    String projectId = project;
-    if (Strings.isNullOrEmpty(project) || CloudVisionConstants.AUTO_DETECT.equals(project)) {
-      projectId = ServiceOptions.getDefaultProjectId();
-    }
-    return projectId;
-  }
-
-  @Nullable
-  public String getServiceAccountFilePath() {
-    if (containsMacro(CloudVisionConstants.SERVICE_ACCOUNT_FILE_PATH) || Strings.isNullOrEmpty(serviceFilePath)
-      || CloudVisionConstants.AUTO_DETECT.equals(serviceFilePath)) {
-      return null;
-    }
-    return serviceFilePath;
-  }
-
   /**
    * Validates {@link ImageExtractorTransformConfig} instance.
    *
@@ -167,7 +115,15 @@ public class ImageExtractorTransformConfig extends PluginConfig {
       collector.addFailure("Output field must be specified", null)
         .withConfigProperty(ImageExtractorConstants.OUTPUT_FIELD);
     }
-    // TODO validate schema. it must contain path & output fields?
+    if (!containsMacro(ImageExtractorConstants.FEATURES)) {
+      if (Strings.isNullOrEmpty(features)) {
+        collector.addFailure("Features must be specified", null)
+          .withConfigProperty(ImageExtractorConstants.FEATURES);
+      } else if (ImageFeature.fromDisplayName(features) == null) {
+        collector.addFailure("Invalid image feature name", null)
+          .withConfigProperty(ImageExtractorConstants.FEATURES);
+      }
+    }
   }
 
   /**
@@ -181,6 +137,7 @@ public class ImageExtractorTransformConfig extends PluginConfig {
    * @throws IllegalArgumentException if the schemas are not type compatible
    */
   public static void validateFieldsMatch(Schema inferredSchema, Schema providedSchema, FailureCollector collector) {
+    // TODO recheck
     for (Schema.Field field : providedSchema.getFields()) {
       Schema.Field inferredField = inferredSchema.getField(field.getName());
       Schema inferredFieldSchema = inferredField.getSchema();

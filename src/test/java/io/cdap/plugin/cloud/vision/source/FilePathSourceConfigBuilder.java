@@ -13,25 +13,21 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.cdap.plugin.cloud.vision;
+package io.cdap.plugin.cloud.vision.source;
+
+import io.cdap.plugin.cloud.vision.CloudVisionConfigBuilder;
 
 import javax.annotation.Nullable;
 
 /**
  * Builder class that provides handy methods to construct {@link FilePathSourceConfig} for testing.
  */
-public class FilePathSourceConfigBuilder {
+public class FilePathSourceConfigBuilder extends CloudVisionConfigBuilder<FilePathSourceConfigBuilder> {
 
   private String referenceName;
   private String path;
   private boolean recursive;
   private String splitBy;
-
-  @Nullable
-  private String project;
-
-  @Nullable
-  private String serviceFilePath;
 
   @Nullable
   private String lastModified;
@@ -69,16 +65,6 @@ public class FilePathSourceConfigBuilder {
 
   public FilePathSourceConfigBuilder setSplitBy(String splitBy) {
     this.splitBy = splitBy;
-    return this;
-  }
-
-  public FilePathSourceConfigBuilder setProject(@Nullable String project) {
-    this.project = project;
-    return this;
-  }
-
-  public FilePathSourceConfigBuilder setServiceFilePath(@Nullable String serviceFilePath) {
-    this.serviceFilePath = serviceFilePath;
     return this;
   }
 

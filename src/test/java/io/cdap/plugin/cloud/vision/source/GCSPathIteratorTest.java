@@ -14,7 +14,7 @@
  * the License.
  */
 
-package io.cdap.plugin.cloud.vision;
+package io.cdap.plugin.cloud.vision.source;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
@@ -24,8 +24,6 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.google.cloud.storage.StorageOptions;
-import io.cdap.plugin.cloud.vision.source.GCSPath;
-import io.cdap.plugin.cloud.vision.source.GCSPathIterator;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
