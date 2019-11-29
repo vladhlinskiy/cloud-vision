@@ -606,6 +606,42 @@ public class ImageExtractorConstants extends CloudVisionConstants {
   }
 
   /**
+   * Label detection result mapped to a record with following fields.
+   */
+  public static class LabelAnnotation {
+
+    /**
+     * Opaque entity ID. Some IDs may be available in
+     * <a href="https://developers.google.com/knowledge-graph/">Google Knowledge Graph Search API</a>
+     */
+    public static final String MID_FIELD_NAME = "mid";
+
+    /**
+     * Entity textual description.
+     */
+    public static final String DESCRIPTION_FIELD_NAME = "description";
+
+    /**
+     * Overall score of the result. Range [0, 1].
+     */
+    public static final String SCORE_FIELD_NAME = "score";
+
+    /**
+     * The relevancy of the ICA (Image Content Annotation) label to the image. For example, the relevancy of "tower" is
+     * likely higher to an image containing the detected "Eiffel Tower" than to an image containing a detected distant
+     * towering building, even though the confidence that there is a tower in each image may be the same. Range [0, 1].
+     */
+    public static final String TOPICALITY_FIELD_NAME = "topicality";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "label-annotation-component-record",
+      Schema.Field.of(MID_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(TOPICALITY_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
+  }
+
+  /**
    * TODO document
    */
   public static class ColorInfo {
@@ -649,7 +685,7 @@ public class ImageExtractorConstants extends CloudVisionConstants {
     public static final String DESCRIPTION_FIELD_NAME = "description";
     public static final String SCORE_FIELD_NAME = "score";
     public static final String POSITION_FIELD_NAME = "position";
-    public static final String LOCATION_FIELD_NAME = "locationInfo";
+    public static final String LOCATIONS_FIELD_NAME = "locations";
 
     public static final Schema SCHEMA = Schema.recordOf(
       "landmark-annotation-component-record",
@@ -657,7 +693,7 @@ public class ImageExtractorConstants extends CloudVisionConstants {
       Schema.Field.of(DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
       Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)),
-      Schema.Field.of(LOCATION_FIELD_NAME, Schema.arrayOf(LandmarkLocation.SCHEMA))
+      Schema.Field.of(LOCATIONS_FIELD_NAME, Schema.arrayOf(LandmarkLocation.SCHEMA))
     );
   }
 

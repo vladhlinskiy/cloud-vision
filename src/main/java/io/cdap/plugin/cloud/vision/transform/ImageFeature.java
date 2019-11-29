@@ -43,11 +43,7 @@ public enum ImageFeature {
     Feature.Type.IMAGE_PROPERTIES,
     Schema.arrayOf(ImageExtractorConstants.ColorInfo.SCHEMA)
   ),
-  LABELS(
-    "Labels",
-    Feature.Type.LABEL_DETECTION,
-    Schema.arrayOf(Schema.mapOf(Schema.of(Schema.Type.STRING), Schema.of(Schema.Type.STRING)))
-  ),
+  LABELS("Labels", Feature.Type.LABEL_DETECTION, Schema.arrayOf(ImageExtractorConstants.LabelAnnotation.SCHEMA)),
   LANDMARKS(
     "Landmarks",
     Feature.Type.LANDMARK_DETECTION,

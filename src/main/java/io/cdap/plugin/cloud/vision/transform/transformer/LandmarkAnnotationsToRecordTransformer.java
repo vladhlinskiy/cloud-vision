@@ -82,7 +82,7 @@ public class LandmarkAnnotationsToRecordTransformer extends ImageAnnotationToRec
       builder.set(ImageExtractorConstants.LandmarkAnnotation.POSITION_FIELD_NAME, position);
     }
 
-    Schema.Field locField = landmarkSchema.getField(ImageExtractorConstants.LandmarkAnnotation.LOCATION_FIELD_NAME);
+    Schema.Field locField = landmarkSchema.getField(ImageExtractorConstants.LandmarkAnnotation.LOCATIONS_FIELD_NAME);
     if (locField != null) {
       // here we retrieve schema instead of using constant schema since users are free to choose to not include some of
       // the fields
@@ -95,7 +95,7 @@ public class LandmarkAnnotationsToRecordTransformer extends ImageAnnotationToRec
       List<StructuredRecord> location = annotation.getLocationsList().stream()
         .map(v -> extractLocation(v, locationSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.LandmarkAnnotation.LOCATION_FIELD_NAME, location);
+      builder.set(ImageExtractorConstants.LandmarkAnnotation.LOCATIONS_FIELD_NAME, location);
     }
 
     return builder.build();
