@@ -38,14 +38,35 @@ public enum ImageFeature {
     Feature.Type.DOCUMENT_TEXT_DETECTION,
     ImageExtractorConstants.FullTextAnnotation.SCHEMA
   ),
-  // TODO add support
-  IMAGE_PROPERTIES("Image Properties", Feature.Type.IMAGE_PROPERTIES, null),
-  LABELS("Labels", Feature.Type.LABEL_DETECTION, null),
-  LANDMARKS("Landmarks", Feature.Type.LANDMARK_DETECTION, null),
-  LOGOS("Logos", Feature.Type.LOGO_DETECTION, null),
-  OBJECT_LOCALIZATION("Object Localization", Feature.Type.OBJECT_LOCALIZATION, null),
-  EXPLICIT_CONTENT("Explicit Content", Feature.Type.SAFE_SEARCH_DETECTION, null),
-  WEB_DETECTION("Web Detection", Feature.Type.WEB_DETECTION, null),
+  IMAGE_PROPERTIES(
+    "Image Properties",
+    Feature.Type.IMAGE_PROPERTIES,
+    Schema.arrayOf(ImageExtractorConstants.ColorInfo.SCHEMA)
+  ),
+  LABELS(
+    "Labels",
+    Feature.Type.LABEL_DETECTION,
+    Schema.arrayOf(Schema.mapOf(Schema.of(Schema.Type.STRING), Schema.of(Schema.Type.STRING)))
+  ),
+  LANDMARKS(
+    "Landmarks",
+    Feature.Type.LANDMARK_DETECTION,
+    Schema.arrayOf(ImageExtractorConstants.LandmarkAnnotation.SCHEMA)
+  ),
+  LOGOS("Logos", Feature.Type.LOGO_DETECTION, Schema.arrayOf(ImageExtractorConstants.LogoAnnotation.SCHEMA)),
+  // Object localization is used to detect multiple objects
+  OBJECT_LOCALIZATION(
+    "Object Localization",
+    Feature.Type.OBJECT_LOCALIZATION,
+    Schema.arrayOf(ImageExtractorConstants.LocalizedObjectAnnotation.SCHEMA)
+  ),
+  EXPLICIT_CONTENT(
+    "Explicit Content",
+    Feature.Type.SAFE_SEARCH_DETECTION,
+    ImageExtractorConstants.SafeSearchAnnotation.SCHEMA
+  ),
+  WEB_DETECTION("Web Detection", Feature.Type.WEB_DETECTION, ImageExtractorConstants.WebDetection.SCHEMA),
+  // TODO Product Search support
   PRODUCT_SEARCH("Product Search", Feature.Type.PRODUCT_SEARCH, null);
 
   private static final Map<String, ImageFeature> byDisplayName = Arrays.stream(values())
