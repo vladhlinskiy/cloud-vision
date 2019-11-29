@@ -249,79 +249,308 @@ public class ImageExtractorConstants extends CloudVisionConstants {
   }
 
   /**
-   * TODO document
+   * TODO move common properties to a base class.
+   * A single symbol representation. {@link com.google.cloud.vision.v1.Symbol} mapped to a record with following fields.
    */
   public static class TextSymbol {
+
+    /**
+     * The actual UTF-8 representation of the symbol.
+     */
     public static final String TEXT_FIELD_NAME = "text";
+
+    /**
+     * Confidence of the OCR results for the symbol. Range [0, 1].
+     */
     public static final String CONFIDENCE_FIELD_NAME = "confidence";
+
+    /**
+     * A list of detected languages together with confidence.
+     */
+    public static final String DETECTED_LANGUAGES_FIELD_NAME = "detectedLanguages";
+
+    /**
+     * Detected start or end of a text segment.
+     */
+    public static final String DETECTED_BREAK_FIELD_NAME = "detectedBreak";
+
+    /**
+     * The bounding box for the symbol. The vertices are in the order of top-left, top-right, bottom-right, bottom-left.
+     * When a rotation of the bounding box is detected the rotation is represented as around the top-left corner as
+     * defined when the text is read in the 'natural' orientation.
+     * For example:
+     * when the text is horizontal it might look like:
+     * 0----1
+     * |    |
+     * 3----2
+     * when it's rotated 180 degrees around the top-left corner it becomes:
+     * 2----3
+     * |    |
+     * 1----0
+     * and the vertice order will still be (0, 1, 2, 3).
+     */
+    public static final String BOUNDING_BOX_FIELD_NAME = "boundingBox";
 
     public static final Schema SCHEMA = Schema.recordOf(
       "document-text-page-symbol-record",
       Schema.Field.of(TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
-      Schema.Field.of(CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
+      Schema.Field.of(CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(DETECTED_LANGUAGES_FIELD_NAME, Schema.nullableOf(Schema.arrayOf(DetectedLanguage.SCHEMA))),
+      Schema.Field.of(DETECTED_BREAK_FIELD_NAME, Schema.nullableOf(Schema.of(Schema.Type.STRING))),
+      Schema.Field.of(BOUNDING_BOX_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)));
   }
 
   /**
-   * TODO document
+   * A word representation. {@link com.google.cloud.vision.v1.Word} mapped to a record with following fields.
    */
   public static class TextWord {
+
+    /**
+     * The actual UTF-8 representation of the word.
+     */
     public static final String TEXT_FIELD_NAME = "text";
+
+    /**
+     * Confidence of the OCR results for the word. Range [0, 1].
+     */
     public static final String CONFIDENCE_FIELD_NAME = "confidence";
+
+    /**
+     * List of symbols in the word. The order of the symbols follows the natural reading order.
+     */
     public static final String SYMBOLS_FIELD_NAME = "symbols";
+
+    /**
+     * A list of detected languages together with confidence.
+     */
+    public static final String DETECTED_LANGUAGES_FIELD_NAME = "detectedLanguages";
+
+    /**
+     * Detected start or end of a text segment.
+     */
+    public static final String DETECTED_BREAK_FIELD_NAME = "detectedBreak";
+
+    /**
+     * The bounding box for the word. The vertices are in the order of top-left, top-right, bottom-right, bottom-left.
+     * When a rotation of the bounding box is detected the rotation is represented as around the top-left corner as
+     * defined when the text is read in the 'natural' orientation.
+     * For example:
+     * when the text is horizontal it might look like:
+     * 0----1
+     * |    |
+     * 3----2
+     * when it's rotated 180 degrees around the top-left corner it becomes:
+     * 2----3
+     * |    |
+     * 1----0
+     * and the vertice order will still be (0, 1, 2, 3).
+     */
+    public static final String BOUNDING_BOX_FIELD_NAME = "boundingBox";
 
     public static final Schema SCHEMA = Schema.recordOf(
       "document-text-page-word-record",
       Schema.Field.of(TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
-      Schema.Field.of(SYMBOLS_FIELD_NAME, Schema.arrayOf(TextSymbol.SCHEMA)));
+      Schema.Field.of(SYMBOLS_FIELD_NAME, Schema.arrayOf(TextSymbol.SCHEMA)),
+      Schema.Field.of(DETECTED_LANGUAGES_FIELD_NAME, Schema.nullableOf(Schema.arrayOf(DetectedLanguage.SCHEMA))),
+      Schema.Field.of(DETECTED_BREAK_FIELD_NAME, Schema.nullableOf(Schema.of(Schema.Type.STRING))),
+      Schema.Field.of(BOUNDING_BOX_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)));
   }
 
   /**
-   * TODO document
+   * A paragraph representation. {@link com.google.cloud.vision.v1.Paragraph} mapped to a record with following fields.
    */
   public static class TextParagraph {
+
+    /**
+     * The actual UTF-8 representation of the paragraph.
+     */
     public static final String TEXT_FIELD_NAME = "text";
+
+    /**
+     * Confidence of the OCR results for the paragraph. Range [0, 1].
+     */
     public static final String CONFIDENCE_FIELD_NAME = "confidence";
+
+    /**
+     * List of words in this paragraph.
+     */
     public static final String WORDS_FIELD_NAME = "words";
+
+    /**
+     * A list of detected languages together with confidence.
+     */
+    public static final String DETECTED_LANGUAGES_FIELD_NAME = "detectedLanguages";
+
+    /**
+     * Detected start or end of a text segment.
+     */
+    public static final String DETECTED_BREAK_FIELD_NAME = "detectedBreak";
+
+    /**
+     * The bounding box for the paragraph. The vertices are in the order of top-left, top-right, bottom-right,
+     * bottom-left. When a rotation of the bounding box is detected the rotation is represented as around the top-left
+     * corner as defined when the text is read in the 'natural' orientation.
+     * For example:
+     * when the text is horizontal it might look like:
+     * 0----1
+     * |    |
+     * 3----2
+     * when it's rotated 180 degrees around the top-left corner it becomes:
+     * 2----3
+     * |    |
+     * 1----0
+     * and the vertice order will still be (0, 1, 2, 3).
+     */
+    public static final String BOUNDING_BOX_FIELD_NAME = "boundingBox";
 
     public static final Schema SCHEMA = Schema.recordOf(
       "document-text-page-paragraph-record",
       Schema.Field.of(TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
-      Schema.Field.of(WORDS_FIELD_NAME, Schema.arrayOf(TextWord.SCHEMA)));
+      Schema.Field.of(WORDS_FIELD_NAME, Schema.arrayOf(TextWord.SCHEMA)),
+      Schema.Field.of(DETECTED_LANGUAGES_FIELD_NAME, Schema.nullableOf(Schema.arrayOf(DetectedLanguage.SCHEMA))),
+      Schema.Field.of(DETECTED_BREAK_FIELD_NAME, Schema.nullableOf(Schema.of(Schema.Type.STRING))),
+      Schema.Field.of(BOUNDING_BOX_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)));
   }
 
   /**
-   * TODO document
+   * Logical element on the page. {@link com.google.cloud.vision.v1.Block} mapped to a record with following fields.
    */
   public static class TextBlock {
+
+    /**
+     * The actual UTF-8 representation of the block.
+     */
     public static final String TEXT_FIELD_NAME = "text";
+
+    /**
+     * Confidence of the OCR results of the block. Range [0, 1].
+     */
+    public static final String CONFIDENCE_FIELD_NAME = "confidence";
+
+    /**
+     * List of paragraphs in this block (if this blocks is of type text).
+     */
     public static final String PARAGRAPHS_FIELD_NAME = "paragraphs";
+
+    /**
+     * A list of detected languages together with confidence.
+     */
+    public static final String DETECTED_LANGUAGES_FIELD_NAME = "detectedLanguages";
+
+    /**
+     * Detected start or end of a text segment.
+     */
+    public static final String DETECTED_BREAK_FIELD_NAME = "detectedBreak";
+
+    /**
+     * The bounding box for the block. The vertices are in the order of top-left, top-right, bottom-right, bottom-left.
+     * When a rotation of the bounding box is detected the rotation is represented as around the top-left corner as
+     * defined when the text is read in the 'natural' orientation.
+     * For example:
+     * when the text is horizontal it might look like:
+     * 0----1
+     * |    |
+     * 3----2
+     * when it's rotated 180 degrees around the top-left corner it becomes:
+     * 2----3
+     * |    |
+     * 1----0
+     * and the vertice order will still be (0, 1, 2, 3).
+     */
+    public static final String BOUNDING_BOX_FIELD_NAME = "boundingBox";
 
     public static final Schema SCHEMA = Schema.recordOf(
       "document-text-page-block-record",
       Schema.Field.of(TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
-      Schema.Field.of(PARAGRAPHS_FIELD_NAME, Schema.arrayOf(TextParagraph.SCHEMA)));
+      Schema.Field.of(CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(PARAGRAPHS_FIELD_NAME, Schema.arrayOf(TextParagraph.SCHEMA)),
+      Schema.Field.of(DETECTED_LANGUAGES_FIELD_NAME, Schema.nullableOf(Schema.arrayOf(DetectedLanguage.SCHEMA))),
+      Schema.Field.of(DETECTED_BREAK_FIELD_NAME, Schema.nullableOf(Schema.of(Schema.Type.STRING))),
+      Schema.Field.of(BOUNDING_BOX_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)));
   }
 
   /**
-   * TODO document
+   * Detected page from OCR. {@link com.google.cloud.vision.v1.Page} mapped to a record with following fields.
    */
   public static class TextPage {
+
+    /**
+     * The actual UTF-8 representation of the page.
+     */
     public static final String TEXT_FIELD_NAME = "text";
+
+    /**
+     * Confidence of the OCR results on the page. Range [0, 1].
+     */
+    public static final String CONFIDENCE_FIELD_NAME = "confidence";
+
+    /**
+     * List of blocks of text, images etc on this page.
+     */
     public static final String BLOCKS_FIELD_NAME = "blocks";
+
+    /**
+     * A list of detected languages together with confidence.
+     */
+    public static final String DETECTED_LANGUAGES_FIELD_NAME = "detectedLanguages";
+
+    /**
+     * Detected start or end of a text segment.
+     */
+    public static final String DETECTED_BREAK_FIELD_NAME = "detectedBreak";
 
     public static final Schema SCHEMA = Schema.recordOf(
       "document-text-page-record",
       Schema.Field.of(TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
-      Schema.Field.of(BLOCKS_FIELD_NAME, Schema.arrayOf(TextBlock.SCHEMA)));
+      Schema.Field.of(CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(BLOCKS_FIELD_NAME, Schema.arrayOf(TextBlock.SCHEMA)),
+      Schema.Field.of(DETECTED_LANGUAGES_FIELD_NAME, Schema.nullableOf(Schema.arrayOf(DetectedLanguage.SCHEMA))),
+      Schema.Field.of(DETECTED_BREAK_FIELD_NAME, Schema.nullableOf(Schema.of(Schema.Type.STRING))));
   }
 
   /**
-   * TODO document
+   * Detected page from OCR. {@link com.google.cloud.vision.v1.TextAnnotation.DetectedLanguage} mapped to a record with
+   * following fields.
    */
-  public static class HandwritingAnnotation {
+  public static class DetectedLanguage {
+
+    /**
+     * The BCP-47 language code, such as "en-US" or "sr-Latn". For more information, see
+     * http://www.unicode.org/reports/tr35/#Unicode_locale_identifier.
+     */
+    public static final String CODE_FIELD_NAME = "code";
+
+    /**
+     * Confidence of detected language. Range [0, 1].
+     */
+    public static final String CONFIDENCE_FIELD_NAME = "confidence";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "detected-language-record",
+      Schema.Field.of(CODE_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
+  }
+
+  /**
+   * TextAnnotation contains a structured representation of OCR extracted text.
+   * The hierarchy of an OCR extracted text structure is like this:
+   * TextAnnotation -> Page -> Block -> Paragraph -> Word -> Symbol
+   * Each structural component, starting from Page, may further have their own
+   * properties.
+   * {@link com.google.cloud.vision.v1.TextAnnotation} mapped to a record with following fields.
+   */
+  public static class FullTextAnnotation {
+
+    /**
+     * UTF-8 text detected on the pages.
+     */
     public static final String TEXT_FIELD_NAME = "text";
+
+    /**
+     * List of pages detected by OCR.
+     */
     public static final String PAGES_FIELD_NAME = "pages";
 
     public static final Schema SCHEMA = Schema.recordOf(
