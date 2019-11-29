@@ -30,7 +30,7 @@ public class TransformerFactory {
       case TEXT:
         return new TextAnnotationsToRecordTransformer(schema, config.getOutputField());
       case HANDWRITING:
-        return new DocumentTextAnnotationsToRecordTransformer(schema, config.getOutputField());
+        return new FullTextAnnotationsToRecordTransformer(schema, config.getOutputField());
       case CROP_HINTS:
         return new CropHintsAnnotationsToRecordTransformer(schema, config.getOutputField());
       case IMAGE_PROPERTIES:

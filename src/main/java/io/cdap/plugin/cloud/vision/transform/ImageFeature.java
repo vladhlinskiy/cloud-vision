@@ -36,7 +36,7 @@ public enum ImageFeature {
   HANDWRITING(
     "Handwriting",
     Feature.Type.DOCUMENT_TEXT_DETECTION,
-    ImageExtractorConstants.HandwritingAnnotation.SCHEMA
+    ImageExtractorConstants.FullTextAnnotation.SCHEMA
   ),
   IMAGE_PROPERTIES(
     "Image Properties",
