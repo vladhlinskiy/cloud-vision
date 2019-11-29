@@ -153,7 +153,6 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
    * @throws IllegalArgumentException if the schemas are not type compatible
    */
   public static void validateFieldsMatch(Schema inferredSchema, Schema providedSchema, FailureCollector collector) {
-    // TODO recheck
     for (Schema.Field field : providedSchema.getFields()) {
       Schema.Field inferredField = inferredSchema.getField(field.getName());
       Schema inferredFieldSchema = inferredField.getSchema();

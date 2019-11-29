@@ -70,8 +70,7 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
     ImageExtractorTransformConfig.validateFieldsMatch(schema, configuredSchema, collector);
     collector.getOrThrowException();
     configurer.getStageConfigurer().setOutputSchema(configuredSchema);
-    // TODO
-//    configurer.getStageConfigurer().setErrorSchema(ERROR_SCHEMA);
+    // TODO set error schema
   }
 
   @Override
