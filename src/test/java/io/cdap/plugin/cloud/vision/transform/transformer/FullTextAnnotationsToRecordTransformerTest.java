@@ -33,7 +33,7 @@ import org.junit.Test;
 import java.util.List;
 
 /**
- * {@link TextAnnotationsToRecordTransformer} test.
+ * {@link FullTextAnnotationsToRecordTransformer} test.
  */
 public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsToRecordTransformerTest {
 

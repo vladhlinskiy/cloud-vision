@@ -50,14 +50,10 @@ public class CropHintsAnnotationsToRecordTransformer extends ImageAnnotationToRe
   }
 
   private StructuredRecord extractCropHintRecord(CropHint hint) {
-    // here we retrieve crop hints annotation schema instead of using constant schema since users are free to choose
-    // to not include some of the fields
     Schema hintSchema = getCropHintsAnnotationSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(hintSchema);
     Schema.Field positionField = hintSchema.getField(ImageExtractorConstants.CropHintAnnotation.POSITION_FIELD_NAME);
     if (positionField != null) {
-      // here we retrieve schema instead of using constant schema since users are free to choose to not include some of
-      // the fields
       Schema positionArraySchema = positionField.getSchema().isNullable() ? positionField.getSchema().getNonNullable()
         : positionField.getSchema();
       Schema positionSchema = positionArraySchema.getComponentSchema().isNullable()
@@ -69,12 +65,20 @@ public class CropHintsAnnotationsToRecordTransformer extends ImageAnnotationToRe
         .collect(Collectors.toList());
       builder.set(ImageExtractorConstants.CropHintAnnotation.POSITION_FIELD_NAME, position);
     }
+    if (hintSchema.getField(ImageExtractorConstants.CropHintAnnotation.CONFIDENCE_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.CropHintAnnotation.CONFIDENCE_FIELD_NAME, hint.getConfidence());
+    }
+    if (hintSchema.getField(ImageExtractorConstants.CropHintAnnotation.IMPORTANCE_FRACTION_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.CropHintAnnotation.IMPORTANCE_FRACTION_FIELD_NAME,
+                  hint.getImportanceFraction());
+    }
 
     return builder.build();
   }
 
   /**
-   * Retrieves Crop Hints Annotation's non-nullable component schema.
+   * Retrieves Crop Hints Annotation's non-nullable component schema. Crop Hints Annotation's schema is retrieved
+   * instead of using constant schema since users are free to choose to not include some of the fields.
    *
    * @return Crop Hints Annotation's non-nullable component schema.
    */

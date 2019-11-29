@@ -560,14 +560,31 @@ public class ImageExtractorConstants extends CloudVisionConstants {
   }
 
   /**
-   * TODO document
+   * Single crop hint that is used to generate a new crop when serving an image.
+   * {@link com.google.cloud.vision.v1.CropHint} mapped to a record with following fields.
    */
   public static class CropHintAnnotation {
+
+    /**
+     * The bounding polygon for the crop region. The coordinates of the bounding box are in the original image's scale.
+     */
     public static final String POSITION_FIELD_NAME = "position";
+
+    /**
+     * Confidence of this being a salient region.  Range [0, 1].
+     */
+    public static final String CONFIDENCE_FIELD_NAME = "confidence";
+
+    /**
+     * Fraction of importance of this salient region with respect to the original image.
+     */
+    public static final String IMPORTANCE_FRACTION_FIELD_NAME = "importanceFraction";
 
     public static final Schema SCHEMA = Schema.recordOf(
       "crop-hint-annotation-component-record",
-      Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)));
+      Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)),
+      Schema.Field.of(CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(IMPORTANCE_FRACTION_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
   }
 
   /**
