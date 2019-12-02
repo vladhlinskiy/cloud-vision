@@ -28,13 +28,13 @@ import org.junit.Test;
 import java.util.List;
 
 /**
- * {@link LandmarkAnnotationsToRecordTransformer} test.
+ * {@link LogoAnnotationsToRecordTransformer} test.
  */
-public class LandmarkAnnotationsToRecordTransformerTest extends LabelAnnotationsToRecordTransformerTest {
+public class LogoAnnotationsToRecordTransformerTest extends LandmarkAnnotationsToRecordTransformerTest {
 
-  private static final EntityAnnotation LANDMARK_ANNOTATION = EntityAnnotation.newBuilder()
+  private static final EntityAnnotation LOGO_ANNOTATION = EntityAnnotation.newBuilder()
     .setMid("/m/0dx1j")
-    .setDescription("Some Label")
+    .setDescription("Some Logo")
     .setLocale("en")
     .setScore(0.87f)
     .setTopicality(0.21f)
@@ -45,7 +45,7 @@ public class LandmarkAnnotationsToRecordTransformerTest extends LabelAnnotations
     .build();
 
   private static final AnnotateImageResponse RESPONSE = AnnotateImageResponse.newBuilder()
-    .addLandmarkAnnotations(LANDMARK_ANNOTATION)
+    .addLogoAnnotations(LOGO_ANNOTATION)
     .build();
 
   @Test
@@ -54,9 +54,9 @@ public class LandmarkAnnotationsToRecordTransformerTest extends LabelAnnotations
     String output = "extracted";
     Schema schema = Schema.recordOf("transformed-record-schema",
       Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
-      Schema.Field.of(output, ImageFeature.LANDMARKS.getSchema()));
+      Schema.Field.of(output, ImageFeature.LOGOS.getSchema()));
 
-    LandmarkAnnotationsToRecordTransformer transformer = new LandmarkAnnotationsToRecordTransformer(schema, output);
+    LogoAnnotationsToRecordTransformer transformer = new LogoAnnotationsToRecordTransformer(schema, output);
     StructuredRecord transformed = transformer.transform(INPUT_RECORD, RESPONSE);
 
     Assert.assertNotNull(transformed);
@@ -64,7 +64,7 @@ public class LandmarkAnnotationsToRecordTransformerTest extends LabelAnnotations
     Assert.assertNotNull(actualExtracted);
     Assert.assertEquals(1, actualExtracted.size());
     StructuredRecord actual = actualExtracted.get(SINGLE_FEATURE_INDEX);
-    assertAnnotationEquals(LANDMARK_ANNOTATION, actual);
+    assertAnnotationEquals(LOGO_ANNOTATION, actual);
   }
 
   @Test
@@ -73,15 +73,15 @@ public class LandmarkAnnotationsToRecordTransformerTest extends LabelAnnotations
     String output = "extracted";
     Schema schema = Schema.recordOf("transformed-record-schema",
       Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
-      Schema.Field.of(output, ImageFeature.LANDMARKS.getSchema()));
+      Schema.Field.of(output, ImageFeature.LOGOS.getSchema()));
 
-    LandmarkAnnotationsToRecordTransformer transformer = new LandmarkAnnotationsToRecordTransformer(schema, output);
+    LogoAnnotationsToRecordTransformer transformer = new LogoAnnotationsToRecordTransformer(schema, output);
 
     EntityAnnotation emptyAnnotation = EntityAnnotation.newBuilder().build();
-    AnnotateImageResponse emptyLandmarkAnnotation = AnnotateImageResponse.newBuilder()
-      .addLandmarkAnnotations(emptyAnnotation)
+    AnnotateImageResponse emptyLogoAnnotation = AnnotateImageResponse.newBuilder()
+      .addLogoAnnotations(emptyAnnotation)
       .build();
-    StructuredRecord transformed = transformer.transform(INPUT_RECORD, emptyLandmarkAnnotation);
+    StructuredRecord transformed = transformer.transform(INPUT_RECORD, emptyLogoAnnotation);
 
     Assert.assertNotNull(transformed);
     List<StructuredRecord> actualExtracted = transformed.get(output);
@@ -101,7 +101,7 @@ public class LandmarkAnnotationsToRecordTransformerTest extends LabelAnnotations
       Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
       Schema.Field.of(output, Schema.arrayOf(labelAnnotationSingleFieldSchema)));
 
-    LandmarkAnnotationsToRecordTransformer transformer = new LandmarkAnnotationsToRecordTransformer(schema, output);
+    LogoAnnotationsToRecordTransformer transformer = new LogoAnnotationsToRecordTransformer(schema, output);
     StructuredRecord transformed = transformer.transform(INPUT_RECORD, RESPONSE);
 
     Assert.assertNotNull(transformed);
@@ -111,15 +111,7 @@ public class LandmarkAnnotationsToRecordTransformerTest extends LabelAnnotations
     StructuredRecord actual = actualExtracted.get(SINGLE_FEATURE_INDEX);
     // actual record has single-field schema
     Assert.assertEquals(labelAnnotationSingleFieldSchema, actual.getSchema());
-    Assert.assertEquals(LANDMARK_ANNOTATION.getDescription(),
+    Assert.assertEquals(LOGO_ANNOTATION.getDescription(),
       actual.get(ImageExtractorConstants.EntityAnnotationWithPosition.DESCRIPTION_FIELD_NAME));
-  }
-
-  @Override
-  protected void assertAnnotationEquals(EntityAnnotation expected, StructuredRecord actual) {
-    // Landmark annotations are mapped in the same way as Label annotation except of additional 'position' field
-    super.assertAnnotationEquals(expected, actual);
-    List<StructuredRecord> pos = actual.get(ImageExtractorConstants.EntityAnnotationWithPosition.POSITION_FIELD_NAME);
-    assertPositionEqual(expected.getBoundingPoly(), pos);
   }
 }

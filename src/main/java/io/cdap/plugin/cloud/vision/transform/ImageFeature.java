@@ -18,7 +18,6 @@ package io.cdap.plugin.cloud.vision.transform;
 
 import com.google.cloud.vision.v1.Feature;
 import io.cdap.cdap.api.data.schema.Schema;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
@@ -43,13 +42,16 @@ public enum ImageFeature {
     Feature.Type.IMAGE_PROPERTIES,
     Schema.arrayOf(ImageExtractorConstants.ColorInfo.SCHEMA)
   ),
-  LABELS("Labels", Feature.Type.LABEL_DETECTION, Schema.arrayOf(ImageExtractorConstants.LabelEntityAnnotation.SCHEMA)),
+  LABELS("Labels", Feature.Type.LABEL_DETECTION, Schema.arrayOf(ImageExtractorConstants.EntityAnnotation.SCHEMA)),
   LANDMARKS(
     "Landmarks",
     Feature.Type.LANDMARK_DETECTION,
-    Schema.arrayOf(ImageExtractorConstants.LandmarkEntityAnnotation.SCHEMA)
+    Schema.arrayOf(ImageExtractorConstants.EntityAnnotationWithPosition.SCHEMA)
   ),
-  LOGOS("Logos", Feature.Type.LOGO_DETECTION, Schema.arrayOf(ImageExtractorConstants.LogoAnnotation.SCHEMA)),
+  LOGOS(
+    "Logos",
+    Feature.Type.LOGO_DETECTION,
+    Schema.arrayOf(ImageExtractorConstants.EntityAnnotationWithPosition.SCHEMA)),
   // Object localization is used to detect multiple objects
   OBJECT_LOCALIZATION(
     "Object Localization",

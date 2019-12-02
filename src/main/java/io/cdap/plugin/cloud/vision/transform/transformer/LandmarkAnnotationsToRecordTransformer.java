@@ -43,7 +43,7 @@ public class LandmarkAnnotationsToRecordTransformer extends LabelAnnotationsToRe
       .build();
   }
 
-  protected List<StructuredRecord> extractLandmarkAnnotations(AnnotateImageResponse annotateImageResponse) {
+  private List<StructuredRecord> extractLandmarkAnnotations(AnnotateImageResponse annotateImageResponse) {
     return annotateImageResponse.getLandmarkAnnotationsList().stream()
       .map(this::extractAnnotation)
       .map(StructuredRecord.Builder::build)
@@ -55,7 +55,7 @@ public class LandmarkAnnotationsToRecordTransformer extends LabelAnnotationsToRe
     // Landmark annotations are mapped in the same way as Label annotation except of additional 'position' field
     StructuredRecord.Builder builder = super.extractAnnotation(annotation);
     Schema schema = super.getEntityAnnotationSchema();
-    Schema.Field posField = schema.getField(ImageExtractorConstants.LandmarkEntityAnnotation.POSITION_FIELD_NAME);
+    Schema.Field posField = schema.getField(ImageExtractorConstants.EntityAnnotationWithPosition.POSITION_FIELD_NAME);
     if (posField != null) {
       Schema positionArraySchema = posField.getSchema().isNullable() ? posField.getSchema().getNonNullable()
         : posField.getSchema();
@@ -66,7 +66,7 @@ public class LandmarkAnnotationsToRecordTransformer extends LabelAnnotationsToRe
       List<StructuredRecord> position = annotation.getBoundingPoly().getVerticesList().stream()
         .map(v -> extractVertex(v, positionSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.LandmarkEntityAnnotation.POSITION_FIELD_NAME, position);
+      builder.set(ImageExtractorConstants.EntityAnnotationWithPosition.POSITION_FIELD_NAME, position);
     }
 
     return builder;

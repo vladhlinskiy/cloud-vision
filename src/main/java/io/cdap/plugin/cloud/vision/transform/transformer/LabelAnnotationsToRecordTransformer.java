@@ -17,7 +17,6 @@
 package io.cdap.plugin.cloud.vision.transform.transformer;
 
 import com.google.cloud.vision.v1.AnnotateImageResponse;
-import com.google.cloud.vision.v1.EntityAnnotation;
 import com.google.cloud.vision.v1.LocationInfo;
 import com.google.cloud.vision.v1.Property;
 import io.cdap.cdap.api.data.format.StructuredRecord;
@@ -45,32 +44,32 @@ public class LabelAnnotationsToRecordTransformer extends ImageAnnotationToRecord
       .build();
   }
 
-  protected List<StructuredRecord> extractLabelAnnotations(AnnotateImageResponse annotateImageResponse) {
+  private List<StructuredRecord> extractLabelAnnotations(AnnotateImageResponse annotateImageResponse) {
     return annotateImageResponse.getLabelAnnotationsList().stream()
       .map(this::extractAnnotation)
       .map(StructuredRecord.Builder::build)
       .collect(Collectors.toList());
   }
 
-  protected StructuredRecord.Builder extractAnnotation(EntityAnnotation annotation) {
+  protected StructuredRecord.Builder extractAnnotation(com.google.cloud.vision.v1.EntityAnnotation annotation) {
     Schema labelSchema = getEntityAnnotationSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(labelSchema);
-    if (labelSchema.getField(ImageExtractorConstants.LabelEntityAnnotation.MID_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.LabelEntityAnnotation.MID_FIELD_NAME, annotation.getMid());
+    if (labelSchema.getField(ImageExtractorConstants.EntityAnnotation.MID_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.EntityAnnotation.MID_FIELD_NAME, annotation.getMid());
     }
-    if (labelSchema.getField(ImageExtractorConstants.LabelEntityAnnotation.LOCALE_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.LabelEntityAnnotation.LOCALE_FIELD_NAME, annotation.getLocale());
+    if (labelSchema.getField(ImageExtractorConstants.EntityAnnotation.LOCALE_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.EntityAnnotation.LOCALE_FIELD_NAME, annotation.getLocale());
     }
-    if (labelSchema.getField(ImageExtractorConstants.LabelEntityAnnotation.DESCRIPTION_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.LabelEntityAnnotation.DESCRIPTION_FIELD_NAME, annotation.getDescription());
+    if (labelSchema.getField(ImageExtractorConstants.EntityAnnotation.DESCRIPTION_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.EntityAnnotation.DESCRIPTION_FIELD_NAME, annotation.getDescription());
     }
-    if (labelSchema.getField(ImageExtractorConstants.LabelEntityAnnotation.SCORE_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.LabelEntityAnnotation.SCORE_FIELD_NAME, annotation.getScore());
+    if (labelSchema.getField(ImageExtractorConstants.EntityAnnotation.SCORE_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.EntityAnnotation.SCORE_FIELD_NAME, annotation.getScore());
     }
-    if (labelSchema.getField(ImageExtractorConstants.LabelEntityAnnotation.TOPICALITY_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.LabelEntityAnnotation.TOPICALITY_FIELD_NAME, annotation.getTopicality());
+    if (labelSchema.getField(ImageExtractorConstants.EntityAnnotation.TOPICALITY_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.EntityAnnotation.TOPICALITY_FIELD_NAME, annotation.getTopicality());
     }
-    Schema.Field locField = labelSchema.getField(ImageExtractorConstants.LabelEntityAnnotation.LOCATIONS_FIELD_NAME);
+    Schema.Field locField = labelSchema.getField(ImageExtractorConstants.EntityAnnotation.LOCATIONS_FIELD_NAME);
     if (locField != null) {
       Schema locationArraySchema = locField.getSchema().isNullable() ? locField.getSchema().getNonNullable()
         : locField.getSchema();
@@ -81,9 +80,9 @@ public class LabelAnnotationsToRecordTransformer extends ImageAnnotationToRecord
       List<StructuredRecord> location = annotation.getLocationsList().stream()
         .map(v -> extractLocation(v, locationSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.LabelEntityAnnotation.LOCATIONS_FIELD_NAME, location);
+      builder.set(ImageExtractorConstants.EntityAnnotation.LOCATIONS_FIELD_NAME, location);
     }
-    Schema.Field propField = labelSchema.getField(ImageExtractorConstants.LabelEntityAnnotation.PROPERTIES_FIELD_NAME);
+    Schema.Field propField = labelSchema.getField(ImageExtractorConstants.EntityAnnotation.PROPERTIES_FIELD_NAME);
     if (propField != null) {
       Schema propertyArraySchema = propField.getSchema().isNullable() ? propField.getSchema().getNonNullable()
         : propField.getSchema();
@@ -94,7 +93,7 @@ public class LabelAnnotationsToRecordTransformer extends ImageAnnotationToRecord
       List<StructuredRecord> location = annotation.getPropertiesList().stream()
         .map(v -> extractProperty(v, propertySchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.LabelEntityAnnotation.PROPERTIES_FIELD_NAME, location);
+      builder.set(ImageExtractorConstants.EntityAnnotation.PROPERTIES_FIELD_NAME, location);
     }
 
     return builder;

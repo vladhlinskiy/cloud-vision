@@ -93,7 +93,7 @@ public class LabelAnnotationsToRecordTransformerTest extends BaseAnnotationsToRe
 
     LabelAnnotationsToRecordTransformer transformer = new LabelAnnotationsToRecordTransformer(schema, outputFieldName);
 
-    com.google.cloud.vision.v1.EntityAnnotation emptyAnnotation = EntityAnnotation.newBuilder().build();
+    EntityAnnotation emptyAnnotation = EntityAnnotation.newBuilder().build();
     AnnotateImageResponse emptyLabelAnnotation = AnnotateImageResponse.newBuilder()
       .addLabelAnnotations(emptyAnnotation)
       .build();
@@ -112,7 +112,7 @@ public class LabelAnnotationsToRecordTransformerTest extends BaseAnnotationsToRe
   public void testTransformSingleField() {
     String outputFieldName = "extracted";
     Schema labelAnnotationSingleFieldSchema = Schema.recordOf("single-label-field", Schema.Field.of(
-      ImageExtractorConstants.LabelEntityAnnotation.DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)));
+      ImageExtractorConstants.EntityAnnotation.DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)));
     Schema schema = Schema.recordOf("transformed-record-schema",
       Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
       Schema.Field.of(outputFieldName, Schema.arrayOf(labelAnnotationSingleFieldSchema)));
@@ -128,26 +128,26 @@ public class LabelAnnotationsToRecordTransformerTest extends BaseAnnotationsToRe
     // actual record has single-field schema
     Assert.assertEquals(labelAnnotationSingleFieldSchema, actual.getSchema());
     Assert.assertEquals(LABEL_ANNOTATION.getDescription(),
-      actual.get(ImageExtractorConstants.LabelEntityAnnotation.DESCRIPTION_FIELD_NAME));
+      actual.get(ImageExtractorConstants.EntityAnnotation.DESCRIPTION_FIELD_NAME));
   }
 
   protected void assertAnnotationEquals(EntityAnnotation expected, StructuredRecord actual) {
-    Assert.assertEquals(expected.getMid(), actual.get(ImageExtractorConstants.LabelEntityAnnotation.MID_FIELD_NAME));
+    Assert.assertEquals(expected.getMid(), actual.get(ImageExtractorConstants.EntityAnnotation.MID_FIELD_NAME));
     Assert.assertEquals(expected.getDescription(),
-      actual.get(ImageExtractorConstants.LabelEntityAnnotation.DESCRIPTION_FIELD_NAME));
+      actual.get(ImageExtractorConstants.EntityAnnotation.DESCRIPTION_FIELD_NAME));
     Assert.assertEquals(expected.getLocale(),
-      actual.get(ImageExtractorConstants.LabelEntityAnnotation.LOCALE_FIELD_NAME));
+      actual.get(ImageExtractorConstants.EntityAnnotation.LOCALE_FIELD_NAME));
     Assert.assertEquals(expected.getScore(),
-      actual.<Float>get(ImageExtractorConstants.LabelEntityAnnotation.SCORE_FIELD_NAME),
+      actual.<Float>get(ImageExtractorConstants.EntityAnnotation.SCORE_FIELD_NAME),
       DELTA);
     Assert.assertEquals(expected.getTopicality(),
-      actual.<Float>get(ImageExtractorConstants.LabelEntityAnnotation.TOPICALITY_FIELD_NAME),
+      actual.<Float>get(ImageExtractorConstants.EntityAnnotation.TOPICALITY_FIELD_NAME),
       DELTA);
 
-    List<StructuredRecord> locations = actual.get(ImageExtractorConstants.LabelEntityAnnotation.LOCATIONS_FIELD_NAME);
+    List<StructuredRecord> locations = actual.get(ImageExtractorConstants.EntityAnnotation.LOCATIONS_FIELD_NAME);
     assertLocationsEqual(expected.getLocationsList(), locations);
 
-    List<StructuredRecord> properties = actual.get(ImageExtractorConstants.LabelEntityAnnotation.PROPERTIES_FIELD_NAME);
+    List<StructuredRecord> properties = actual.get(ImageExtractorConstants.EntityAnnotation.PROPERTIES_FIELD_NAME);
     assertPropertiesEqual(expected.getPropertiesList(), properties);
   }
 

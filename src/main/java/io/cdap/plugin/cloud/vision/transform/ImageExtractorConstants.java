@@ -655,9 +655,9 @@ public class ImageExtractorConstants extends CloudVisionConstants {
   }
 
   /**
-   * Label detection results mapped to a record with following fields.
+   * Label detection({@link ImageFeature#LABELS}) results mapped to a record with following fields.
    */
-  public static class LabelEntityAnnotation {
+  public static class EntityAnnotation {
 
     /**
      * Opaque entity ID. Some IDs may be available in
@@ -713,9 +713,10 @@ public class ImageExtractorConstants extends CloudVisionConstants {
   }
 
   /**
-   * Landmark detection({@link ImageFeature#LANDMARKS}) results mapped to a record with following fields.
+   * Landmark detection({@link ImageFeature#LANDMARKS}) and Logo detection{@link ImageFeature#LOGOS}) results mapped to
+   * a record with following fields.
    */
-  public static class LandmarkEntityAnnotation extends LabelEntityAnnotation {
+  public static class EntityAnnotationWithPosition extends EntityAnnotation {
 
     /**
      * Image region to which this entity belongs.
@@ -779,27 +780,6 @@ public class ImageExtractorConstants extends CloudVisionConstants {
       Schema.Field.of(GREEN_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
       Schema.Field.of(BLUE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
       Schema.Field.of(ALPHA_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
-  }
-
-  /**
-   * TODO document
-   */
-  public static class LogoAnnotation {
-    /**
-     * TODO document
-     */
-    public static final String MID_FIELD_NAME = "mid";
-    public static final String DESCRIPTION_FIELD_NAME = "description";
-    public static final String SCORE_FIELD_NAME = "score";
-    public static final String POSITION_FIELD_NAME = "position";
-
-    public static final Schema SCHEMA = Schema.recordOf(
-      "logo-annotation-component-record",
-      Schema.Field.of(MID_FIELD_NAME, Schema.of(Schema.Type.STRING)),
-      Schema.Field.of(DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)),
-      Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
-      Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA))
-    );
   }
 
   /**
