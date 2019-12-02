@@ -76,8 +76,8 @@ public class ImageExtractorConstants extends CloudVisionConstants {
     public static final String Y_FIELD_NAME = "y";
 
     public static final Schema SCHEMA = Schema.recordOf("vertex-record",
-                                                        Schema.Field.of(X_FIELD_NAME, Schema.of(Schema.Type.INT)),
-                                                        Schema.Field.of(Y_FIELD_NAME, Schema.of(Schema.Type.INT)));
+      Schema.Field.of(X_FIELD_NAME, Schema.of(Schema.Type.INT)),
+      Schema.Field.of(Y_FIELD_NAME, Schema.of(Schema.Type.INT)));
   }
 
   /**
@@ -106,10 +106,10 @@ public class ImageExtractorConstants extends CloudVisionConstants {
     public static final String Z_FIELD_NAME = "z";
 
     public static final Schema SCHEMA = Schema.recordOf("face-landmark-record",
-                                                        Schema.Field.of(TYPE_FIELD_NAME, Schema.of(Schema.Type.STRING)),
-                                                        Schema.Field.of(X_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
-                                                        Schema.Field.of(Y_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
-                                                        Schema.Field.of(Z_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
+      Schema.Field.of(TYPE_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(X_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(Y_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(Z_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
   }
 
   /**
@@ -249,7 +249,6 @@ public class ImageExtractorConstants extends CloudVisionConstants {
   }
 
   /**
-   * TODO move common properties to a base class.
    * A single symbol representation. {@link com.google.cloud.vision.v1.Symbol} mapped to a record with following fields.
    */
   public static class TextSymbol {
@@ -606,15 +605,70 @@ public class ImageExtractorConstants extends CloudVisionConstants {
   }
 
   /**
-   * Label detection result mapped to a record with following fields.
+   * Detected entity location information.
    */
-  public static class LabelAnnotation {
+  public static class LocationInfo {
+
+    /**
+     * Latitude.
+     */
+    public static final String LATITUDE_FIELD_NAME = "latitude";
+
+    /**
+     * Longitude.
+     */
+    public static final String LONGITUDE_FIELD_NAME = "longitude";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "location-info-record",
+      Schema.Field.of(LATITUDE_FIELD_NAME, Schema.of(Schema.Type.DOUBLE)),
+      Schema.Field.of(LONGITUDE_FIELD_NAME, Schema.of(Schema.Type.DOUBLE))
+    );
+  }
+
+  /**
+   * A Property consists of a user-supplied name/value pair.
+   */
+  public static class Property {
+
+    /**
+     * Name of the property.
+     */
+    public static final String NAME_FIELD_NAME = "name";
+
+    /**
+     * Value of the property.
+     */
+    public static final String VALUE_FIELD_NAME = "value";
+
+    /**
+     * Value of numeric properties.
+     */
+    public static final String UINT_64_VALUE_FIELD_NAME = "uint64Value";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "property-record",
+      Schema.Field.of(NAME_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(VALUE_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(UINT_64_VALUE_FIELD_NAME, Schema.of(Schema.Type.LONG))
+    );
+  }
+
+  /**
+   * Label detection results mapped to a record with following fields.
+   */
+  public static class LabelEntityAnnotation {
 
     /**
      * Opaque entity ID. Some IDs may be available in
      * <a href="https://developers.google.com/knowledge-graph/">Google Knowledge Graph Search API</a>
      */
     public static final String MID_FIELD_NAME = "mid";
+
+    /**
+     * The language code for the locale in which the entity textual description is expressed.
+     */
+    public static final String LOCALE_FIELD_NAME = "locale";
 
     /**
      * Entity textual description.
@@ -633,12 +687,52 @@ public class ImageExtractorConstants extends CloudVisionConstants {
      */
     public static final String TOPICALITY_FIELD_NAME = "topicality";
 
+    /**
+     * The location information for the detected entity. Multiple location elements can be present because one
+     * location may indicate the location of the scene in the image, and another location may indicate the location of
+     * the place where the image was taken. Location information is usually present for landmarks.
+     */
+    public static final String LOCATIONS_FIELD_NAME = "locations";
+
+    /**
+     * Some entities may have optional user-supplied Property (name/value) fields, such a score or string that qualifies
+     * the entity.
+     */
+    public static final String PROPERTIES_FIELD_NAME = "properties";
+
     public static final Schema SCHEMA = Schema.recordOf(
-      "label-annotation-component-record",
+      "label-entity-annotation-component-record",
       Schema.Field.of(MID_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(LOCALE_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
-      Schema.Field.of(TOPICALITY_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
+      Schema.Field.of(TOPICALITY_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(LOCATIONS_FIELD_NAME, Schema.arrayOf(LocationInfo.SCHEMA)),
+      Schema.Field.of(PROPERTIES_FIELD_NAME, Schema.arrayOf(Property.SCHEMA))
+    );
+  }
+
+  /**
+   * Landmark detection({@link ImageFeature#LANDMARKS}) results mapped to a record with following fields.
+   */
+  public static class LandmarkEntityAnnotation extends LabelEntityAnnotation {
+
+    /**
+     * Image region to which this entity belongs.
+     */
+    public static final String POSITION_FIELD_NAME = "position";
+
+    public static final Schema SCHEMA = Schema.recordOf(
+      "landmark-entity-annotation-component-record",
+      Schema.Field.of(MID_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(LOCALE_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(TOPICALITY_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(LOCATIONS_FIELD_NAME, Schema.arrayOf(LocationInfo.SCHEMA)),
+      Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)),
+      Schema.Field.of(PROPERTIES_FIELD_NAME, Schema.arrayOf(Property.SCHEMA))
+    );
   }
 
   /**
@@ -658,43 +752,6 @@ public class ImageExtractorConstants extends CloudVisionConstants {
       Schema.Field.of(RED_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
       Schema.Field.of(GREEN_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
       Schema.Field.of(BLUE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
-  }
-
-  /**
-   * TODO document
-   */
-  public static class LandmarkLocation {
-    public static final String LATITUDE_FIELD_NAME = "latitude";
-    public static final String LONGITUDE_FIELD_NAME = "longitude";
-
-    public static final Schema SCHEMA = Schema.recordOf(
-      "landmark-location-record",
-      Schema.Field.of(LATITUDE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
-      Schema.Field.of(LONGITUDE_FIELD_NAME, Schema.of(Schema.Type.FLOAT))
-    );
-  }
-
-  /**
-   * TODO document
-   */
-  public static class LandmarkAnnotation {
-    /**
-     * TODO document
-     */
-    public static final String MID_FIELD_NAME = "mid";
-    public static final String DESCRIPTION_FIELD_NAME = "description";
-    public static final String SCORE_FIELD_NAME = "score";
-    public static final String POSITION_FIELD_NAME = "position";
-    public static final String LOCATIONS_FIELD_NAME = "locations";
-
-    public static final Schema SCHEMA = Schema.recordOf(
-      "landmark-annotation-component-record",
-      Schema.Field.of(MID_FIELD_NAME, Schema.of(Schema.Type.STRING)),
-      Schema.Field.of(DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)),
-      Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
-      Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA)),
-      Schema.Field.of(LOCATIONS_FIELD_NAME, Schema.arrayOf(LandmarkLocation.SCHEMA))
-    );
   }
 
   /**

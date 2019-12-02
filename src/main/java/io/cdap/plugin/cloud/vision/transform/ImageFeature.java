@@ -43,11 +43,11 @@ public enum ImageFeature {
     Feature.Type.IMAGE_PROPERTIES,
     Schema.arrayOf(ImageExtractorConstants.ColorInfo.SCHEMA)
   ),
-  LABELS("Labels", Feature.Type.LABEL_DETECTION, Schema.arrayOf(ImageExtractorConstants.LabelAnnotation.SCHEMA)),
+  LABELS("Labels", Feature.Type.LABEL_DETECTION, Schema.arrayOf(ImageExtractorConstants.LabelEntityAnnotation.SCHEMA)),
   LANDMARKS(
     "Landmarks",
     Feature.Type.LANDMARK_DETECTION,
-    Schema.arrayOf(ImageExtractorConstants.LandmarkAnnotation.SCHEMA)
+    Schema.arrayOf(ImageExtractorConstants.LandmarkEntityAnnotation.SCHEMA)
   ),
   LOGOS("Logos", Feature.Type.LOGO_DETECTION, Schema.arrayOf(ImageExtractorConstants.LogoAnnotation.SCHEMA)),
   // Object localization is used to detect multiple objects
