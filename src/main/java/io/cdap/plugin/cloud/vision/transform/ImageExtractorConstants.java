@@ -783,20 +783,41 @@ public class ImageExtractorConstants extends CloudVisionConstants {
   }
 
   /**
-   * TODO document
+   * Detected object with bounding boxes.
    */
   public static class LocalizedObjectAnnotation {
+
     /**
-     * TODO document
+     * Opaque entity ID. Some IDs may be available in
+     * <a href="https://developers.google.com/knowledge-graph/">Google Knowledge Graph Search API</a>
      */
     public static final String MID_FIELD_NAME = "mid";
+
+    /**
+     * The BCP-47 language code, such as "en-US" or "sr-Latn". For more information, see
+     * http://www.unicode.org/reports/tr35/#Unicode_locale_identifier.
+     */
+    public static final String LANGUAGE_CODE_FIELD_NAME = "languageCode";
+
+    /**
+     * Object name, expressed in its {@link LocalizedObjectAnnotation#LANGUAGE_CODE_FIELD_NAME} language.
+     */
     public static final String NAME_FIELD_NAME = "name";
+
+    /**
+     * Score of the result. Range [0, 1].
+     */
     public static final String SCORE_FIELD_NAME = "score";
+
+    /**
+     * Image region to which this object belongs. This must be populated.
+     */
     public static final String POSITION_FIELD_NAME = "position";
 
     public static final Schema SCHEMA = Schema.recordOf(
       "localized-object-annotation-component-record",
       Schema.Field.of(MID_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(LANGUAGE_CODE_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(NAME_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
       Schema.Field.of(POSITION_FIELD_NAME, Schema.arrayOf(Vertex.SCHEMA))

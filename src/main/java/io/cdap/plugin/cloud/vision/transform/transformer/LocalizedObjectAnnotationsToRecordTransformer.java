@@ -21,7 +21,6 @@ import com.google.cloud.vision.v1.LocalizedObjectAnnotation;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,13 +49,15 @@ public class LocalizedObjectAnnotationsToRecordTransformer extends ImageAnnotati
   }
 
   private StructuredRecord extractLocalizedObjectAnnotationRecord(LocalizedObjectAnnotation annotation) {
-    // here we retrieve localized object annotation schema instead of using constant schema since users are free to
-    // choose to not include some of the fields
     Schema objSchema = getLocalizedObjectAnnotationSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(objSchema);
 
     if (objSchema.getField(ImageExtractorConstants.LocalizedObjectAnnotation.MID_FIELD_NAME) != null) {
       builder.set(ImageExtractorConstants.LocalizedObjectAnnotation.MID_FIELD_NAME, annotation.getMid());
+    }
+    if (objSchema.getField(ImageExtractorConstants.LocalizedObjectAnnotation.LANGUAGE_CODE_FIELD_NAME) != null) {
+      String languageCode = annotation.getLanguageCode();
+      builder.set(ImageExtractorConstants.LocalizedObjectAnnotation.LANGUAGE_CODE_FIELD_NAME, languageCode);
     }
     if (objSchema.getField(ImageExtractorConstants.LocalizedObjectAnnotation.NAME_FIELD_NAME) != null) {
       builder.set(ImageExtractorConstants.LocalizedObjectAnnotation.NAME_FIELD_NAME, annotation.getName());
@@ -85,7 +86,8 @@ public class LocalizedObjectAnnotationsToRecordTransformer extends ImageAnnotati
   }
 
   /**
-   * Retrieves Localized Object Annotation's non-nullable component schema.
+   * Retrieves Localized Object Annotation's non-nullable component schema. Schema retrieved instead of using constant
+   * schema since users are free to choose to not include some of the fields
    *
    * @return Localized Object Annotation's non-nullable component schema.
    */
