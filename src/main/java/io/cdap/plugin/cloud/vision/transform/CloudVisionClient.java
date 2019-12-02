@@ -29,7 +29,6 @@ import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.cloud.vision.v1.ImageAnnotatorSettings;
 import com.google.cloud.vision.v1.ImageContext;
 import com.google.cloud.vision.v1.ImageSource;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -61,7 +60,7 @@ public class CloudVisionClient {
       Feature feature = Feature.newBuilder().setType(featureType).build();
       AnnotateImageRequest.Builder request = AnnotateImageRequest.newBuilder().addFeatures(feature).setImage(img);
       if (config.getImageFeature() == ImageFeature.TEXT && !Strings.isNullOrEmpty(config.getLanguageHints())) {
-        ImageContext context = ImageContext.newBuilder().addLanguageHints(config.getLanguage().getCode()).build();
+        ImageContext context = ImageContext.newBuilder().addAllLanguageHints(config.getLanguages()).build();
         request.setImageContext(context);
       }
       BatchAnnotateImagesResponse response = client.batchAnnotateImages(Collections.singletonList(request.build()));

@@ -24,8 +24,10 @@ import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.api.plugin.PluginConfig;
 import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.plugin.cloud.vision.CloudVisionConfig;
-
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -88,8 +90,8 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
     return languageHints;
   }
 
-  public Language getLanguage() {
-    return Objects.requireNonNull(Language.fromDisplayName(languageHints));
+  public List<String> getLanguages() {
+    return Strings.isNullOrEmpty(languageHints) ? Collections.emptyList() : Arrays.asList(languageHints.split(","));
   }
 
   @Nullable
@@ -172,8 +174,8 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
       Schema.LogicalType providedLogicalType = providedFieldNonNullableSchema.getLogicalType();
       if (inferredType != providedType && inferredLogicalType != providedLogicalType) {
         String errorMessage = String.format("Expected field '%s' to be of type '%s', but it is of type '%s'",
-                                            field.getName(), inferredFieldNonNullableSchema.getDisplayName(),
-                                            providedFieldNonNullableSchema.getDisplayName());
+          field.getName(), inferredFieldNonNullableSchema.getDisplayName(),
+          providedFieldNonNullableSchema.getDisplayName());
 
         collector.addFailure(errorMessage, String.format("Change field '%s' to be a supported type", field.getName()))
           .withOutputSchemaField(field.getName(), null);
