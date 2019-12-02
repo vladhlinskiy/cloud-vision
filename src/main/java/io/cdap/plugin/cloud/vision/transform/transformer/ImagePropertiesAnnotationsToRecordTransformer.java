@@ -50,8 +50,6 @@ public class ImagePropertiesAnnotationsToRecordTransformer extends ImageAnnotati
   }
 
   private StructuredRecord extractColorInfoRecord(ColorInfo colorInfo) {
-    // here we retrieve color info schema instead of using constant schema since users are free to choose to not
-    // include some of the fields
     Schema faceSchema = getColorInfoSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(faceSchema);
 
@@ -70,12 +68,16 @@ public class ImagePropertiesAnnotationsToRecordTransformer extends ImageAnnotati
     if (faceSchema.getField(ImageExtractorConstants.ColorInfo.BLUE_FIELD_NAME) != null) {
       builder.set(ImageExtractorConstants.ColorInfo.BLUE_FIELD_NAME, colorInfo.getColor().getBlue());
     }
+    if (faceSchema.getField(ImageExtractorConstants.ColorInfo.ALPHA_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.ColorInfo.ALPHA_FIELD_NAME, colorInfo.getColor().getAlpha().getValue());
+    }
 
     return builder.build();
   }
 
   /**
-   * Retrieves Color Info's non-nullable component schema.
+   * Retrieves Color Info's non-nullable component schema. Color Info's schema retrieved instead of using constant
+   * schema since users are free to choose to not include some of the fields
    *
    * @return Color Info's non-nullable component schema.
    */

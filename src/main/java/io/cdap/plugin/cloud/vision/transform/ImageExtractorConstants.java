@@ -736,14 +736,40 @@ public class ImageExtractorConstants extends CloudVisionConstants {
   }
 
   /**
-   * TODO document
+   * Color information consists of RGB channels, score, and the fraction of the image that the color occupies in the
+   * image.
    */
   public static class ColorInfo {
+
+    /**
+     * The fraction of pixels the color occupies in the image. Value in range [0, 1].
+     */
     public static final String PIXEL_FRACTION_FIELD_NAME = "pixelFraction";
+
+    /**
+     * Image-specific score for this color. Value in range [0, 1].
+     */
     public static final String SCORE_FIELD_NAME = "score";
+
+    /**
+     * The amount of red in the color as a value in the interval [0, 1].
+     */
     public static final String RED_FIELD_NAME = "red";
+
+    /**
+     * The amount of green in the color as a value in the interval [0, 1].
+     */
     public static final String GREEN_FIELD_NAME = "green";
+
+    /**
+     * The amount of blue in the color as a value in the interval [0, 1].
+     */
     public static final String BLUE_FIELD_NAME = "blue";
+
+    /**
+     * The fraction of this color that should be applied to the pixel.
+     */
+    public static final String ALPHA_FIELD_NAME = "alpha";
 
     public static final Schema SCHEMA = Schema.recordOf(
       "dominant-colors-annotation-component-record",
@@ -751,7 +777,8 @@ public class ImageExtractorConstants extends CloudVisionConstants {
       Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
       Schema.Field.of(RED_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
       Schema.Field.of(GREEN_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
-      Schema.Field.of(BLUE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
+      Schema.Field.of(BLUE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
+      Schema.Field.of(ALPHA_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
   }
 
   /**
