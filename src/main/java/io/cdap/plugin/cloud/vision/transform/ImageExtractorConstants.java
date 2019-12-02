@@ -424,6 +424,11 @@ public class ImageExtractorConstants extends CloudVisionConstants {
     public static final String TEXT_FIELD_NAME = "text";
 
     /**
+     * Detected block type (text, image etc) for this block.
+     */
+    public static final String BLOCK_TYPE_FIELD_NAME = "blockType";
+
+    /**
      * Confidence of the OCR results of the block. Range [0, 1].
      */
     public static final String CONFIDENCE_FIELD_NAME = "confidence";
@@ -463,6 +468,7 @@ public class ImageExtractorConstants extends CloudVisionConstants {
     public static final Schema SCHEMA = Schema.recordOf(
       "document-text-page-block-record",
       Schema.Field.of(TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(BLOCK_TYPE_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
       Schema.Field.of(PARAGRAPHS_FIELD_NAME, Schema.arrayOf(TextParagraph.SCHEMA)),
       Schema.Field.of(DETECTED_LANGUAGES_FIELD_NAME, Schema.nullableOf(Schema.arrayOf(DetectedLanguage.SCHEMA))),
@@ -479,6 +485,16 @@ public class ImageExtractorConstants extends CloudVisionConstants {
      * The actual UTF-8 representation of the page.
      */
     public static final String TEXT_FIELD_NAME = "text";
+
+    /**
+     * Page width. For PDFs the unit is points. For images (including TIFFs) the unit is pixels.
+     */
+    public static final String WIDTH_FIELD_NAME = "width";
+
+    /**
+     * Page height. For PDFs the unit is points. For images (including TIFFs) the unit is pixels.
+     */
+    public static final String HEIGHT_FIELD_NAME = "height";
 
     /**
      * Confidence of the OCR results on the page. Range [0, 1].
@@ -503,6 +519,8 @@ public class ImageExtractorConstants extends CloudVisionConstants {
     public static final Schema SCHEMA = Schema.recordOf(
       "document-text-page-record",
       Schema.Field.of(TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(WIDTH_FIELD_NAME, Schema.of(Schema.Type.INT)),
+      Schema.Field.of(HEIGHT_FIELD_NAME, Schema.of(Schema.Type.INT)),
       Schema.Field.of(CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
       Schema.Field.of(BLOCKS_FIELD_NAME, Schema.arrayOf(TextBlock.SCHEMA)),
       Schema.Field.of(DETECTED_LANGUAGES_FIELD_NAME, Schema.nullableOf(Schema.arrayOf(DetectedLanguage.SCHEMA))),

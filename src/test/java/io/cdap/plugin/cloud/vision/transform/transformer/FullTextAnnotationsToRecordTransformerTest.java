@@ -76,6 +76,8 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
   private static final Page PAGE = Page.newBuilder()
     .addBlocks(BLOCK)
     .setConfidence(0.49f)
+    .setWidth(100)
+    .setHeight(300)
     .build();
 
   private static final TextAnnotation TEXT_ANNOTATION = TextAnnotation.newBuilder()

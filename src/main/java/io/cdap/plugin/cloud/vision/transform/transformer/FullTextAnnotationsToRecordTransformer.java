@@ -87,6 +87,12 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
         .collect(Collectors.joining());
       builder.set(ImageExtractorConstants.TextPage.TEXT_FIELD_NAME, pageText);
     }
+    if (schema.getField(ImageExtractorConstants.TextPage.WIDTH_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.TextPage.WIDTH_FIELD_NAME, page.getWidth());
+    }
+    if (schema.getField(ImageExtractorConstants.TextPage.HEIGHT_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.TextPage.HEIGHT_FIELD_NAME, page.getHeight());
+    }
     if (schema.getField(ImageExtractorConstants.TextPage.CONFIDENCE_FIELD_NAME) != null) {
       builder.set(ImageExtractorConstants.TextPage.CONFIDENCE_FIELD_NAME, page.getConfidence());
     }
@@ -133,6 +139,9 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
         .map(Symbol::getText)
         .collect(Collectors.joining());
       builder.set(ImageExtractorConstants.TextBlock.TEXT_FIELD_NAME, blockText);
+    }
+    if (schema.getField(ImageExtractorConstants.TextBlock.BLOCK_TYPE_FIELD_NAME) != null) {
+      builder.set(ImageExtractorConstants.TextBlock.BLOCK_TYPE_FIELD_NAME, block.getBlockType().name());
     }
     if (schema.getField(ImageExtractorConstants.TextBlock.CONFIDENCE_FIELD_NAME) != null) {
       builder.set(ImageExtractorConstants.TextBlock.CONFIDENCE_FIELD_NAME, block.getConfidence());
