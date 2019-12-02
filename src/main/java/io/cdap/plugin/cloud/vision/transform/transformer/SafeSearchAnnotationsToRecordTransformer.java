@@ -42,8 +42,6 @@ public class SafeSearchAnnotationsToRecordTransformer extends ImageAnnotationToR
   }
 
   private StructuredRecord extractSafeSearchAnnotation(SafeSearchAnnotation annotation) {
-    // here we retrieve safe search annotation schema instead of using constant schema since users are free to choose
-    // to not include some of the fields
     Schema safeSearchAnnotationSchema = getSafeSearchAnnotationSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(safeSearchAnnotationSchema);
     if (safeSearchAnnotationSchema.getField(ImageExtractorConstants.SafeSearchAnnotation.ADULT_FIELD_NAME) != null) {
@@ -66,7 +64,8 @@ public class SafeSearchAnnotationsToRecordTransformer extends ImageAnnotationToR
   }
 
   /**
-   * Retrieves Safe Search Annotation's non-nullable component schema.
+   * Retrieves Safe Search Annotation's non-nullable component schema. Schema retrieved instead of using constant schema
+   * since users are free to choose to not include some of the fields
    *
    * @return Safe Search Annotation's non-nullable component schema.
    */
