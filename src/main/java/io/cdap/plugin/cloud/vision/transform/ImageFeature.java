@@ -18,7 +18,10 @@ package io.cdap.plugin.cloud.vision.transform;
 
 import com.google.cloud.vision.v1.Feature;
 import io.cdap.cdap.api.data.schema.Schema;
-
+import io.cdap.plugin.cloud.vision.transform.schema.CropHintAnnotationSchema;
+import io.cdap.plugin.cloud.vision.transform.schema.FaceAnnotationSchema;
+import io.cdap.plugin.cloud.vision.transform.schema.FullTextAnnotationSchema;
+import io.cdap.plugin.cloud.vision.transform.schema.TextAnnotationSchema;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
@@ -30,14 +33,10 @@ import javax.annotation.Nullable;
  */
 public enum ImageFeature {
 
-  FACE("Face", Feature.Type.FACE_DETECTION, Schema.arrayOf(ImageExtractorConstants.FaceAnnotation.SCHEMA)),
-  TEXT("Text", Feature.Type.TEXT_DETECTION, Schema.arrayOf(ImageExtractorConstants.TextAnnotation.SCHEMA)),
-  CROP_HINTS("Crop Hints", Feature.Type.CROP_HINTS, Schema.arrayOf(ImageExtractorConstants.CropHintAnnotation.SCHEMA)),
-  HANDWRITING(
-    "Handwriting",
-    Feature.Type.DOCUMENT_TEXT_DETECTION,
-    ImageExtractorConstants.FullTextAnnotation.SCHEMA
-  ),
+  FACE("Face", Feature.Type.FACE_DETECTION, Schema.arrayOf(FaceAnnotationSchema.SCHEMA)),
+  TEXT("Text", Feature.Type.TEXT_DETECTION, Schema.arrayOf(TextAnnotationSchema.SCHEMA)),
+  CROP_HINTS("Crop Hints", Feature.Type.CROP_HINTS, Schema.arrayOf(CropHintAnnotationSchema.SCHEMA)),
+  HANDWRITING("Handwriting", Feature.Type.DOCUMENT_TEXT_DETECTION, FullTextAnnotationSchema.SCHEMA),
   // TODO add support
   IMAGE_PROPERTIES("Image Properties", Feature.Type.IMAGE_PROPERTIES, null),
   LABELS("Labels", Feature.Type.LABEL_DETECTION, null),

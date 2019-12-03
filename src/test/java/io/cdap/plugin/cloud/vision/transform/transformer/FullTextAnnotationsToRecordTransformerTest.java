@@ -25,11 +25,10 @@ import com.google.cloud.vision.v1.TextAnnotation;
 import com.google.cloud.vision.v1.Word;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
 import io.cdap.plugin.cloud.vision.transform.ImageFeature;
+import io.cdap.plugin.cloud.vision.transform.schema.FullTextAnnotationSchema;
 import org.junit.Assert;
 import org.junit.Test;
-
 import java.util.List;
 
 /**
@@ -94,8 +93,8 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
   public void testTransform() {
     String output = "extracted";
     Schema schema = Schema.recordOf("transformed-record-schema",
-                                    Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
-                                    Schema.Field.of(output, ImageFeature.HANDWRITING.getSchema()));
+      Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(output, ImageFeature.HANDWRITING.getSchema()));
 
     FullTextAnnotationsToRecordTransformer transformer = new FullTextAnnotationsToRecordTransformer(schema, output);
     StructuredRecord transformed = transformer.transform(INPUT_RECORD, RESPONSE);
@@ -109,8 +108,8 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
   public void testTransformEmptyAnnotation() {
     String output = "extracted";
     Schema schema = Schema.recordOf("transformed-record-schema",
-                                    Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
-                                    Schema.Field.of(output, ImageFeature.HANDWRITING.getSchema()));
+      Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(output, ImageFeature.HANDWRITING.getSchema()));
 
     FullTextAnnotationsToRecordTransformer transformer = new FullTextAnnotationsToRecordTransformer(schema, output);
 
@@ -130,10 +129,10 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
     String output = "extracted";
     Schema textAnnotationSingleFieldSchema = Schema.recordOf(
       "single-text-field",
-      Schema.Field.of(ImageExtractorConstants.FullTextAnnotation.TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)));
+      Schema.Field.of(FullTextAnnotationSchema.TEXT_FIELD_NAME, Schema.of(Schema.Type.STRING)));
     Schema schema = Schema.recordOf("transformed-record-schema",
-                                    Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
-                                    Schema.Field.of(output, textAnnotationSingleFieldSchema));
+      Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(output, textAnnotationSingleFieldSchema));
 
     FullTextAnnotationsToRecordTransformer transformer = new FullTextAnnotationsToRecordTransformer(schema, output);
     StructuredRecord transformed = transformer.transform(INPUT_RECORD, RESPONSE);
@@ -142,13 +141,13 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
     // actual record has single-field schema
     Assert.assertEquals(textAnnotationSingleFieldSchema, actual.getSchema());
     Assert.assertEquals(TEXT_ANNOTATION.getText(),
-                        actual.get(ImageExtractorConstants.FullTextAnnotation.TEXT_FIELD_NAME));
+      actual.get(FullTextAnnotationSchema.TEXT_FIELD_NAME));
   }
 
   private void assertAnnotationEquals(TextAnnotation expected, StructuredRecord actual) {
-    Assert.assertEquals(expected.getText(), actual.get(ImageExtractorConstants.FullTextAnnotation.TEXT_FIELD_NAME));
+    Assert.assertEquals(expected.getText(), actual.get(FullTextAnnotationSchema.TEXT_FIELD_NAME));
 
-    List<StructuredRecord> pages = actual.get(ImageExtractorConstants.FullTextAnnotation.PAGES_FIELD_NAME);
+    List<StructuredRecord> pages = actual.get(FullTextAnnotationSchema.PAGES_FIELD_NAME);
     Assert.assertNotNull(pages);
     Assert.assertEquals(expected.getPagesCount(), pages.size());
     for (int i = 0; i < expected.getPagesCount(); i++) {
@@ -160,10 +159,10 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
 
   private void assertPageEquals(Page expected, StructuredRecord actual) {
     Assert.assertEquals(expected.getConfidence(),
-                        actual.<Float>get(ImageExtractorConstants.TextPage.CONFIDENCE_FIELD_NAME),
-                        DELTA);
+      actual.<Float>get(FullTextAnnotationSchema.TextPage.CONFIDENCE_FIELD_NAME),
+      DELTA);
 
-    List<StructuredRecord> blocks = actual.get(ImageExtractorConstants.TextPage.BLOCKS_FIELD_NAME);
+    List<StructuredRecord> blocks = actual.get(FullTextAnnotationSchema.TextPage.BLOCKS_FIELD_NAME);
     Assert.assertNotNull(blocks);
     Assert.assertEquals(expected.getBlocksCount(), blocks.size());
     for (int i = 0; i < expected.getBlocksCount(); i++) {
@@ -172,7 +171,7 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
       assertBlockEquals(expectedBlock, actualPage);
     }
 
-    List<StructuredRecord> languages = actual.get(ImageExtractorConstants.TextPage.DETECTED_LANGUAGES_FIELD_NAME);
+    List<StructuredRecord> languages = actual.get(FullTextAnnotationSchema.TextPage.DETECTED_LANGUAGES_FIELD_NAME);
     Assert.assertNotNull(languages);
     TextAnnotation.TextProperty expectedProperty = expected.getProperty();
     Assert.assertEquals(expectedProperty.getDetectedLanguagesCount(), languages.size());
@@ -183,23 +182,23 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
     }
     TextAnnotation.DetectedBreak expectedBreak = expectedProperty.getDetectedBreak();
     String expectedBreakName = expectedBreak.getType().name();
-    Assert.assertEquals(expectedBreakName, actual.get(ImageExtractorConstants.TextPage.DETECTED_BREAK_FIELD_NAME));
+    Assert.assertEquals(expectedBreakName, actual.get(FullTextAnnotationSchema.TextPage.DETECTED_BREAK_FIELD_NAME));
   }
 
   private void assertLanguageEquals(TextAnnotation.DetectedLanguage expected, StructuredRecord actual) {
     Assert.assertEquals(expected.getConfidence(),
-                        actual.<Float>get(ImageExtractorConstants.DetectedLanguage.CONFIDENCE_FIELD_NAME),
-                        DELTA);
+      actual.<Float>get(FullTextAnnotationSchema.DetectedLanguage.CONFIDENCE_FIELD_NAME),
+      DELTA);
     Assert.assertEquals(expected.getLanguageCode(),
-                        actual.get(ImageExtractorConstants.DetectedLanguage.CODE_FIELD_NAME));
+      actual.get(FullTextAnnotationSchema.DetectedLanguage.CODE_FIELD_NAME));
   }
 
   private void assertBlockEquals(Block expected, StructuredRecord actual) {
     Assert.assertEquals(expected.getConfidence(),
-                        actual.<Float>get(ImageExtractorConstants.TextBlock.CONFIDENCE_FIELD_NAME),
-                        DELTA);
+      actual.<Float>get(FullTextAnnotationSchema.TextBlock.CONFIDENCE_FIELD_NAME),
+      DELTA);
 
-    List<StructuredRecord> paragraphs = actual.get(ImageExtractorConstants.TextBlock.PARAGRAPHS_FIELD_NAME);
+    List<StructuredRecord> paragraphs = actual.get(FullTextAnnotationSchema.TextBlock.PARAGRAPHS_FIELD_NAME);
     Assert.assertNotNull(paragraphs);
     Assert.assertEquals(expected.getParagraphsCount(), paragraphs.size());
     for (int i = 0; i < expected.getParagraphsCount(); i++) {
@@ -208,7 +207,7 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
       assertParagraphEquals(expectedParagraph, actualParagraph);
     }
 
-    List<StructuredRecord> languages = actual.get(ImageExtractorConstants.TextBlock.DETECTED_LANGUAGES_FIELD_NAME);
+    List<StructuredRecord> languages = actual.get(FullTextAnnotationSchema.TextBlock.DETECTED_LANGUAGES_FIELD_NAME);
     Assert.assertNotNull(languages);
     TextAnnotation.TextProperty expectedProperty = expected.getProperty();
     Assert.assertEquals(expectedProperty.getDetectedLanguagesCount(), languages.size());
@@ -219,15 +218,15 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
     }
     TextAnnotation.DetectedBreak expectedBreak = expectedProperty.getDetectedBreak();
     String expectedBreakName = expectedBreak.getType().name();
-    Assert.assertEquals(expectedBreakName, actual.get(ImageExtractorConstants.TextBlock.DETECTED_BREAK_FIELD_NAME));
+    Assert.assertEquals(expectedBreakName, actual.get(FullTextAnnotationSchema.TextBlock.DETECTED_BREAK_FIELD_NAME));
   }
 
   private void assertParagraphEquals(Paragraph expected, StructuredRecord actual) {
     Assert.assertEquals(expected.getConfidence(),
-                        actual.<Float>get(ImageExtractorConstants.TextParagraph.CONFIDENCE_FIELD_NAME),
-                        DELTA);
+      actual.<Float>get(FullTextAnnotationSchema.TextParagraph.CONFIDENCE_FIELD_NAME),
+      DELTA);
 
-    List<StructuredRecord> paragraphs = actual.get(ImageExtractorConstants.TextParagraph.WORDS_FIELD_NAME);
+    List<StructuredRecord> paragraphs = actual.get(FullTextAnnotationSchema.TextParagraph.WORDS_FIELD_NAME);
     Assert.assertNotNull(paragraphs);
     Assert.assertEquals(expected.getWordsCount(), paragraphs.size());
     for (int i = 0; i < expected.getWordsCount(); i++) {
@@ -236,7 +235,7 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
       assertWordEquals(expectedWord, actualWord);
     }
 
-    List<StructuredRecord> languages = actual.get(ImageExtractorConstants.TextParagraph.DETECTED_LANGUAGES_FIELD_NAME);
+    List<StructuredRecord> languages = actual.get(FullTextAnnotationSchema.TextParagraph.DETECTED_LANGUAGES_FIELD_NAME);
     Assert.assertNotNull(languages);
     TextAnnotation.TextProperty expectedProperty = expected.getProperty();
     Assert.assertEquals(expectedProperty.getDetectedLanguagesCount(), languages.size());
@@ -247,15 +246,16 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
     }
     TextAnnotation.DetectedBreak expectedBreak = expectedProperty.getDetectedBreak();
     String expectedBreakName = expectedBreak.getType().name();
-    Assert.assertEquals(expectedBreakName, actual.get(ImageExtractorConstants.TextParagraph.DETECTED_BREAK_FIELD_NAME));
+    Assert.assertEquals(expectedBreakName,
+      actual.get(FullTextAnnotationSchema.TextParagraph.DETECTED_BREAK_FIELD_NAME));
   }
 
   private void assertWordEquals(Word expected, StructuredRecord actual) {
     Assert.assertEquals(expected.getConfidence(),
-                        actual.<Float>get(ImageExtractorConstants.TextWord.CONFIDENCE_FIELD_NAME),
-                        DELTA);
+      actual.<Float>get(FullTextAnnotationSchema.TextWord.CONFIDENCE_FIELD_NAME),
+      DELTA);
 
-    List<StructuredRecord> paragraphs = actual.get(ImageExtractorConstants.TextWord.SYMBOLS_FIELD_NAME);
+    List<StructuredRecord> paragraphs = actual.get(FullTextAnnotationSchema.TextWord.SYMBOLS_FIELD_NAME);
     Assert.assertNotNull(paragraphs);
     Assert.assertEquals(expected.getSymbolsCount(), paragraphs.size());
     for (int i = 0; i < expected.getSymbolsCount(); i++) {
@@ -264,7 +264,7 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
       assertSymbolEquals(expectedSymbol, actualSymbol);
     }
 
-    List<StructuredRecord> languages = actual.get(ImageExtractorConstants.TextWord.DETECTED_LANGUAGES_FIELD_NAME);
+    List<StructuredRecord> languages = actual.get(FullTextAnnotationSchema.TextWord.DETECTED_LANGUAGES_FIELD_NAME);
     Assert.assertNotNull(languages);
     TextAnnotation.TextProperty expectedProperty = expected.getProperty();
     Assert.assertEquals(expectedProperty.getDetectedLanguagesCount(), languages.size());
@@ -275,18 +275,18 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
     }
     TextAnnotation.DetectedBreak expectedBreak = expectedProperty.getDetectedBreak();
     String expectedBreakName = expectedBreak.getType().name();
-    Assert.assertEquals(expectedBreakName, actual.get(ImageExtractorConstants.TextWord.DETECTED_BREAK_FIELD_NAME));
+    Assert.assertEquals(expectedBreakName, actual.get(FullTextAnnotationSchema.TextWord.DETECTED_BREAK_FIELD_NAME));
   }
 
   private void assertSymbolEquals(Symbol expected, StructuredRecord actual) {
-    Assert.assertEquals(expected.getText(), actual.get(ImageExtractorConstants.TextSymbol.TEXT_FIELD_NAME));
+    Assert.assertEquals(expected.getText(), actual.get(FullTextAnnotationSchema.TextSymbol.TEXT_FIELD_NAME));
     Assert.assertEquals(expected.getConfidence(),
-                        actual.<Float>get(ImageExtractorConstants.TextSymbol.CONFIDENCE_FIELD_NAME),
-                        DELTA);
+      actual.<Float>get(FullTextAnnotationSchema.TextSymbol.CONFIDENCE_FIELD_NAME),
+      DELTA);
 
-    List<StructuredRecord> languages = actual.get(ImageExtractorConstants.TextSymbol.DETECTED_LANGUAGES_FIELD_NAME);
+    List<StructuredRecord> languages = actual.get(FullTextAnnotationSchema.TextSymbol.DETECTED_LANGUAGES_FIELD_NAME);
     Assert.assertNotNull(languages);
-    TextAnnotation.TextProperty  expectedProperty = expected.getProperty();
+    TextAnnotation.TextProperty expectedProperty = expected.getProperty();
     Assert.assertEquals(expectedProperty.getDetectedLanguagesCount(), languages.size());
     for (int i = 0; i < expectedProperty.getDetectedLanguagesCount(); i++) {
       TextAnnotation.DetectedLanguage expectedLanguage = expectedProperty.getDetectedLanguages(i);
@@ -295,6 +295,6 @@ public class FullTextAnnotationsToRecordTransformerTest extends BaseAnnotationsT
     }
     TextAnnotation.DetectedBreak expectedBreak = expectedProperty.getDetectedBreak();
     String expectedBreakName = expectedBreak.getType().name();
-    Assert.assertEquals(expectedBreakName, actual.get(ImageExtractorConstants.TextSymbol.DETECTED_BREAK_FIELD_NAME));
+    Assert.assertEquals(expectedBreakName, actual.get(FullTextAnnotationSchema.TextSymbol.DETECTED_BREAK_FIELD_NAME));
   }
 }

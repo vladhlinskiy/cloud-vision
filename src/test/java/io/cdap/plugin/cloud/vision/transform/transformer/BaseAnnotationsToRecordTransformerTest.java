@@ -20,9 +20,8 @@ import com.google.cloud.vision.v1.BoundingPoly;
 import com.google.cloud.vision.v1.Vertex;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
+import io.cdap.plugin.cloud.vision.transform.schema.VertexSchema;
 import org.junit.Assert;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -58,8 +57,8 @@ public class BaseAnnotationsToRecordTransformerTest {
       StructuredRecord actualVertex = actual.get(i);
       Assert.assertNotNull(actualVertex);
 
-      Assert.assertEquals(expectedVertex.getX(), (int) actualVertex.get(ImageExtractorConstants.Vertex.X_FIELD_NAME));
-      Assert.assertEquals(expectedVertex.getY(), (int) actualVertex.get(ImageExtractorConstants.Vertex.Y_FIELD_NAME));
+      Assert.assertEquals(expectedVertex.getX(), (int) actualVertex.get(VertexSchema.X_FIELD_NAME));
+      Assert.assertEquals(expectedVertex.getY(), (int) actualVertex.get(VertexSchema.Y_FIELD_NAME));
     }
   }
 }

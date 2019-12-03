@@ -20,11 +20,10 @@ import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.EntityAnnotation;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
 import io.cdap.plugin.cloud.vision.transform.ImageFeature;
+import io.cdap.plugin.cloud.vision.transform.schema.TextAnnotationSchema;
 import org.junit.Assert;
 import org.junit.Test;
-
 import java.util.List;
 
 /**
@@ -47,8 +46,8 @@ public class TextAnnotationsToRecordTransformerTest extends BaseAnnotationsToRec
   public void testTransform() {
     String outputFieldName = "extracted";
     Schema schema = Schema.recordOf("transformed-record-schema",
-                                    Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
-                                    Schema.Field.of(outputFieldName, ImageFeature.TEXT.getSchema()));
+      Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(outputFieldName, ImageFeature.TEXT.getSchema()));
 
     TextAnnotationsToRecordTransformer transformer = new TextAnnotationsToRecordTransformer(schema, outputFieldName);
     StructuredRecord transformed = transformer.transform(INPUT_RECORD, RESPONSE);
@@ -66,8 +65,8 @@ public class TextAnnotationsToRecordTransformerTest extends BaseAnnotationsToRec
   public void testTransformEmptyAnnotation() {
     String outputFieldName = "extracted";
     Schema schema = Schema.recordOf("transformed-record-schema",
-                                    Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
-                                    Schema.Field.of(outputFieldName, ImageFeature.TEXT.getSchema()));
+      Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(outputFieldName, ImageFeature.TEXT.getSchema()));
 
     TextAnnotationsToRecordTransformer transformer = new TextAnnotationsToRecordTransformer(schema, outputFieldName);
 
@@ -91,10 +90,10 @@ public class TextAnnotationsToRecordTransformerTest extends BaseAnnotationsToRec
     String outputFieldName = "extracted";
     Schema textAnnotationSingleFieldSchema = Schema.recordOf(
       "single-text-field",
-      Schema.Field.of(ImageExtractorConstants.TextAnnotation.DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)));
+      Schema.Field.of(TextAnnotationSchema.DESCRIPTION_FIELD_NAME, Schema.of(Schema.Type.STRING)));
     Schema schema = Schema.recordOf("transformed-record-schema",
-                                    Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
-                                    Schema.Field.of(outputFieldName, Schema.arrayOf(textAnnotationSingleFieldSchema)));
+      Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(outputFieldName, Schema.arrayOf(textAnnotationSingleFieldSchema)));
 
     TextAnnotationsToRecordTransformer transformer = new TextAnnotationsToRecordTransformer(schema, outputFieldName);
     StructuredRecord transformed = transformer.transform(INPUT_RECORD, RESPONSE);
@@ -106,16 +105,14 @@ public class TextAnnotationsToRecordTransformerTest extends BaseAnnotationsToRec
     StructuredRecord actual = actualExtracted.get(SINGLE_FEATURE_INDEX);
     // actual record has single-field schema
     Assert.assertEquals(textAnnotationSingleFieldSchema, actual.getSchema());
-    Assert.assertEquals(TEXT_ANNOTATION.getDescription(),
-                        actual.get(ImageExtractorConstants.TextAnnotation.DESCRIPTION_FIELD_NAME));
+    Assert.assertEquals(TEXT_ANNOTATION.getDescription(), actual.get(TextAnnotationSchema.DESCRIPTION_FIELD_NAME));
   }
 
   private void assertAnnotationEquals(EntityAnnotation expected, StructuredRecord actual) {
-    Assert.assertEquals(expected.getLocale(), actual.get(ImageExtractorConstants.TextAnnotation.LOCALE_FIELD_NAME));
-    Assert.assertEquals(expected.getDescription(),
-                        actual.get(ImageExtractorConstants.TextAnnotation.DESCRIPTION_FIELD_NAME));
+    Assert.assertEquals(expected.getLocale(), actual.get(TextAnnotationSchema.LOCALE_FIELD_NAME));
+    Assert.assertEquals(expected.getDescription(), actual.get(TextAnnotationSchema.DESCRIPTION_FIELD_NAME));
 
-    List<StructuredRecord> position = actual.get(ImageExtractorConstants.TextAnnotation.POSITION_FIELD_NAME);
+    List<StructuredRecord> position = actual.get(TextAnnotationSchema.POSITION_FIELD_NAME);
     assertPositionEqual(expected.getBoundingPoly(), position);
   }
 }

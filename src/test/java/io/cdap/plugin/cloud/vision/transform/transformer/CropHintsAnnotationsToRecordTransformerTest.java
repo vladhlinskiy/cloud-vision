@@ -21,11 +21,10 @@ import com.google.cloud.vision.v1.CropHint;
 import com.google.cloud.vision.v1.CropHintsAnnotation;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
 import io.cdap.plugin.cloud.vision.transform.ImageFeature;
+import io.cdap.plugin.cloud.vision.transform.schema.CropHintAnnotationSchema;
 import org.junit.Assert;
 import org.junit.Test;
-
 import java.util.List;
 
 /**
@@ -58,8 +57,8 @@ public class CropHintsAnnotationsToRecordTransformerTest extends BaseAnnotations
   public void testTransform() {
     String output = "extracted";
     Schema schema = Schema.recordOf("transformed-record-schema",
-                                    Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
-                                    Schema.Field.of(output, ImageFeature.CROP_HINTS.getSchema()));
+      Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(output, ImageFeature.CROP_HINTS.getSchema()));
 
     CropHintsAnnotationsToRecordTransformer transformer = new CropHintsAnnotationsToRecordTransformer(schema, output);
     StructuredRecord transformed = transformer.transform(INPUT_RECORD, RESPONSE);
@@ -74,8 +73,8 @@ public class CropHintsAnnotationsToRecordTransformerTest extends BaseAnnotations
   public void testTransformEmptyAnnotation() {
     String output = "extracted";
     Schema schema = Schema.recordOf("transformed-record-schema",
-                                    Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
-                                    Schema.Field.of(output, ImageFeature.CROP_HINTS.getSchema()));
+      Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(output, ImageFeature.CROP_HINTS.getSchema()));
 
     CropHintsAnnotationsToRecordTransformer transformer = new CropHintsAnnotationsToRecordTransformer(schema, output);
 
@@ -96,10 +95,10 @@ public class CropHintsAnnotationsToRecordTransformerTest extends BaseAnnotations
     String output = "extracted";
     Schema textAnnotationSingleFieldSchema = Schema.recordOf(
       "single-crop-hint-field",
-      Schema.Field.of(ImageExtractorConstants.CropHintAnnotation.CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
+      Schema.Field.of(CropHintAnnotationSchema.CONFIDENCE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)));
     Schema schema = Schema.recordOf("transformed-record-schema",
-                                    Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
-                                    Schema.Field.of(output, Schema.arrayOf(textAnnotationSingleFieldSchema)));
+      Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(output, Schema.arrayOf(textAnnotationSingleFieldSchema)));
 
     CropHintsAnnotationsToRecordTransformer transformer = new CropHintsAnnotationsToRecordTransformer(schema, output);
     StructuredRecord transformed = transformer.transform(INPUT_RECORD, RESPONSE);
@@ -112,8 +111,8 @@ public class CropHintsAnnotationsToRecordTransformerTest extends BaseAnnotations
       CropHint expectedCropHint = CROP_HINTS_ANNOTATION.getCropHints(i);
       StructuredRecord actualCropHint = actual.get(i);
       Assert.assertEquals(expectedCropHint.getConfidence(),
-                          actualCropHint.<Float>get(ImageExtractorConstants.CropHintAnnotation.CONFIDENCE_FIELD_NAME),
-                          DELTA);
+        actualCropHint.<Float>get(CropHintAnnotationSchema.CONFIDENCE_FIELD_NAME),
+        DELTA);
     }
   }
 
@@ -130,10 +129,10 @@ public class CropHintsAnnotationsToRecordTransformerTest extends BaseAnnotations
   private void assertCropHintEquals(CropHint expected, StructuredRecord actual) {
     Assert.assertNotNull(actual);
     Assert.assertEquals(expected.getConfidence(),
-                        actual.<Float>get(ImageExtractorConstants.CropHintAnnotation.CONFIDENCE_FIELD_NAME),
-                        DELTA);
+      actual.<Float>get(CropHintAnnotationSchema.CONFIDENCE_FIELD_NAME),
+      DELTA);
     Assert.assertEquals(expected.getImportanceFraction(),
-                        actual.<Float>get(ImageExtractorConstants.CropHintAnnotation.IMPORTANCE_FRACTION_FIELD_NAME),
-                        DELTA);
+      actual.<Float>get(CropHintAnnotationSchema.IMPORTANCE_FRACTION_FIELD_NAME),
+      DELTA);
   }
 }

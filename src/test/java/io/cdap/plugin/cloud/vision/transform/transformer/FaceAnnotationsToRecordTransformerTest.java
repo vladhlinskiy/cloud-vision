@@ -22,11 +22,10 @@ import com.google.cloud.vision.v1.Likelihood;
 import com.google.cloud.vision.v1.Position;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
 import io.cdap.plugin.cloud.vision.transform.ImageFeature;
+import io.cdap.plugin.cloud.vision.transform.schema.FaceAnnotationSchema;
 import org.junit.Assert;
 import org.junit.Test;
-
 import java.util.List;
 
 /**
@@ -65,8 +64,8 @@ public class FaceAnnotationsToRecordTransformerTest extends BaseAnnotationsToRec
   public void testTransform() {
     String outputFieldName = "extracted";
     Schema schema = Schema.recordOf("transformed-record-schema",
-                                    Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
-                                    Schema.Field.of(outputFieldName, ImageFeature.FACE.getSchema()));
+      Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(outputFieldName, ImageFeature.FACE.getSchema()));
 
     FaceAnnotationsToRecordTransformer transformer = new FaceAnnotationsToRecordTransformer(schema, outputFieldName);
     StructuredRecord transformed = transformer.transform(INPUT_RECORD, RESPONSE);
@@ -84,8 +83,8 @@ public class FaceAnnotationsToRecordTransformerTest extends BaseAnnotationsToRec
   public void testTransformEmptyAnnotation() {
     String outputFieldName = "extracted";
     Schema schema = Schema.recordOf("transformed-record-schema",
-                                    Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
-                                    Schema.Field.of(outputFieldName, ImageFeature.FACE.getSchema()));
+      Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(outputFieldName, ImageFeature.FACE.getSchema()));
 
     FaceAnnotationsToRecordTransformer transformer = new FaceAnnotationsToRecordTransformer(schema, outputFieldName);
 
@@ -109,10 +108,10 @@ public class FaceAnnotationsToRecordTransformerTest extends BaseAnnotationsToRec
     String outputFieldName = "extracted";
     Schema faceAnnotationSingleFieldSchema = Schema.recordOf(
       "single-face-field",
-      Schema.Field.of(ImageExtractorConstants.FaceAnnotation.ANGER_FIELD_NAME, Schema.of(Schema.Type.STRING)));
+      Schema.Field.of(FaceAnnotationSchema.ANGER_FIELD_NAME, Schema.of(Schema.Type.STRING)));
     Schema schema = Schema.recordOf("transformed-record-schema",
-                                    Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
-                                    Schema.Field.of(outputFieldName, Schema.arrayOf(faceAnnotationSingleFieldSchema)));
+      Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
+      Schema.Field.of(outputFieldName, Schema.arrayOf(faceAnnotationSingleFieldSchema)));
 
     FaceAnnotationsToRecordTransformer transformer = new FaceAnnotationsToRecordTransformer(schema, outputFieldName);
     StructuredRecord transformed = transformer.transform(INPUT_RECORD, RESPONSE);
@@ -125,45 +124,39 @@ public class FaceAnnotationsToRecordTransformerTest extends BaseAnnotationsToRec
     // actual record has single-field schema
     Assert.assertEquals(faceAnnotationSingleFieldSchema, actual.getSchema());
     Assert.assertEquals(FACE_ANNOTATION.getAngerLikelihood().name(),
-                        actual.get(ImageExtractorConstants.FaceAnnotation.ANGER_FIELD_NAME));
+      actual.get(FaceAnnotationSchema.ANGER_FIELD_NAME));
   }
 
   private void assertAnnotationEquals(FaceAnnotation expected, StructuredRecord actual) {
     Assert.assertEquals(expected.getDetectionConfidence(),
-                        actual.<Float>get(ImageExtractorConstants.FaceAnnotation.DETECTION_CONFIDENCE_FIELD_NAME),
-                        DELTA);
+      actual.<Float>get(FaceAnnotationSchema.DETECTION_CONFIDENCE_FIELD_NAME),
+      DELTA);
     Assert.assertEquals(expected.getLandmarkingConfidence(),
-                        actual.<Float>get(ImageExtractorConstants.FaceAnnotation.LANDMARKING_CONFIDENCE_FIELD_NAME),
-                        DELTA);
+      actual.<Float>get(FaceAnnotationSchema.LANDMARKING_CONFIDENCE_FIELD_NAME),
+      DELTA);
     Assert.assertEquals(expected.getRollAngle(),
-                        actual.<Float>get(ImageExtractorConstants.FaceAnnotation.ROLL_ANGLE_FIELD_NAME),
-                        DELTA);
+      actual.<Float>get(FaceAnnotationSchema.ROLL_ANGLE_FIELD_NAME),
+      DELTA);
     Assert.assertEquals(expected.getPanAngle(),
-                        actual.<Float>get(ImageExtractorConstants.FaceAnnotation.PAN_ANGLE_FIELD_NAME),
-                        DELTA);
+      actual.<Float>get(FaceAnnotationSchema.PAN_ANGLE_FIELD_NAME),
+      DELTA);
     Assert.assertEquals(expected.getTiltAngle(),
-                        actual.<Float>get(ImageExtractorConstants.FaceAnnotation.TILT_ANGLE_FIELD_NAME),
-                        DELTA);
-    Assert.assertEquals(expected.getAngerLikelihood().name(),
-                        actual.get(ImageExtractorConstants.FaceAnnotation.ANGER_FIELD_NAME));
-    Assert.assertEquals(expected.getBlurredLikelihood().name(),
-                        actual.get(ImageExtractorConstants.FaceAnnotation.BLURRED_FIELD_NAME));
-    Assert.assertEquals(expected.getHeadwearLikelihood().name(),
-                        actual.get(ImageExtractorConstants.FaceAnnotation.HEADWEAR_FIELD_NAME));
-    Assert.assertEquals(expected.getSorrowLikelihood().name(),
-                        actual.get(ImageExtractorConstants.FaceAnnotation.SORROW_FIELD_NAME));
-    Assert.assertEquals(expected.getJoyLikelihood().name(),
-                        actual.get(ImageExtractorConstants.FaceAnnotation.JOY_FIELD_NAME));
-    Assert.assertEquals(expected.getSurpriseLikelihood().name(),
-                        actual.get(ImageExtractorConstants.FaceAnnotation.SURPRISE_FIELD_NAME));
+      actual.<Float>get(FaceAnnotationSchema.TILT_ANGLE_FIELD_NAME),
+      DELTA);
+    Assert.assertEquals(expected.getAngerLikelihood().name(), actual.get(FaceAnnotationSchema.ANGER_FIELD_NAME));
+    Assert.assertEquals(expected.getBlurredLikelihood().name(), actual.get(FaceAnnotationSchema.BLURRED_FIELD_NAME));
+    Assert.assertEquals(expected.getHeadwearLikelihood().name(), actual.get(FaceAnnotationSchema.HEADWEAR_FIELD_NAME));
+    Assert.assertEquals(expected.getSorrowLikelihood().name(), actual.get(FaceAnnotationSchema.SORROW_FIELD_NAME));
+    Assert.assertEquals(expected.getJoyLikelihood().name(), actual.get(FaceAnnotationSchema.JOY_FIELD_NAME));
+    Assert.assertEquals(expected.getSurpriseLikelihood().name(), actual.get(FaceAnnotationSchema.SURPRISE_FIELD_NAME));
     Assert.assertEquals(expected.getUnderExposedLikelihood().name(),
-                        actual.get(ImageExtractorConstants.FaceAnnotation.UNDER_EXPOSED_FIELD_NAME));
+      actual.get(FaceAnnotationSchema.UNDER_EXPOSED_FIELD_NAME));
 
-    List<StructuredRecord> position = actual.get(ImageExtractorConstants.FaceAnnotation.POSITION_FIELD_NAME);
+    List<StructuredRecord> position = actual.get(FaceAnnotationSchema.POSITION_FIELD_NAME);
     assertPositionEqual(expected.getBoundingPoly(), position);
-    List<StructuredRecord> fdPosition = actual.get(ImageExtractorConstants.FaceAnnotation.FD_POSITION_FIELD_NAME);
+    List<StructuredRecord> fdPosition = actual.get(FaceAnnotationSchema.FD_POSITION_FIELD_NAME);
     assertPositionEqual(expected.getFdBoundingPoly(), fdPosition);
-    List<StructuredRecord> landmarks = actual.get(ImageExtractorConstants.FaceAnnotation.LANDMARKS_FIELD_NAME);
+    List<StructuredRecord> landmarks = actual.get(FaceAnnotationSchema.LANDMARKS_FIELD_NAME);
     assertLandmarksEqual(expected.getLandmarksList(), landmarks);
   }
 
@@ -175,16 +168,16 @@ public class FaceAnnotationsToRecordTransformerTest extends BaseAnnotationsToRec
       StructuredRecord actualLandmark = actual.get(i);
       Assert.assertNotNull(actualLandmark);
 
-      Assert.assertEquals(landmark.getType(), actualLandmark.get(ImageExtractorConstants.FaceLandmark.TYPE_FIELD_NAME));
+      Assert.assertEquals(landmark.getType(), actualLandmark.get(FaceAnnotationSchema.FaceLandmark.TYPE_FIELD_NAME));
       Assert.assertEquals(landmark.getPosition().getX(),
-                          actualLandmark.<Float>get(ImageExtractorConstants.FaceLandmark.X_FIELD_NAME),
-                          DELTA);
+        actualLandmark.<Float>get(FaceAnnotationSchema.FaceLandmark.X_FIELD_NAME),
+        DELTA);
       Assert.assertEquals(landmark.getPosition().getY(),
-                          actualLandmark.<Float>get(ImageExtractorConstants.FaceLandmark.Y_FIELD_NAME),
-                          DELTA);
+        actualLandmark.<Float>get(FaceAnnotationSchema.FaceLandmark.Y_FIELD_NAME),
+        DELTA);
       Assert.assertEquals(landmark.getPosition().getZ(),
-                          actualLandmark.<Float>get(ImageExtractorConstants.FaceLandmark.Z_FIELD_NAME),
-                          DELTA);
+        actualLandmark.<Float>get(FaceAnnotationSchema.FaceLandmark.Z_FIELD_NAME),
+        DELTA);
     }
   }
 }

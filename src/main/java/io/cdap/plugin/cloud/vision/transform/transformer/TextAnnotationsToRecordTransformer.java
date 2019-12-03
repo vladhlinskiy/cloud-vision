@@ -20,7 +20,7 @@ import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.EntityAnnotation;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
+import io.cdap.plugin.cloud.vision.transform.schema.TextAnnotationSchema;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,19 +51,19 @@ public class TextAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
   private StructuredRecord extractTextAnnotationRecord(EntityAnnotation annotation) {
     Schema textSchema = getTextAnnotationSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(textSchema);
-    if (textSchema.getField(ImageExtractorConstants.TextAnnotation.LOCALE_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.TextAnnotation.LOCALE_FIELD_NAME, annotation.getLocale());
+    if (textSchema.getField(TextAnnotationSchema.LOCALE_FIELD_NAME) != null) {
+      builder.set(TextAnnotationSchema.LOCALE_FIELD_NAME, annotation.getLocale());
     }
-    if (textSchema.getField(ImageExtractorConstants.TextAnnotation.DESCRIPTION_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.TextAnnotation.DESCRIPTION_FIELD_NAME, annotation.getDescription());
+    if (textSchema.getField(TextAnnotationSchema.DESCRIPTION_FIELD_NAME) != null) {
+      builder.set(TextAnnotationSchema.DESCRIPTION_FIELD_NAME, annotation.getDescription());
     }
-    Schema.Field positionField = textSchema.getField(ImageExtractorConstants.TextAnnotation.POSITION_FIELD_NAME);
+    Schema.Field positionField = textSchema.getField(TextAnnotationSchema.POSITION_FIELD_NAME);
     if (positionField != null) {
       Schema positionSchema = getComponentSchema(positionField);
       List<StructuredRecord> position = annotation.getBoundingPoly().getVerticesList().stream()
         .map(v -> extractVertex(v, positionSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.TextAnnotation.POSITION_FIELD_NAME, position);
+      builder.set(TextAnnotationSchema.POSITION_FIELD_NAME, position);
     }
 
     return builder.build();

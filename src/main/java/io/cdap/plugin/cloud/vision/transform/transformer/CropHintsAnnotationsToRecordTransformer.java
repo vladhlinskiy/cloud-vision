@@ -20,7 +20,7 @@ import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.CropHint;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
+import io.cdap.plugin.cloud.vision.transform.schema.CropHintAnnotationSchema;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,19 +51,19 @@ public class CropHintsAnnotationsToRecordTransformer extends ImageAnnotationToRe
   private StructuredRecord extractCropHintRecord(CropHint hint) {
     Schema hintSchema = getCropHintsAnnotationSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(hintSchema);
-    Schema.Field positionField = hintSchema.getField(ImageExtractorConstants.CropHintAnnotation.POSITION_FIELD_NAME);
+    Schema.Field positionField = hintSchema.getField(CropHintAnnotationSchema.POSITION_FIELD_NAME);
     if (positionField != null) {
       Schema positionSchema = getComponentSchema(positionField);
       List<StructuredRecord> position = hint.getBoundingPoly().getVerticesList().stream()
         .map(v -> extractVertex(v, positionSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.CropHintAnnotation.POSITION_FIELD_NAME, position);
+      builder.set(CropHintAnnotationSchema.POSITION_FIELD_NAME, position);
     }
-    if (hintSchema.getField(ImageExtractorConstants.CropHintAnnotation.CONFIDENCE_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.CropHintAnnotation.CONFIDENCE_FIELD_NAME, hint.getConfidence());
+    if (hintSchema.getField(CropHintAnnotationSchema.CONFIDENCE_FIELD_NAME) != null) {
+      builder.set(CropHintAnnotationSchema.CONFIDENCE_FIELD_NAME, hint.getConfidence());
     }
-    if (hintSchema.getField(ImageExtractorConstants.CropHintAnnotation.IMPORTANCE_FRACTION_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.CropHintAnnotation.IMPORTANCE_FRACTION_FIELD_NAME,
+    if (hintSchema.getField(CropHintAnnotationSchema.IMPORTANCE_FRACTION_FIELD_NAME) != null) {
+      builder.set(CropHintAnnotationSchema.IMPORTANCE_FRACTION_FIELD_NAME,
         hint.getImportanceFraction());
     }
 
