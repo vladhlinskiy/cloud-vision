@@ -47,6 +47,8 @@ public class TransformerFactory {
         return new SafeSearchAnnotationsToRecordTransformer(schema, config.getOutputField());
       case WEB_DETECTION:
         return new WebDetectionToRecordTransformer(schema, config.getOutputField());
+      case PRODUCT_SEARCH:
+        return new ProductSearchResultToRecordTransformer(schema, config.getOutputField());
       default:
         throw new IllegalArgumentException(String.format("Unsupported image feature: '%s'", config.getImageFeature()));
     }

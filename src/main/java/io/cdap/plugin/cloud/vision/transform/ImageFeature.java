@@ -25,6 +25,7 @@ import io.cdap.plugin.cloud.vision.transform.schema.EntityAnnotationWithPosition
 import io.cdap.plugin.cloud.vision.transform.schema.FaceAnnotationSchema;
 import io.cdap.plugin.cloud.vision.transform.schema.FullTextAnnotationSchema;
 import io.cdap.plugin.cloud.vision.transform.schema.LocalizedObjectAnnotationSchema;
+import io.cdap.plugin.cloud.vision.transform.schema.ProductSearchResultsSchema;
 import io.cdap.plugin.cloud.vision.transform.schema.SafeSearchAnnotationSchema;
 import io.cdap.plugin.cloud.vision.transform.schema.TextAnnotationSchema;
 import io.cdap.plugin.cloud.vision.transform.schema.WebDetectionSchema;
@@ -50,12 +51,11 @@ public enum ImageFeature {
   // Object localization is used to detect multiple objects
   EXPLICIT_CONTENT("Explicit Content", Feature.Type.SAFE_SEARCH_DETECTION, SafeSearchAnnotationSchema.SCHEMA),
   WEB_DETECTION("Web Detection", Feature.Type.WEB_DETECTION, WebDetectionSchema.SCHEMA),
+  PRODUCT_SEARCH("Product Search", Feature.Type.PRODUCT_SEARCH, ProductSearchResultsSchema.SCHEMA),
   OBJECT_LOCALIZATION(
     "Object Localization",
     Feature.Type.OBJECT_LOCALIZATION,
-    Schema.arrayOf(LocalizedObjectAnnotationSchema.SCHEMA)),
-  // TODO Product Search support
-  PRODUCT_SEARCH("Product Search", Feature.Type.PRODUCT_SEARCH, null);
+    Schema.arrayOf(LocalizedObjectAnnotationSchema.SCHEMA));
 
   private static final Map<String, ImageFeature> byDisplayName = Arrays.stream(values())
     .collect(Collectors.toMap(ImageFeature::getDisplayName, Function.identity()));
