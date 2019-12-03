@@ -30,8 +30,6 @@ import io.cdap.cdap.etl.api.StageConfigurer;
 import io.cdap.cdap.etl.api.batch.BatchRuntimeContext;
 import io.cdap.cdap.etl.api.batch.BatchSource;
 import io.cdap.cdap.etl.api.batch.BatchSourceContext;
-import io.cdap.plugin.cloud.vision.CloudVisionConstants;
-import io.cdap.plugin.cloud.vision.FilePathSourceConfig;
 import io.cdap.plugin.common.LineageRecorder;
 import org.apache.hadoop.io.NullWritable;
 import org.slf4j.Logger;
@@ -44,7 +42,7 @@ import java.util.stream.Collectors;
  * as records. It works for object stores as well.
  */
 @Plugin(type = BatchSource.PLUGIN_TYPE)
-@Name(CloudVisionConstants.FILE_PATH_BATCH_SOURCE_PLUGIN_NAME)
+@Name(FilePathSourceConstants.PLUGIN_NAME)
 @Description("Read file paths from a directory.")
 public class FilePathSource extends BatchSource<NullWritable, String, StructuredRecord> {
 

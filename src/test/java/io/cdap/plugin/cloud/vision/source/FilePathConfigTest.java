@@ -14,7 +14,7 @@
  * the License.
  */
 
-package io.cdap.plugin.cloud.vision;
+package io.cdap.plugin.cloud.vision.source;
 
 import io.cdap.cdap.etl.api.validation.CauseAttributes;
 import io.cdap.cdap.etl.api.validation.ValidationFailure;
@@ -90,7 +90,7 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, CloudVisionConstants.SPLIT_BY);
+    assertValidationFailed(failureCollector, FilePathSourceConstants.SPLIT_BY);
   }
 
   @Test
@@ -101,7 +101,7 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, CloudVisionConstants.SPLIT_BY);
+    assertValidationFailed(failureCollector, FilePathSourceConstants.SPLIT_BY);
   }
 
   @Test
@@ -112,7 +112,7 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, CloudVisionConstants.SPLIT_BY);
+    assertValidationFailed(failureCollector, FilePathSourceConstants.SPLIT_BY);
   }
 
   @Test
@@ -123,7 +123,7 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, CloudVisionConstants.PATH);
+    assertValidationFailed(failureCollector, FilePathSourceConstants.PATH);
   }
 
   @Test
@@ -134,7 +134,7 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, CloudVisionConstants.PATH);
+    assertValidationFailed(failureCollector, FilePathSourceConstants.PATH);
   }
 
   @Test
@@ -158,7 +158,7 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, CloudVisionConstants.LAST_MODIFIED);
+    assertValidationFailed(failureCollector, FilePathSourceConstants.LAST_MODIFIED);
   }
 
   private static void assertValidationFailed(MockFailureCollector failureCollector, String paramName) {
