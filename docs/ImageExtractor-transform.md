@@ -35,3 +35,14 @@ input record, it will be overwritten.
 **Features**: Features to extract from images.
 
 **Language Hints**: Hints to detect the language of the text in the images.
+
+**Product Set**: Resource name of a ProductSet to be searched for similar images. Format is: 
+`projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
+
+**Product Categories**: List of product categories to search in.
+
+**Filter**: Filtering expression. This can be used to restrict search results based on Product labels. An `AND` of `OR`
+of key-value expressions are currently supported, where each expression within an `OR` must have the same key.
+An `=` should be used to connect the key and value. For example, `(color = red OR color = blue) AND brand = Google` is
+acceptable, but `(color = red OR brand = Google)` is not acceptable. `color: red` is not acceptable because it uses a
+`:` instead of an `=`.

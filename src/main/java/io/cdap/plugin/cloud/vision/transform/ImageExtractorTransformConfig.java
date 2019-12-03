@@ -58,18 +58,41 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
   @Nullable
   private String languageHints;
 
+  @Name(ImageExtractorConstants.PRODUCT_SET)
+  @Description("Resource name of a ProductSet to be searched for similar images.")
+  @Macro
+  @Nullable
+  private String productSet;
+
+  @Name(ImageExtractorConstants.PRODUCT_CATEGORIES)
+  @Description("List of product categories to search in.")
+  @Macro
+  @Nullable
+  private String productCategories;
+
+  @Name(ImageExtractorConstants.FILTER)
+  @Description("Filtering expression to restrict search results based on Product labels.")
+  @Macro
+  @Nullable
+  private String filter;
+
   @Name(ImageExtractorConstants.SCHEMA)
   @Description("Schema of records output by the transform.")
   @Nullable
   private String schema;
 
   public ImageExtractorTransformConfig(String project, String serviceFilePath, String pathField, String outputField,
-                                       String features, @Nullable String languageHints, @Nullable String schema) {
+                                       String features, @Nullable String languageHints, @Nullable String productSet,
+                                       @Nullable String productCategories, @Nullable String filter,
+                                       @Nullable String schema) {
     super(project, serviceFilePath);
     this.pathField = pathField;
     this.outputField = outputField;
     this.features = features;
     this.languageHints = languageHints;
+    this.productSet = productSet;
+    this.productCategories = productCategories;
+    this.filter = filter;
     this.schema = schema;
   }
 
@@ -97,6 +120,25 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
   @Nullable
   public String getSchema() {
     return schema;
+  }
+
+  @Nullable
+  public String getProductSet() {
+    return productSet;
+  }
+
+  @Nullable
+  public String getProductCategories() {
+    return productCategories;
+  }
+
+  @Nullable
+  public String getFilter() {
+    return filter;
+  }
+
+  public ProductCategory getProductCategory() {
+    return Objects.requireNonNull(ProductCategory.fromDisplayName(productCategories));
   }
 
   public ImageFeature getImageFeature() {
