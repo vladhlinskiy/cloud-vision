@@ -64,7 +64,7 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
   private String schema;
 
   public ImageExtractorTransformConfig(String project, String serviceFilePath, String pathField, String outputField,
-                                       String features, String languageHints, String schema) {
+                                       String features, @Nullable String languageHints, @Nullable String schema) {
     super(project, serviceFilePath);
     this.pathField = pathField;
     this.outputField = outputField;

@@ -29,6 +29,7 @@ import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.cloud.vision.v1.ImageAnnotatorSettings;
 import com.google.cloud.vision.v1.ImageContext;
 import com.google.cloud.vision.v1.ImageSource;
+import io.cdap.plugin.cloud.vision.exception.CloudVisionExecutionException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -64,8 +65,14 @@ public class CloudVisionClient {
         request.setImageContext(context);
       }
       BatchAnnotateImagesResponse response = client.batchAnnotateImages(Collections.singletonList(request.build()));
+      AnnotateImageResponse annotateImageResponse = response.getResponses(SINGLE_RESPONSE_INDEX);
+      if (annotateImageResponse.hasError()) {
+        String errorMessage = String.format("Unable to extract '%s' feature of image '%s' due to: '%s'", featureType,
+          gcsPath, annotateImageResponse.getError().getMessage());
+        throw new CloudVisionExecutionException(errorMessage);
+      }
 
-      return response.getResponses(SINGLE_RESPONSE_INDEX);
+      return annotateImageResponse;
     }
   }
 

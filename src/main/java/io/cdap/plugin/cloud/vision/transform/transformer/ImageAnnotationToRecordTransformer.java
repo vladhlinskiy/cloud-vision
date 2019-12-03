@@ -21,6 +21,7 @@ import com.google.cloud.vision.v1.Vertex;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
+import java.util.Objects;
 
 
 /**
@@ -92,5 +93,17 @@ public abstract class ImageAnnotationToRecordTransformer {
     }
 
     return builder.build();
+  }
+
+  /**
+   * Extracts non-nullable component's schema of the specified array field.
+   *
+   * @param field array field.
+   * @return non-nullable component's schema of the specified array field
+   */
+  protected Schema getComponentSchema(Schema.Field field) {
+    Schema arraySchema = field.getSchema().isNullable() ? field.getSchema().getNonNullable() : field.getSchema();
+    Schema componentSchema = Objects.requireNonNull(arraySchema.getComponentSchema());
+    return componentSchema.isNullable() ? componentSchema.getNonNullable() : componentSchema;
   }
 }

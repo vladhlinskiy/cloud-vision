@@ -21,7 +21,6 @@ import com.google.cloud.vision.v1.CropHint;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,12 +53,7 @@ public class CropHintsAnnotationsToRecordTransformer extends ImageAnnotationToRe
     StructuredRecord.Builder builder = StructuredRecord.builder(hintSchema);
     Schema.Field positionField = hintSchema.getField(ImageExtractorConstants.CropHintAnnotation.POSITION_FIELD_NAME);
     if (positionField != null) {
-      Schema positionArraySchema = positionField.getSchema().isNullable() ? positionField.getSchema().getNonNullable()
-        : positionField.getSchema();
-      Schema positionSchema = positionArraySchema.getComponentSchema().isNullable()
-        ? positionArraySchema.getComponentSchema().getNonNullable()
-        : positionArraySchema.getComponentSchema();
-
+      Schema positionSchema = getComponentSchema(positionField);
       List<StructuredRecord> position = hint.getBoundingPoly().getVerticesList().stream()
         .map(v -> extractVertex(v, positionSchema))
         .collect(Collectors.toList());
@@ -70,7 +64,7 @@ public class CropHintsAnnotationsToRecordTransformer extends ImageAnnotationToRe
     }
     if (hintSchema.getField(ImageExtractorConstants.CropHintAnnotation.IMPORTANCE_FRACTION_FIELD_NAME) != null) {
       builder.set(ImageExtractorConstants.CropHintAnnotation.IMPORTANCE_FRACTION_FIELD_NAME,
-                  hint.getImportanceFraction());
+        hint.getImportanceFraction());
     }
 
     return builder.build();
@@ -83,13 +77,7 @@ public class CropHintsAnnotationsToRecordTransformer extends ImageAnnotationToRe
    * @return Crop Hints Annotation's non-nullable component schema.
    */
   private Schema getCropHintsAnnotationSchema() {
-    Schema cropHintsAnnotationsFieldSchema = schema.getField(outputFieldName).getSchema();
-    Schema cropHintsAnnotationsComponentSchema = cropHintsAnnotationsFieldSchema.isNullable()
-      ? cropHintsAnnotationsFieldSchema.getNonNullable().getComponentSchema()
-      : cropHintsAnnotationsFieldSchema.getComponentSchema();
-
-    return cropHintsAnnotationsComponentSchema.isNullable()
-      ? cropHintsAnnotationsComponentSchema.getNonNullable()
-      : cropHintsAnnotationsComponentSchema;
+    Schema.Field cropHintsAnnotationsField = schema.getField(outputFieldName);
+    return getComponentSchema(cropHintsAnnotationsField);
   }
 }

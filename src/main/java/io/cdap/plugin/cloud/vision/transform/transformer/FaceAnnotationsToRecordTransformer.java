@@ -21,7 +21,6 @@ import com.google.cloud.vision.v1.FaceAnnotation;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,11 +62,11 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
     }
     if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.DETECTION_CONFIDENCE_FIELD_NAME) != null) {
       builder.set(ImageExtractorConstants.FaceAnnotation.DETECTION_CONFIDENCE_FIELD_NAME,
-                  annotation.getDetectionConfidence());
+        annotation.getDetectionConfidence());
     }
     if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.LANDMARKING_CONFIDENCE_FIELD_NAME) != null) {
       builder.set(ImageExtractorConstants.FaceAnnotation.LANDMARKING_CONFIDENCE_FIELD_NAME,
-                  annotation.getLandmarkingConfidence());
+        annotation.getLandmarkingConfidence());
     }
     if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.ANGER_FIELD_NAME) != null) {
       builder.set(ImageExtractorConstants.FaceAnnotation.ANGER_FIELD_NAME, annotation.getAngerLikelihood().name());
@@ -83,11 +82,11 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
     }
     if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.UNDER_EXPOSED_FIELD_NAME) != null) {
       builder.set(ImageExtractorConstants.FaceAnnotation.UNDER_EXPOSED_FIELD_NAME,
-                  annotation.getUnderExposedLikelihood().name());
+        annotation.getUnderExposedLikelihood().name());
     }
     if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.HEADWEAR_FIELD_NAME) != null) {
       builder.set(ImageExtractorConstants.FaceAnnotation.HEADWEAR_FIELD_NAME,
-                  annotation.getHeadwearLikelihood().name());
+        annotation.getHeadwearLikelihood().name());
     }
     if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.SURPRISE_FIELD_NAME) != null) {
       String surprise = annotation.getSurpriseLikelihood().name();
@@ -95,12 +94,7 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
     }
     Schema.Field positionField = faceSchema.getField(ImageExtractorConstants.FaceAnnotation.POSITION_FIELD_NAME);
     if (positionField != null) {
-      Schema positionArraySchema = positionField.getSchema().isNullable() ? positionField.getSchema().getNonNullable()
-        : positionField.getSchema();
-      Schema positionSchema = positionArraySchema.getComponentSchema().isNullable()
-        ? positionArraySchema.getComponentSchema().getNonNullable()
-        : positionArraySchema.getComponentSchema();
-
+      Schema positionSchema = getComponentSchema(positionField);
       List<StructuredRecord> position = annotation.getBoundingPoly().getVerticesList().stream()
         .map(v -> extractVertex(v, positionSchema))
         .collect(Collectors.toList());
@@ -108,13 +102,7 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
     }
     Schema.Field fdPositionField = faceSchema.getField(ImageExtractorConstants.FaceAnnotation.FD_POSITION_FIELD_NAME);
     if (fdPositionField != null) {
-      Schema positionArraySchema = fdPositionField.getSchema().isNullable()
-        ? fdPositionField.getSchema().getNonNullable()
-        : fdPositionField.getSchema();
-      Schema positionSchema = positionArraySchema.getComponentSchema().isNullable()
-        ? positionArraySchema.getComponentSchema().getNonNullable()
-        : positionArraySchema.getComponentSchema();
-
+      Schema positionSchema = getComponentSchema(fdPositionField);
       List<StructuredRecord> position = annotation.getFdBoundingPoly().getVerticesList().stream()
         .map(v -> extractVertex(v, positionSchema))
         .collect(Collectors.toList());
@@ -122,13 +110,7 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
     }
     Schema.Field landmarksField = faceSchema.getField(ImageExtractorConstants.FaceAnnotation.LANDMARKS_FIELD_NAME);
     if (landmarksField != null) {
-      Schema landmarkArraySchema = landmarksField.getSchema().isNullable()
-        ? landmarksField.getSchema().getNonNullable()
-        : landmarksField.getSchema();
-      Schema landmarkSchema = landmarkArraySchema.getComponentSchema().isNullable()
-        ? landmarkArraySchema.getComponentSchema().getNonNullable()
-        : landmarkArraySchema.getComponentSchema();
-
+      Schema landmarkSchema = getComponentSchema(landmarksField);
       List<StructuredRecord> position = annotation.getLandmarksList().stream()
         .map(v -> extractLandmark(v, landmarkSchema))
         .collect(Collectors.toList());
@@ -163,13 +145,7 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
    * @return Face Annotation's non-nullable component schema.
    */
   private Schema getFaceAnnotationSchema() {
-    Schema faceAnnotationsFieldSchema = schema.getField(outputFieldName).getSchema();
-    Schema faceAnnotationsComponentSchema = faceAnnotationsFieldSchema.isNullable()
-      ? faceAnnotationsFieldSchema.getNonNullable().getComponentSchema()
-      : faceAnnotationsFieldSchema.getComponentSchema();
-
-    return faceAnnotationsComponentSchema.isNullable()
-      ? faceAnnotationsComponentSchema.getNonNullable()
-      : faceAnnotationsComponentSchema;
+    Schema.Field faceAnnotationsField = schema.getField(outputFieldName);
+    return getComponentSchema(faceAnnotationsField);
   }
 }

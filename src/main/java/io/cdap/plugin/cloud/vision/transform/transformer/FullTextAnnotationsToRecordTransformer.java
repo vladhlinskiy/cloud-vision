@@ -26,7 +26,6 @@ import com.google.cloud.vision.v1.Word;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,12 +57,7 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
 
     Schema.Field pagesField = hwSchema.getField(ImageExtractorConstants.FullTextAnnotation.PAGES_FIELD_NAME);
     if (pagesField != null) {
-      Schema pagesArraySchema = pagesField.getSchema().isNullable() ? pagesField.getSchema().getNonNullable()
-        : pagesField.getSchema();
-      Schema pageSchema = pagesArraySchema.getComponentSchema().isNullable()
-        ? pagesArraySchema.getComponentSchema().getNonNullable()
-        : pagesArraySchema.getComponentSchema();
-
+      Schema pageSchema = getComponentSchema(pagesField);
       List<StructuredRecord> pages = annotation.getPagesList().stream()
         .map(v -> extractPage(v, pageSchema))
         .collect(Collectors.toList());
@@ -98,11 +92,7 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
     }
     Schema.Field languagesField = schema.getField(ImageExtractorConstants.TextPage.DETECTED_LANGUAGES_FIELD_NAME);
     if (languagesField != null) {
-      Schema langArraySchema = languagesField.getSchema().isNullable() ? languagesField.getSchema().getNonNullable()
-        : languagesField.getSchema();
-      Schema langSchema = langArraySchema.getComponentSchema().isNullable()
-        ? langArraySchema.getComponentSchema().getNonNullable()
-        : langArraySchema.getComponentSchema();
+      Schema langSchema = getComponentSchema(languagesField);
       List<StructuredRecord> languages = page.getProperty().getDetectedLanguagesList().stream()
         .map(l -> extractDetectedLanguage(l, langSchema))
         .collect(Collectors.toList());
@@ -114,11 +104,7 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
     }
     Schema.Field blocksField = schema.getField(ImageExtractorConstants.TextPage.BLOCKS_FIELD_NAME);
     if (blocksField != null) {
-      Schema blocksArraySchema = blocksField.getSchema().isNullable() ? blocksField.getSchema().getNonNullable()
-        : blocksField.getSchema();
-      Schema blockSchema = blocksArraySchema.getComponentSchema().isNullable()
-        ? blocksArraySchema.getComponentSchema().getNonNullable()
-        : blocksArraySchema.getComponentSchema();
+      Schema blockSchema = getComponentSchema(blocksField);
       List<StructuredRecord> blocks = page.getBlocksList().stream()
         .map(v -> extractBlock(v, blockSchema))
         .collect(Collectors.toList());
@@ -148,11 +134,7 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
     }
     Schema.Field languagesField = schema.getField(ImageExtractorConstants.TextBlock.DETECTED_LANGUAGES_FIELD_NAME);
     if (languagesField != null) {
-      Schema langArraySchema = languagesField.getSchema().isNullable() ? languagesField.getSchema().getNonNullable()
-        : languagesField.getSchema();
-      Schema langSchema = langArraySchema.getComponentSchema().isNullable()
-        ? langArraySchema.getComponentSchema().getNonNullable()
-        : langArraySchema.getComponentSchema();
+      Schema langSchema = getComponentSchema(languagesField);
       List<StructuredRecord> languages = block.getProperty().getDetectedLanguagesList().stream()
         .map(l -> extractDetectedLanguage(l, langSchema))
         .collect(Collectors.toList());
@@ -164,12 +146,7 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
     }
     Schema.Field paragraphsField = schema.getField(ImageExtractorConstants.TextBlock.PARAGRAPHS_FIELD_NAME);
     if (paragraphsField != null) {
-      Schema paragraphsArraySchema = paragraphsField.getSchema().isNullable()
-        ? paragraphsField.getSchema().getNonNullable()
-        : paragraphsField.getSchema();
-      Schema paragraphSchema = paragraphsArraySchema.getComponentSchema().isNullable()
-        ? paragraphsArraySchema.getComponentSchema().getNonNullable()
-        : paragraphsArraySchema.getComponentSchema();
+      Schema paragraphSchema = getComponentSchema(paragraphsField);
       List<StructuredRecord> paragraphs = block.getParagraphsList().stream()
         .map(v -> extractParagraph(v, paragraphSchema))
         .collect(Collectors.toList());
@@ -177,12 +154,7 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
     }
     Schema.Field boxField = schema.getField(ImageExtractorConstants.TextBlock.BOUNDING_BOX_FIELD_NAME);
     if (boxField != null) {
-      Schema vertexArraySchema = boxField.getSchema().isNullable()
-        ? boxField.getSchema().getNonNullable()
-        : boxField.getSchema();
-      Schema vertexSchema = vertexArraySchema.getComponentSchema().isNullable()
-        ? vertexArraySchema.getComponentSchema().getNonNullable()
-        : vertexArraySchema.getComponentSchema();
+      Schema vertexSchema = getComponentSchema(boxField);
       List<StructuredRecord> paragraphs = block.getBoundingBox().getVerticesList().stream()
         .map(v -> extractVertex(v, vertexSchema))
         .collect(Collectors.toList());
@@ -207,11 +179,7 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
     }
     Schema.Field languagesField = schema.getField(ImageExtractorConstants.TextParagraph.DETECTED_LANGUAGES_FIELD_NAME);
     if (languagesField != null) {
-      Schema langArraySchema = languagesField.getSchema().isNullable() ? languagesField.getSchema().getNonNullable()
-        : languagesField.getSchema();
-      Schema langSchema = langArraySchema.getComponentSchema().isNullable()
-        ? langArraySchema.getComponentSchema().getNonNullable()
-        : langArraySchema.getComponentSchema();
+      Schema langSchema = getComponentSchema(languagesField);
       List<StructuredRecord> languages = paragraph.getProperty().getDetectedLanguagesList().stream()
         .map(l -> extractDetectedLanguage(l, langSchema))
         .collect(Collectors.toList());
@@ -223,11 +191,7 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
     }
     Schema.Field wordsField = schema.getField(ImageExtractorConstants.TextParagraph.WORDS_FIELD_NAME);
     if (wordsField != null) {
-      Schema wordsArraySchema = wordsField.getSchema().isNullable() ? wordsField.getSchema().getNonNullable()
-        : wordsField.getSchema();
-      Schema wordSchema = wordsArraySchema.getComponentSchema().isNullable()
-        ? wordsArraySchema.getComponentSchema().getNonNullable()
-        : wordsArraySchema.getComponentSchema();
+      Schema wordSchema = getComponentSchema(wordsField);
       List<StructuredRecord> words = paragraph.getWordsList().stream()
         .map(v -> extractWord(v, wordSchema))
         .collect(Collectors.toList());
@@ -235,12 +199,7 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
     }
     Schema.Field boxField = schema.getField(ImageExtractorConstants.TextParagraph.BOUNDING_BOX_FIELD_NAME);
     if (boxField != null) {
-      Schema vertexArraySchema = boxField.getSchema().isNullable()
-        ? boxField.getSchema().getNonNullable()
-        : boxField.getSchema();
-      Schema vertexSchema = vertexArraySchema.getComponentSchema().isNullable()
-        ? vertexArraySchema.getComponentSchema().getNonNullable()
-        : vertexArraySchema.getComponentSchema();
+      Schema vertexSchema = getComponentSchema(boxField);
       List<StructuredRecord> paragraphs = paragraph.getBoundingBox().getVerticesList().stream()
         .map(v -> extractVertex(v, vertexSchema))
         .collect(Collectors.toList());
@@ -263,11 +222,7 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
     }
     Schema.Field languagesField = schema.getField(ImageExtractorConstants.TextWord.DETECTED_LANGUAGES_FIELD_NAME);
     if (languagesField != null) {
-      Schema langArraySchema = languagesField.getSchema().isNullable() ? languagesField.getSchema().getNonNullable()
-        : languagesField.getSchema();
-      Schema langSchema = langArraySchema.getComponentSchema().isNullable()
-        ? langArraySchema.getComponentSchema().getNonNullable()
-        : langArraySchema.getComponentSchema();
+      Schema langSchema = getComponentSchema(languagesField);
       List<StructuredRecord> languages = word.getProperty().getDetectedLanguagesList().stream()
         .map(l -> extractDetectedLanguage(l, langSchema))
         .collect(Collectors.toList());
@@ -279,11 +234,7 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
     }
     Schema.Field symbolsField = schema.getField(ImageExtractorConstants.TextWord.SYMBOLS_FIELD_NAME);
     if (symbolsField != null) {
-      Schema symbolsArraySchema = symbolsField.getSchema().isNullable() ? symbolsField.getSchema().getNonNullable()
-        : symbolsField.getSchema();
-      Schema symbolSchema = symbolsArraySchema.getComponentSchema().isNullable()
-        ? symbolsArraySchema.getComponentSchema().getNonNullable()
-        : symbolsArraySchema.getComponentSchema();
+      Schema symbolSchema = getComponentSchema(symbolsField);
       List<StructuredRecord> words = word.getSymbolsList().stream()
         .map(v -> extractSymbol(v, symbolSchema))
         .collect(Collectors.toList());
@@ -291,12 +242,7 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
     }
     Schema.Field boxField = schema.getField(ImageExtractorConstants.TextWord.BOUNDING_BOX_FIELD_NAME);
     if (boxField != null) {
-      Schema vertexArraySchema = boxField.getSchema().isNullable()
-        ? boxField.getSchema().getNonNullable()
-        : boxField.getSchema();
-      Schema vertexSchema = vertexArraySchema.getComponentSchema().isNullable()
-        ? vertexArraySchema.getComponentSchema().getNonNullable()
-        : vertexArraySchema.getComponentSchema();
+      Schema vertexSchema = getComponentSchema(boxField);
       List<StructuredRecord> paragraphs = word.getBoundingBox().getVerticesList().stream()
         .map(v -> extractVertex(v, vertexSchema))
         .collect(Collectors.toList());
@@ -316,11 +262,7 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
     }
     Schema.Field languagesField = schema.getField(ImageExtractorConstants.TextSymbol.DETECTED_LANGUAGES_FIELD_NAME);
     if (languagesField != null) {
-      Schema langArraySchema = languagesField.getSchema().isNullable() ? languagesField.getSchema().getNonNullable()
-        : languagesField.getSchema();
-      Schema langSchema = langArraySchema.getComponentSchema().isNullable()
-        ? langArraySchema.getComponentSchema().getNonNullable()
-        : langArraySchema.getComponentSchema();
+      Schema langSchema = getComponentSchema(languagesField);
       List<StructuredRecord> languages = symbol.getProperty().getDetectedLanguagesList().stream()
         .map(l -> extractDetectedLanguage(l, langSchema))
         .collect(Collectors.toList());
@@ -332,12 +274,7 @@ public class FullTextAnnotationsToRecordTransformer extends ImageAnnotationToRec
     }
     Schema.Field boxField = schema.getField(ImageExtractorConstants.TextSymbol.BOUNDING_BOX_FIELD_NAME);
     if (boxField != null) {
-      Schema vertexArraySchema = boxField.getSchema().isNullable()
-        ? boxField.getSchema().getNonNullable()
-        : boxField.getSchema();
-      Schema vertexSchema = vertexArraySchema.getComponentSchema().isNullable()
-        ? vertexArraySchema.getComponentSchema().getNonNullable()
-        : vertexArraySchema.getComponentSchema();
+      Schema vertexSchema = getComponentSchema(boxField);
       List<StructuredRecord> paragraphs = symbol.getBoundingBox().getVerticesList().stream()
         .map(v -> extractVertex(v, vertexSchema))
         .collect(Collectors.toList());

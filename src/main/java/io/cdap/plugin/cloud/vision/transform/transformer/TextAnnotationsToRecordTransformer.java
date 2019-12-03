@@ -21,7 +21,6 @@ import com.google.cloud.vision.v1.EntityAnnotation;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,12 +59,7 @@ public class TextAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
     }
     Schema.Field positionField = textSchema.getField(ImageExtractorConstants.TextAnnotation.POSITION_FIELD_NAME);
     if (positionField != null) {
-      Schema positionArraySchema = positionField.getSchema().isNullable() ? positionField.getSchema().getNonNullable()
-        : positionField.getSchema();
-      Schema positionSchema = positionArraySchema.getComponentSchema().isNullable()
-        ? positionArraySchema.getComponentSchema().getNonNullable()
-        : positionArraySchema.getComponentSchema();
-
+      Schema positionSchema = getComponentSchema(positionField);
       List<StructuredRecord> position = annotation.getBoundingPoly().getVerticesList().stream()
         .map(v -> extractVertex(v, positionSchema))
         .collect(Collectors.toList());
@@ -82,13 +76,7 @@ public class TextAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
    * @return Text Annotation's non-nullable component schema.
    */
   private Schema getTextAnnotationSchema() {
-    Schema textAnnotationsFieldSchema = schema.getField(outputFieldName).getSchema();
-    Schema textAnnotationsComponentSchema = textAnnotationsFieldSchema.isNullable()
-      ? textAnnotationsFieldSchema.getNonNullable().getComponentSchema()
-      : textAnnotationsFieldSchema.getComponentSchema();
-
-    return textAnnotationsComponentSchema.isNullable()
-      ? textAnnotationsComponentSchema.getNonNullable()
-      : textAnnotationsComponentSchema;
+    Schema.Field textAnnotationsField = schema.getField(outputFieldName);
+    return getComponentSchema(textAnnotationsField);
   }
 }

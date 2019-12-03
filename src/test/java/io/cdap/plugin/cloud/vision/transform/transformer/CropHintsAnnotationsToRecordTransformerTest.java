@@ -107,8 +107,8 @@ public class CropHintsAnnotationsToRecordTransformerTest extends BaseAnnotations
     List<StructuredRecord> actual = transformed.get(output);
 
     Assert.assertNotNull(actual);
-    Assert.assertEquals(CROP_HINTS_ANNOTATION.getCropHintsList().size(), actual.size());
-    for (int i = 0; i < CROP_HINTS_ANNOTATION.getCropHintsList().size(); i++) {
+    Assert.assertEquals(CROP_HINTS_ANNOTATION.getCropHintsCount(), actual.size());
+    for (int i = 0; i < CROP_HINTS_ANNOTATION.getCropHintsCount(); i++) {
       CropHint expectedCropHint = CROP_HINTS_ANNOTATION.getCropHints(i);
       StructuredRecord actualCropHint = actual.get(i);
       Assert.assertEquals(expectedCropHint.getConfidence(),
@@ -119,8 +119,8 @@ public class CropHintsAnnotationsToRecordTransformerTest extends BaseAnnotations
 
   private void assertAnnotationEquals(CropHintsAnnotation expected, List<StructuredRecord> actual) {
     Assert.assertNotNull(actual);
-    Assert.assertEquals(expected.getCropHintsList().size(), actual.size());
-    for (int i = 0; i < expected.getCropHintsList().size(); i++) {
+    Assert.assertEquals(expected.getCropHintsCount(), actual.size());
+    for (int i = 0; i < expected.getCropHintsCount(); i++) {
       CropHint expectedCropHint = expected.getCropHints(i);
       StructuredRecord actualCropHint = actual.get(i);
       assertCropHintEquals(expectedCropHint, actualCropHint);
