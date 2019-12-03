@@ -49,11 +49,13 @@ public class CloudVisionClient {
   }
 
   public AnnotateImageResponse extractFeature(String gcsPath) throws Exception {
-    Credentials credentials = loadServiceAccountCredentials(config.getServiceFilePath());
-    ImageAnnotatorSettings imageAnnotatorSettings = ImageAnnotatorSettings.newBuilder()
-      .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
-      .build();
-    try (ImageAnnotatorClient client = ImageAnnotatorClient.create(imageAnnotatorSettings)) {
+    String serviceAccountFilePath = config.getServiceAccountFilePath();
+    Credentials credentials = serviceAccountFilePath == null ? null : loadCredentials(serviceAccountFilePath);
+    ImageAnnotatorSettings.Builder imageAnnotatorSettings = ImageAnnotatorSettings.newBuilder();
+    if (credentials != null) {
+      imageAnnotatorSettings.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
+    }
+    try (ImageAnnotatorClient client = ImageAnnotatorClient.create(imageAnnotatorSettings.build())) {
       ImageSource imgSource = ImageSource.newBuilder().setGcsImageUri(gcsPath).build();
       Image img = Image.newBuilder().setSource(imgSource).build();
 
@@ -76,7 +78,7 @@ public class CloudVisionClient {
     }
   }
 
-  private ServiceAccountCredentials loadServiceAccountCredentials(String path) throws IOException {
+  private ServiceAccountCredentials loadCredentials(String path) throws IOException {
     File credentialsPath = new File(path);
     try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
       return ServiceAccountCredentials.fromStream(serviceAccountStream);
