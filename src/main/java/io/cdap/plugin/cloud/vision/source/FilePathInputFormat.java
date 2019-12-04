@@ -53,7 +53,7 @@ public class FilePathInputFormat extends InputFormat {
       .setRecursive(false)
       .includeDirectories()
       .skipFiles()
-      .setProject(config.getProject())
+      .setProject(config.getOrDetectProject())
       .setServiceAccountFilePath(config.getServiceAccountFilePath())
       .build();
 

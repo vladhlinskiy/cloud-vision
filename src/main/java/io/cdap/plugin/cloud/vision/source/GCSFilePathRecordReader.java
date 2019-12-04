@@ -50,7 +50,7 @@ public class GCSFilePathRecordReader extends RecordReader<NullWritable, String> 
     FilePathSplit split = (FilePathSplit) inputSplit;
     this.iterator = GCSPathIterator.builder(split.getPath())
       .setRecursive(split.isRecursive())
-      .setProject(config.getProject())
+      .setProject(config.getOrDetectProject())
       .setServiceAccountFilePath(config.getServiceAccountFilePath())
       .setLastModifiedEpochMilli(config.getLastModifiedEpochMilli())
       .build();

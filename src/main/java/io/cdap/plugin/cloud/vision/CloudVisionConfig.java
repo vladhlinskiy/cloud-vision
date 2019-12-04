@@ -51,7 +51,12 @@ public class CloudVisionConfig extends PluginConfig {
     this.serviceFilePath = serviceFilePath;
   }
 
+  @Nullable
   public String getProject() {
+    return project;
+  }
+
+  public String getOrDetectProject() {
     String projectId = tryGetProject();
     if (projectId == null) {
       throw new IllegalArgumentException(

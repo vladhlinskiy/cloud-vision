@@ -16,7 +16,6 @@
 package io.cdap.plugin.cloud.vision.transform;
 
 import io.cdap.plugin.cloud.vision.CloudVisionConfigBuilder;
-
 import javax.annotation.Nullable;
 
 /**
@@ -30,6 +29,15 @@ public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageE
 
   @Nullable
   private String languageHints;
+
+  @Nullable
+  private String productSet;
+
+  @Nullable
+  private String productCategories;
+
+  @Nullable
+  private String filter;
 
   @Nullable
   private String schema;
@@ -46,6 +54,9 @@ public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageE
       .setOutputField(original.getOutputField())
       .setFeatures(original.getFeatures())
       .setLanguageHints(original.getLanguageHints())
+      .setProductSet(original.getProductSet())
+      .setProductCategories(original.getProductCategories())
+      .setFilter(original.getFilter())
       .setSchema(original.getSchema());
   }
 
@@ -69,6 +80,21 @@ public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageE
     return this;
   }
 
+  public ImageExtractorConfigBuilder setProductSet(@Nullable String productSet) {
+    this.productSet = productSet;
+    return this;
+  }
+
+  public ImageExtractorConfigBuilder setProductCategories(@Nullable String productCategories) {
+    this.productCategories = productCategories;
+    return this;
+  }
+
+  public ImageExtractorConfigBuilder setFilter(@Nullable String filter) {
+    this.filter = filter;
+    return this;
+  }
+
   public ImageExtractorConfigBuilder setSchema(@Nullable String schema) {
     this.schema = schema;
     return this;
@@ -76,6 +102,6 @@ public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageE
 
   public ImageExtractorTransformConfig build() {
     return new ImageExtractorTransformConfig(project, serviceFilePath, pathField, outputField, features, languageHints,
-                                             schema);
+      productSet, productCategories, filter, schema);
   }
 }

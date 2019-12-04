@@ -34,13 +34,21 @@ public class TransformerFactory {
       case CROP_HINTS:
         return new CropHintsAnnotationsToRecordTransformer(schema, config.getOutputField());
       case IMAGE_PROPERTIES:
+        return new ImagePropertiesAnnotationsToRecordTransformer(schema, config.getOutputField());
       case LABELS:
+        return new LabelAnnotationsToRecordTransformer(schema, config.getOutputField());
       case LANDMARKS:
+        return new LandmarkAnnotationsToRecordTransformer(schema, config.getOutputField());
       case LOGOS:
+        return new LogoAnnotationsToRecordTransformer(schema, config.getOutputField());
       case OBJECT_LOCALIZATION:
+        return new LocalizedObjectAnnotationsToRecordTransformer(schema, config.getOutputField());
       case EXPLICIT_CONTENT:
+        return new SafeSearchAnnotationsToRecordTransformer(schema, config.getOutputField());
       case WEB_DETECTION:
-        // TODO add support
+        return new WebDetectionToRecordTransformer(schema, config.getOutputField());
+      case PRODUCT_SEARCH:
+        return new ProductSearchResultToRecordTransformer(schema, config.getOutputField());
       default:
         throw new IllegalArgumentException(String.format("Unsupported image feature: '%s'", config.getImageFeature()));
     }

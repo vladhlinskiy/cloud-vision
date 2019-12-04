@@ -53,6 +53,22 @@ public class ImageExtractorConstants extends CloudVisionConstants {
   public static final String LANGUAGE_HINTS = "languageHints";
 
   /**
+   * Configuration property name used to specify resource name of a ProductSet to be searched for similar images.
+   */
+  public static final String PRODUCT_SET = "productSet";
+
+  /**
+   * Configuration property name used to specify a product category to search in.
+   */
+  public static final String PRODUCT_CATEGORIES = "productCategories";
+
+  /**
+   * Configuration property name used to specify a filtering expression. This can be used to restrict search results
+   * based on Product labels.
+   */
+  public static final String FILTER = "filter";
+
+  /**
    * Configuration property name used to specify schema of records output by the transform.
    */
   public static final String SCHEMA = "schema";
