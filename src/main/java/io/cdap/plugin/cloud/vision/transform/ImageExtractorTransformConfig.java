@@ -40,6 +40,9 @@ import javax.annotation.Nullable;
  */
 public class ImageExtractorTransformConfig extends CloudVisionConfig {
 
+  public static final Schema ERROR_SCHEMA = Schema.recordOf("error",
+    Schema.Field.of("error", Schema.of(Schema.Type.STRING)));
+
   @Name(ImageExtractorConstants.PATH_FIELD)
   @Description("Field in the input schema containing the path to the image.")
   @Macro
