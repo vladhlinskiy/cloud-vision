@@ -16,17 +16,14 @@
 
 package io.cdap.plugin.cloud.vision.transform;
 
+import com.google.cloud.vision.v1.BoundingPoly;
+import com.google.protobuf.util.JsonFormat;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.cdap.etl.api.validation.CauseAttributes;
-import io.cdap.cdap.etl.api.validation.ValidationFailure;
 import io.cdap.cdap.etl.mock.validation.MockFailureCollector;
+import io.cdap.plugin.cloud.vision.ValidationAssertions;
 import io.cdap.plugin.cloud.vision.source.FilePathSourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 
 /**
  * Tests of {@link FilePathSourceConfig} methods.
@@ -55,7 +52,7 @@ public class ImageExtractorConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, ImageExtractorConstants.PATH_FIELD);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.PATH_FIELD);
   }
 
   @Test
@@ -66,7 +63,7 @@ public class ImageExtractorConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, ImageExtractorConstants.PATH_FIELD);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.PATH_FIELD);
   }
 
   @Test
@@ -77,7 +74,7 @@ public class ImageExtractorConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, ImageExtractorConstants.OUTPUT_FIELD);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.OUTPUT_FIELD);
   }
 
   @Test
@@ -88,7 +85,7 @@ public class ImageExtractorConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, ImageExtractorConstants.OUTPUT_FIELD);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.OUTPUT_FIELD);
   }
 
   @Test
@@ -99,7 +96,7 @@ public class ImageExtractorConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, ImageExtractorConstants.FEATURES);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.FEATURES);
   }
 
   @Test
@@ -110,7 +107,7 @@ public class ImageExtractorConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, ImageExtractorConstants.FEATURES);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.FEATURES);
   }
 
   @Test
@@ -121,24 +118,39 @@ public class ImageExtractorConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, ImageExtractorConstants.FEATURES);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.FEATURES);
   }
 
-  private static void assertValidationFailed(MockFailureCollector failureCollector, String paramName) {
-    List<ValidationFailure> failureList = failureCollector.getValidationFailures();
-    Assert.assertEquals(1, failureList.size());
-    ValidationFailure failure = failureList.get(0);
-    List<ValidationFailure.Cause> causeList = getCauses(failure, CauseAttributes.STAGE_CONFIG);
-    Assert.assertEquals(1, causeList.size());
-    ValidationFailure.Cause cause = causeList.get(0);
-    Assert.assertEquals(paramName, cause.getAttribute(CauseAttributes.STAGE_CONFIG));
+
+  @Test
+  public void testValidateBoundingPoly() throws Exception {
+    String polyJson = "{ \"vertices\": [ " +
+      "{ \"y\": 520 }, " +
+      "{ \"x\": 2369, \"y\": 520 }, " +
+      "{ \"x\": 2369, \"y\": 1729 }, " +
+      "{ \"y\": 1729 } " +
+      "] }";
+    ImageExtractorTransformConfig config = ImageExtractorConfigBuilder.builder(VALID)
+      .setBoundingPolygon(polyJson)
+      .build();
+
+    BoundingPoly.Builder builder = BoundingPoly.newBuilder();
+    JsonFormat.parser().ignoringUnknownFields().merge(polyJson, builder);
+    BoundingPoly expectedBoundingPoly = builder.build();
+
+    BoundingPoly actualBoundingPoly = config.getBoundingPoly();
+    Assert.assertNotNull(actualBoundingPoly);
+    Assert.assertEquals(expectedBoundingPoly, actualBoundingPoly);
   }
 
-  @Nonnull
-  private static List<ValidationFailure.Cause> getCauses(ValidationFailure failure, String attribute) {
-    return failure.getCauses()
-      .stream()
-      .filter(cause -> cause.getAttribute(attribute) != null)
-      .collect(Collectors.toList());
+  @Test
+  public void testValidateBoundingPolyInvalid() {
+    ImageExtractorTransformConfig config = ImageExtractorConfigBuilder.builder(VALID)
+      .setBoundingPolygon("invalid json")
+      .build();
+
+    MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
+    config.validate(failureCollector);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.BOUNDING_POLYGON);
   }
 }

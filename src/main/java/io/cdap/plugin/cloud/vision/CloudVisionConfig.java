@@ -16,14 +16,12 @@
 
 package io.cdap.plugin.cloud.vision;
 
-import com.google.cloud.ServiceOptions;
 import com.google.common.base.Strings;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.plugin.PluginConfig;
 import io.cdap.plugin.cloud.vision.source.FilePathSourceConstants;
-
 import javax.annotation.Nullable;
 
 /**
@@ -51,25 +49,9 @@ public class CloudVisionConfig extends PluginConfig {
     this.serviceFilePath = serviceFilePath;
   }
 
-  public String getProject() {
-    String projectId = tryGetProject();
-    if (projectId == null) {
-      throw new IllegalArgumentException(
-        "Could not detect Google Cloud project id from the environment. Please specify a project id.");
-    }
-    return projectId;
-  }
-
   @Nullable
-  public String tryGetProject() {
-    if (containsMacro(FilePathSourceConstants.PROJECT) && Strings.isNullOrEmpty(project)) {
-      return null;
-    }
-    String projectId = project;
-    if (Strings.isNullOrEmpty(project) || FilePathSourceConstants.AUTO_DETECT.equals(project)) {
-      projectId = ServiceOptions.getDefaultProjectId();
-    }
-    return projectId;
+  public String getProject() {
+    return project;
   }
 
   @Nullable

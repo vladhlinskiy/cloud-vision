@@ -16,7 +16,10 @@
 
 package io.cdap.plugin.cloud.vision.transform;
 
+import com.google.cloud.vision.v1.BoundingPoly;
 import com.google.common.base.Strings;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.util.JsonFormat;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.annotation.Name;
@@ -29,12 +32,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 /**
  * Defines a {@link PluginConfig} that Image Extractor transform can use.
  */
 public class ImageExtractorTransformConfig extends CloudVisionConfig {
+
+  public static final Schema ERROR_SCHEMA = Schema.recordOf("error",
+    Schema.Field.of("error", Schema.of(Schema.Type.STRING)));
 
   @Name(ImageExtractorConstants.PATH_FIELD)
   @Description("Field in the input schema containing the path to the image.")
@@ -58,18 +65,62 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
   @Nullable
   private String languageHints;
 
+  @Name(ImageExtractorConstants.ASPECT_RATIOS)
+  @Description("Ratio of the width to the height of the image. If not specified, the best possible crop is returned.")
+  @Macro
+  @Nullable
+  private String aspectRatios;
+
+  @Name(ImageExtractorConstants.INCLUDE_GEO_RESULTS)
+  @Description("Whether to include results derived from the geo information in the image.")
+  @Macro
+  private boolean includeGeoResults;
+
+  @Name(ImageExtractorConstants.PRODUCT_SET)
+  @Description("Resource name of a ProductSet to be searched for similar images.")
+  @Macro
+  @Nullable
+  private String productSet;
+
+  @Name(ImageExtractorConstants.PRODUCT_CATEGORIES)
+  @Description("List of product categories to search in.")
+  @Macro
+  @Nullable
+  private String productCategories;
+
+  @Name(ImageExtractorConstants.BOUNDING_POLYGON)
+  @Description("Bounding polygon for the image detection.")
+  @Macro
+  @Nullable
+  private String boundingPolygon;
+
+  @Name(ImageExtractorConstants.FILTER)
+  @Description("Filtering expression to restrict search results based on Product labels.")
+  @Macro
+  @Nullable
+  private String filter;
+
   @Name(ImageExtractorConstants.SCHEMA)
   @Description("Schema of records output by the transform.")
   @Nullable
   private String schema;
 
   public ImageExtractorTransformConfig(String project, String serviceFilePath, String pathField, String outputField,
-                                       String features, @Nullable String languageHints, @Nullable String schema) {
+                                       String features, @Nullable String languageHints, @Nullable String aspectRatios,
+                                       boolean includeGeoResults, @Nullable String productSet,
+                                       @Nullable String productCategories, @Nullable String boundingPolygon,
+                                       @Nullable String filter, @Nullable String schema) {
     super(project, serviceFilePath);
     this.pathField = pathField;
     this.outputField = outputField;
     this.features = features;
     this.languageHints = languageHints;
+    this.aspectRatios = aspectRatios;
+    this.includeGeoResults = includeGeoResults;
+    this.productSet = productSet;
+    this.productCategories = productCategories;
+    this.boundingPolygon = boundingPolygon;
+    this.filter = filter;
     this.schema = schema;
   }
 
@@ -99,8 +150,66 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
     return schema;
   }
 
+  @Nullable
+  public String getProductSet() {
+    return productSet;
+  }
+
+  @Nullable
+  public String getProductCategories() {
+    return productCategories;
+  }
+
+  @Nullable
+  public String getFilter() {
+    return filter;
+  }
+
+  public ProductCategory getProductCategory() {
+    return Objects.requireNonNull(ProductCategory.fromDisplayName(productCategories));
+  }
+
   public ImageFeature getImageFeature() {
     return Objects.requireNonNull(ImageFeature.fromDisplayName(features));
+  }
+
+  @Nullable
+  public String getAspectRatios() {
+    return aspectRatios;
+  }
+
+  public List<Float> getAspectRatiosList() {
+    if (Strings.isNullOrEmpty(aspectRatios)) {
+      return Collections.emptyList();
+    }
+
+    return Arrays.stream(aspectRatios.split(","))
+      .map(Float::valueOf)
+      .collect(Collectors.toList());
+  }
+
+  public boolean isIncludeGeoResults() {
+    return includeGeoResults;
+  }
+
+  @Nullable
+  public String getBoundingPolygon() {
+    return boundingPolygon;
+  }
+
+  @Nullable
+  public BoundingPoly getBoundingPoly() {
+    if (Strings.isNullOrEmpty(boundingPolygon)) {
+      return null;
+    }
+
+    BoundingPoly.Builder builder = BoundingPoly.newBuilder();
+    try {
+      JsonFormat.parser().ignoringUnknownFields().merge(boundingPolygon, builder);
+      return builder.build();
+    } catch (InvalidProtocolBufferException e) {
+      throw new IllegalStateException(String.format("Could not parse schema string: '%s'", schema), e);
+    }
   }
 
   /**
@@ -140,6 +249,14 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
       } else if (ImageFeature.fromDisplayName(features) == null) {
         collector.addFailure("Invalid image feature name", null)
           .withConfigProperty(ImageExtractorConstants.FEATURES);
+      }
+    }
+    if (!containsMacro(ImageExtractorConstants.BOUNDING_POLYGON) && !Strings.isNullOrEmpty(boundingPolygon)) {
+      try {
+        getBoundingPoly();
+      } catch (IllegalStateException e) {
+        collector.addFailure("Could not parse bounding polygon string.", null)
+          .withConfigProperty(ImageExtractorConstants.BOUNDING_POLYGON);
       }
     }
   }

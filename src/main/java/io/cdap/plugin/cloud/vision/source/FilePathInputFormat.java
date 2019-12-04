@@ -17,6 +17,7 @@ package io.cdap.plugin.cloud.vision.source;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.cdap.plugin.cloud.vision.CredentialsHelper;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -24,7 +25,6 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +53,7 @@ public class FilePathInputFormat extends InputFormat {
       .setRecursive(false)
       .includeDirectories()
       .skipFiles()
-      .setProject(config.getProject())
+      .setProject(CredentialsHelper.getProjectId(config.getProject()))
       .setServiceAccountFilePath(config.getServiceAccountFilePath())
       .build();
 

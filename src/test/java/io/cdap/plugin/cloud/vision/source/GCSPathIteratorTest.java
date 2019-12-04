@@ -17,19 +17,16 @@
 package io.cdap.plugin.cloud.vision.source;
 
 import com.google.auth.Credentials;
-import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.google.cloud.storage.StorageOptions;
+import io.cdap.plugin.cloud.vision.CredentialsHelper;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -85,7 +82,7 @@ public class GCSPathIteratorTest {
 
   @BeforeClass
   public static void testSetup() throws Exception {
-    Credentials credentials = loadCredentials(SERVICE_ACCOUNT_FILE_PATH);
+    Credentials credentials = CredentialsHelper.getCredentials(SERVICE_ACCOUNT_FILE_PATH);
     storage = getStorage(PROJECT, credentials);
 
     GCSPath path = GCSPath.from(PATH);
@@ -246,13 +243,6 @@ public class GCSPathIteratorTest {
       storage.delete(blob.getBlobId());
     }
     bucket.delete(Bucket.BucketSourceOption.metagenerationMatch());
-  }
-
-  private static ServiceAccountCredentials loadCredentials(String path) throws IOException {
-    File credentialsPath = new File(path);
-    try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
-      return ServiceAccountCredentials.fromStream(serviceAccountStream);
-    }
   }
 
   private static Storage getStorage(String project, @Nullable Credentials credentials) {

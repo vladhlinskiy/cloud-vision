@@ -17,14 +17,11 @@ package io.cdap.plugin.cloud.vision.source;
 
 import com.google.api.gax.paging.Page;
 import com.google.auth.Credentials;
-import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-
-import java.io.File;
-import java.io.FileInputStream;
+import io.cdap.plugin.cloud.vision.CredentialsHelper;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -153,7 +150,8 @@ public class GCSPathIterator implements Iterator<String> {
     }
 
     public GCSPathIterator build() throws IOException {
-      Credentials credentials = serviceAccountFilePath == null ? null : loadCredentials(serviceAccountFilePath);
+      Credentials credentials = serviceAccountFilePath == null ? null
+        : CredentialsHelper.getCredentials(serviceAccountFilePath);
       Storage storage = getStorage(project, credentials);
       GCSPath gcsPath = GCSPath.from(path);
       Bucket bucket = storage.get(gcsPath.getBucket());
@@ -161,13 +159,6 @@ public class GCSPathIterator implements Iterator<String> {
         : bucket.list(Storage.BlobListOption.currentDirectory(), Storage.BlobListOption.prefix(gcsPath.getName()));
 
       return new GCSPathIterator(blobList.iterateAll().iterator(), skipDirectories, skipFiles, lastModifiedEpochMilli);
-    }
-
-    private static ServiceAccountCredentials loadCredentials(String path) throws IOException {
-      File credentialsPath = new File(path);
-      try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
-        return ServiceAccountCredentials.fromStream(serviceAccountStream);
-      }
     }
 
     private static Storage getStorage(String project, @Nullable Credentials credentials) {
