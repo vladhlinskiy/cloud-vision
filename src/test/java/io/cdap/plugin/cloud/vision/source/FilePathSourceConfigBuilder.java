@@ -16,7 +16,6 @@
 package io.cdap.plugin.cloud.vision.source;
 
 import io.cdap.plugin.cloud.vision.CloudVisionConfigBuilder;
-
 import javax.annotation.Nullable;
 
 /**
@@ -74,6 +73,6 @@ public class FilePathSourceConfigBuilder extends CloudVisionConfigBuilder<FilePa
   }
 
   public FilePathSourceConfig build() {
-    return new FilePathSourceConfig(referenceName, path, serviceFilePath, path, recursive, lastModified, splitBy);
+    return new FilePathSourceConfig(project, serviceFilePath, referenceName, path, recursive, lastModified, splitBy);
   }
 }
