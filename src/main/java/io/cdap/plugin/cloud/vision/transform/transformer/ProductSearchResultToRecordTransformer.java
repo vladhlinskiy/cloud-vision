@@ -16,6 +16,7 @@
 
 package io.cdap.plugin.cloud.vision.transform.transformer;
 
+import com.google.cloud.Timestamp;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.Product;
 import com.google.cloud.vision.v1.ProductSearchResults;
@@ -44,26 +45,27 @@ public class ProductSearchResultToRecordTransformer extends ImageAnnotationToRec
       .build();
   }
 
-  private StructuredRecord extractProductSearchResults(ProductSearchResults productSearchResults) {
-    Schema productResultsSchema = getProductSearchResultSchema();
-    StructuredRecord.Builder builder = StructuredRecord.builder(productResultsSchema);
-    if (productResultsSchema.getField(ProductSearchResultsSchema.INDEX_TIME_FIELD_NAME) != null) {
+  private StructuredRecord extractProductSearchResults(ProductSearchResults searchResults) {
+    Schema schema = getProductSearchResultSchema();
+    StructuredRecord.Builder builder = StructuredRecord.builder(schema);
+    if (schema.getField(ProductSearchResultsSchema.INDEX_TIME_FIELD_NAME) != null && searchResults.hasIndexTime()) {
       // Timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
       // Mapped to string to avoid accuracy loss since CDAP timestamp accurate to microseconds
-      builder.set(ProductSearchResultsSchema.INDEX_TIME_FIELD_NAME, productSearchResults.getIndexTime().toString());
+      Timestamp indexTimestamp = Timestamp.fromProto(searchResults.getIndexTime());
+      builder.set(ProductSearchResultsSchema.INDEX_TIME_FIELD_NAME, indexTimestamp.toString());
     }
-    Schema.Field resultsField = productResultsSchema.getField(ProductSearchResultsSchema.RESULTS_FIELD_NAME);
+    Schema.Field resultsField = schema.getField(ProductSearchResultsSchema.RESULTS_FIELD_NAME);
     if (resultsField != null) {
       Schema resultSchema = getComponentSchema(resultsField);
-      List<StructuredRecord> results = productSearchResults.getResultsList().stream()
+      List<StructuredRecord> results = searchResults.getResultsList().stream()
         .map(r -> extractProductSearchResultRecord(r, resultSchema))
         .collect(Collectors.toList());
       builder.set(ProductSearchResultsSchema.RESULTS_FIELD_NAME, results);
     }
-    Schema.Field groupedResField = productResultsSchema.getField(ProductSearchResultsSchema.GROUPED_RESULTS_FIELD_NAME);
+    Schema.Field groupedResField = schema.getField(ProductSearchResultsSchema.GROUPED_RESULTS_FIELD_NAME);
     if (groupedResField != null) {
       Schema resultSchema = getComponentSchema(groupedResField);
-      List<StructuredRecord> results = productSearchResults.getProductGroupedResultsList().stream()
+      List<StructuredRecord> results = searchResults.getProductGroupedResultsList().stream()
         .map(r -> extractProductSearchResultRecord(r, resultSchema))
         .collect(Collectors.toList());
       builder.set(ProductSearchResultsSchema.GROUPED_RESULTS_FIELD_NAME, results);
@@ -157,7 +159,8 @@ public class ProductSearchResultToRecordTransformer extends ImageAnnotationToRec
    * @return Product Search Result non-nullable component schema.
    */
   private Schema getProductSearchResultSchema() {
-    Schema.Field productSearchResultField = schema.getField(outputFieldName);
-    return getComponentSchema(productSearchResultField);
+    Schema productSearchResultsFieldSchema = schema.getField(outputFieldName).getSchema();
+    return productSearchResultsFieldSchema.isNullable() ? productSearchResultsFieldSchema.getNonNullable()
+      : productSearchResultsFieldSchema;
   }
 }

@@ -182,8 +182,8 @@ public class WebDetectionToRecordTransformer extends ImageAnnotationToRecordTran
    * @return Web Detection's non-nullable component schema.
    */
   private Schema getWebDetectionSchema() {
-    Schema handwritingAnnotationsFieldSchema = schema.getField(outputFieldName).getSchema();
-    return handwritingAnnotationsFieldSchema.isNullable() ? handwritingAnnotationsFieldSchema.getNonNullable()
-      : handwritingAnnotationsFieldSchema;
+    Schema webDetectionAnnotationsFieldSchema = schema.getField(outputFieldName).getSchema();
+    return webDetectionAnnotationsFieldSchema.isNullable() ? webDetectionAnnotationsFieldSchema.getNonNullable()
+      : webDetectionAnnotationsFieldSchema;
   }
 }

@@ -47,7 +47,7 @@ public class ProductSearchResultsSchema {
   public static final String GROUPED_RESULTS_FIELD_NAME = "productGroupedResults";
 
   public static final Schema SCHEMA = Schema.recordOf("product-search-result-record",
-    Schema.Field.of(INDEX_TIME_FIELD_NAME, Schema.of(Schema.Type.STRING)),
+    Schema.Field.of(INDEX_TIME_FIELD_NAME, Schema.nullableOf(Schema.of(Schema.Type.STRING))),
     Schema.Field.of(RESULTS_FIELD_NAME, Schema.arrayOf(Result.SCHEMA)),
     Schema.Field.of(GROUPED_RESULTS_FIELD_NAME, Schema.arrayOf(GroupedResult.SCHEMA))
   );
@@ -75,7 +75,7 @@ public class ProductSearchResultsSchema {
     public static final Schema SCHEMA = Schema.recordOf("result-record",
       Schema.Field.of(IMAGE_FIELD_NAME, Schema.of(Schema.Type.STRING)),
       Schema.Field.of(SCORE_FIELD_NAME, Schema.of(Schema.Type.FLOAT)),
-      Schema.Field.of(PRODUCT_FIELD_NAME, Schema.arrayOf(Product.SCHEMA))
+      Schema.Field.of(PRODUCT_FIELD_NAME, Product.SCHEMA)
     );
   }
 
