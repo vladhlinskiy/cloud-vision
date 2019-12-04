@@ -26,7 +26,9 @@ public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageE
   private String pathField;
   private String outputField;
   private String features;
-  private boolean includeGeoResults;
+
+  @Nullable
+  private Boolean includeGeoResults;
 
   @Nullable
   private String languageHints;
@@ -110,7 +112,7 @@ public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageE
     return this;
   }
 
-  public ImageExtractorConfigBuilder setIncludeGeoResults(boolean includeGeoResults) {
+  public ImageExtractorConfigBuilder setIncludeGeoResults(@Nullable Boolean includeGeoResults) {
     this.includeGeoResults = includeGeoResults;
     return this;
   }
