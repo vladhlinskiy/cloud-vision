@@ -386,7 +386,7 @@
           }
         },
         {
-          "widget-type": "json-editor",
+          "widget-type": "json",
           "label": "Bounding Polygon",
           "name": "boundingPolygon"
         },

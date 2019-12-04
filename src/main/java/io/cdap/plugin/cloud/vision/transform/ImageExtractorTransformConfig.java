@@ -74,8 +74,7 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
   @Name(ImageExtractorConstants.INCLUDE_GEO_RESULTS)
   @Description("Whether to include results derived from the geo information in the image.")
   @Macro
-  @Nullable
-  private Boolean includeGeoResults;
+  private boolean includeGeoResults;
 
   @Name(ImageExtractorConstants.PRODUCT_SET)
   @Description("Resource name of a ProductSet to be searched for similar images.")
@@ -108,7 +107,7 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
 
   public ImageExtractorTransformConfig(String project, String serviceFilePath, String pathField, String outputField,
                                        String features, @Nullable String languageHints, @Nullable String aspectRatios,
-                                       @Nullable Boolean includeGeoResults, @Nullable String productSet,
+                                       boolean includeGeoResults, @Nullable String productSet,
                                        @Nullable String productCategories, @Nullable String boundingPolygon,
                                        @Nullable String filter, @Nullable String schema) {
     super(project, serviceFilePath);
@@ -189,8 +188,7 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
       .collect(Collectors.toList());
   }
 
-  @Nullable
-  public Boolean isIncludeGeoResults() {
+  public boolean isIncludeGeoResults() {
     return includeGeoResults;
   }
 

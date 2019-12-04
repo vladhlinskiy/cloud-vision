@@ -21,6 +21,7 @@ import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.plugin.PluginConfig;
+import io.cdap.plugin.cloud.vision.source.FilePathSourceConstants;
 import javax.annotation.Nullable;
 
 /**
@@ -28,14 +29,14 @@ import javax.annotation.Nullable;
  */
 public class CloudVisionConfig extends PluginConfig {
 
-  @Name(CloudVisionConstants.PROJECT)
+  @Name(FilePathSourceConstants.PROJECT)
   @Description("Google Cloud Project ID, which uniquely identifies a project. "
     + "It can be found on the Dashboard in the Google Cloud Platform Console.")
   @Macro
   @Nullable
   protected String project;
 
-  @Name(CloudVisionConstants.SERVICE_ACCOUNT_FILE_PATH)
+  @Name(FilePathSourceConstants.SERVICE_ACCOUNT_FILE_PATH)
   @Description("Path on the local file system of the service account key used "
     + "for authorization. Can be set to 'auto-detect' when running on a Dataproc cluster. "
     + "When running on other clusters, the file must be present on every node in the cluster.")
@@ -60,8 +61,8 @@ public class CloudVisionConfig extends PluginConfig {
 
   @Nullable
   public String getServiceAccountFilePath() {
-    if (containsMacro(CloudVisionConstants.SERVICE_ACCOUNT_FILE_PATH) || Strings.isNullOrEmpty(serviceFilePath)
-      || CloudVisionConstants.AUTO_DETECT.equals(serviceFilePath)) {
+    if (containsMacro(FilePathSourceConstants.SERVICE_ACCOUNT_FILE_PATH) || Strings.isNullOrEmpty(serviceFilePath)
+      || FilePathSourceConstants.AUTO_DETECT.equals(serviceFilePath)) {
       return null;
     }
     return serviceFilePath;

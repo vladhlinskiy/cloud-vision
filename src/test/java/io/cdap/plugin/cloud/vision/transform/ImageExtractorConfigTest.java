@@ -21,11 +21,12 @@ import com.google.protobuf.util.JsonFormat;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.etl.mock.validation.MockFailureCollector;
 import io.cdap.plugin.cloud.vision.ValidationAssertions;
+import io.cdap.plugin.cloud.vision.source.FilePathSourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Tests of {@link ImageExtractorTransformConfig} methods.
+ * Tests of {@link FilePathSourceConfig} methods.
  */
 public class ImageExtractorConfigTest {
 

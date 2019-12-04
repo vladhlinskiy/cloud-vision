@@ -5,7 +5,7 @@
 
 Following plugins are available in this repository.
 
-  * Image Extractor Transform
+  * File Path Batch Source
 
 # Contact
 
