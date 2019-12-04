@@ -44,7 +44,6 @@ public class LogoAnnotationsToRecordTransformer extends LandmarkAnnotationsToRec
   private List<StructuredRecord> extractLogoAnnotations(AnnotateImageResponse annotateImageResponse) {
     return annotateImageResponse.getLogoAnnotationsList().stream()
       .map(this::extractAnnotation)
-      .map(StructuredRecord.Builder::build)
       .collect(Collectors.toList());
   }
 }

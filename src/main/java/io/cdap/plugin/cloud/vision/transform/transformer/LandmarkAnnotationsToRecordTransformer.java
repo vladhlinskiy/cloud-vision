@@ -45,14 +45,19 @@ public class LandmarkAnnotationsToRecordTransformer extends LabelAnnotationsToRe
   private List<StructuredRecord> extractLandmarkAnnotations(AnnotateImageResponse annotateImageResponse) {
     return annotateImageResponse.getLandmarkAnnotationsList().stream()
       .map(this::extractAnnotation)
-      .map(StructuredRecord.Builder::build)
       .collect(Collectors.toList());
   }
 
   @Override
-  protected StructuredRecord.Builder extractAnnotation(EntityAnnotation annotation) {
+  protected StructuredRecord extractAnnotation(EntityAnnotation annotation) {
+    Schema landmarkSchema = getEntityAnnotationSchema();
+    StructuredRecord.Builder builder = StructuredRecord.builder(landmarkSchema);
     // Landmark annotations are mapped in the same way as Label annotation except of additional 'position' field
-    StructuredRecord.Builder builder = super.extractAnnotation(annotation);
+    StructuredRecord recordWithoutPosition = super.extractAnnotation(annotation);
+    for (Schema.Field field : recordWithoutPosition.getSchema().getFields()) {
+      builder.set(field.getName(), recordWithoutPosition.get(field.getName()));
+    }
+    // Extract position
     Schema schema = super.getEntityAnnotationSchema();
     Schema.Field posField = schema.getField(EntityAnnotationWithPositionSchema.POSITION_FIELD_NAME);
     if (posField != null) {
@@ -63,6 +68,6 @@ public class LandmarkAnnotationsToRecordTransformer extends LabelAnnotationsToRe
       builder.set(EntityAnnotationWithPositionSchema.POSITION_FIELD_NAME, position);
     }
 
-    return builder;
+    return builder.build();
   }
 }

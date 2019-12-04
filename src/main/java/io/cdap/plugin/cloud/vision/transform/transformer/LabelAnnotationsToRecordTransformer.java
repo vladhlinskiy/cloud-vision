@@ -17,6 +17,7 @@
 package io.cdap.plugin.cloud.vision.transform.transformer;
 
 import com.google.cloud.vision.v1.AnnotateImageResponse;
+import com.google.cloud.vision.v1.EntityAnnotation;
 import com.google.cloud.vision.v1.LocationInfo;
 import com.google.cloud.vision.v1.Property;
 import io.cdap.cdap.api.data.format.StructuredRecord;
@@ -46,11 +47,10 @@ public class LabelAnnotationsToRecordTransformer extends ImageAnnotationToRecord
   private List<StructuredRecord> extractLabelAnnotations(AnnotateImageResponse annotateImageResponse) {
     return annotateImageResponse.getLabelAnnotationsList().stream()
       .map(this::extractAnnotation)
-      .map(StructuredRecord.Builder::build)
       .collect(Collectors.toList());
   }
 
-  protected StructuredRecord.Builder extractAnnotation(com.google.cloud.vision.v1.EntityAnnotation annotation) {
+  protected StructuredRecord extractAnnotation(EntityAnnotation annotation) {
     Schema labelSchema = getEntityAnnotationSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(labelSchema);
     if (labelSchema.getField(EntityAnnotationSchema.MID_FIELD_NAME) != null) {
@@ -85,7 +85,7 @@ public class LabelAnnotationsToRecordTransformer extends ImageAnnotationToRecord
       builder.set(EntityAnnotationSchema.PROPERTIES_FIELD_NAME, location);
     }
 
-    return builder;
+    return builder.build();
   }
 
   protected StructuredRecord extractLocation(LocationInfo locationInfo, Schema schema) {
