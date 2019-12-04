@@ -318,6 +318,56 @@
           }
         },
         {
+          "name": "aspectRatios",
+          "label": "Aspect Ratios",
+          "widget-type": "multi-select",
+          "widget-attributes": {
+            "delimiter": ",",
+            "options": [
+              {
+                "label": "1/1",
+                "id": "1"
+              },
+              {
+                "label": "5/4",
+                "id": "1.25"
+              },
+              {
+                "label": "4/3",
+                "id": "1.33333"
+              },
+              {
+                "label": "3/2",
+                "id": "1.5"
+              },
+              {
+                "label": "16/9",
+                "id": "1.77778"
+              },
+              {
+                "label": "3/1",
+                "id": "3"
+              }
+            ]
+          }
+        },
+        {
+          "widget-type": "toggle",
+          "name": "includeGeoResults",
+          "label": "Include Geo Results",
+          "widget-attributes": {
+            "default": "false",
+            "on": {
+              "value": "true",
+              "label": "True"
+            },
+            "off": {
+              "value": "false",
+              "label": "False"
+            }
+          }
+        },
+        {
           "widget-type": "textbox",
           "label": "Product Set",
           "name": "productSet"
@@ -334,6 +384,11 @@
               "Toys"
             ]
           }
+        },
+        {
+          "widget-type": "json",
+          "label": "Bounding Polygon",
+          "name": "boundingPolygon"
         },
         {
           "widget-type": "textbox",
@@ -378,6 +433,34 @@
       ]
     },
     {
+      "name": "Aspect Ratio For Crop Hints",
+      "condition": {
+        "property": "features",
+        "operator": "equal to",
+        "value": "Crop Hints"
+      },
+      "show": [
+        {
+          "name": "aspectRatios",
+          "type": "property"
+        }
+      ]
+    },
+    {
+      "name": "Geo Results For Web Detection",
+      "condition": {
+        "property": "features",
+        "operator": "equal to",
+        "value": "Web Detection"
+      },
+      "show": [
+        {
+          "name": "includeGeoResults",
+          "type": "property"
+        }
+      ]
+    },
+    {
       "name": "Product Search Properties",
       "condition": {
         "property": "features",
@@ -395,6 +478,10 @@
         },
         {
           "name": "filter",
+          "type": "property"
+        },
+        {
+          "name": "boundingPolygon",
           "type": "property"
         }
       ]

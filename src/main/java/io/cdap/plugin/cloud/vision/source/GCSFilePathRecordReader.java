@@ -17,6 +17,7 @@ package io.cdap.plugin.cloud.vision.source;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.cdap.plugin.cloud.vision.CredentialsHelper;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -50,7 +51,7 @@ public class GCSFilePathRecordReader extends RecordReader<NullWritable, String> 
     FilePathSplit split = (FilePathSplit) inputSplit;
     this.iterator = GCSPathIterator.builder(split.getPath())
       .setRecursive(split.isRecursive())
-      .setProject(config.getOrDetectProject())
+      .setProject(CredentialsHelper.getProjectId(config.getProject()))
       .setServiceAccountFilePath(config.getServiceAccountFilePath())
       .setLastModifiedEpochMilli(config.getLastModifiedEpochMilli())
       .build();

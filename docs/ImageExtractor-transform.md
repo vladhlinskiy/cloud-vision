@@ -36,10 +36,16 @@ input record, it will be overwritten.
 
 **Language Hints**: Hints to detect the language of the text in the images.
 
+**Aspect Ratios**: Ratio of the width to the height of the image. If not specified, the best possible crop is returned.
+
+**Include Geo Results**: Whether to include results derived from the geo information in the image.
+
 **Product Set**: Resource name of a ProductSet to be searched for similar images. Format is: 
 `projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
 
 **Product Categories**: List of product categories to search in.
+
+**Bounding Polygon**: Bounding polygon for the image detection.
 
 **Filter**: Filtering expression. This can be used to restrict search results based on Product labels. An `AND` of `OR`
 of key-value expressions are currently supported, where each expression within an `OR` must have the same key.

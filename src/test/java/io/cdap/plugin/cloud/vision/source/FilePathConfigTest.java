@@ -16,17 +16,12 @@
 
 package io.cdap.plugin.cloud.vision.source;
 
-import io.cdap.cdap.etl.api.validation.CauseAttributes;
-import io.cdap.cdap.etl.api.validation.ValidationFailure;
 import io.cdap.cdap.etl.mock.validation.MockFailureCollector;
+import io.cdap.plugin.cloud.vision.ValidationAssertions;
 import io.cdap.plugin.common.Constants;
 import org.junit.Assert;
 import org.junit.Test;
-
 import java.time.Instant;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 
 /**
  * Tests of {@link FilePathSourceConfig} methods.
@@ -57,7 +52,7 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, Constants.Reference.REFERENCE_NAME);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, Constants.Reference.REFERENCE_NAME);
   }
 
   @Test
@@ -68,7 +63,7 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, Constants.Reference.REFERENCE_NAME);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, Constants.Reference.REFERENCE_NAME);
   }
 
   @Test
@@ -79,7 +74,7 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, Constants.Reference.REFERENCE_NAME);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, Constants.Reference.REFERENCE_NAME);
   }
 
   @Test
@@ -90,7 +85,7 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, FilePathSourceConstants.SPLIT_BY);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, FilePathSourceConstants.SPLIT_BY);
   }
 
   @Test
@@ -101,7 +96,7 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, FilePathSourceConstants.SPLIT_BY);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, FilePathSourceConstants.SPLIT_BY);
   }
 
   @Test
@@ -112,7 +107,7 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, FilePathSourceConstants.SPLIT_BY);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, FilePathSourceConstants.SPLIT_BY);
   }
 
   @Test
@@ -123,7 +118,7 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, FilePathSourceConstants.PATH);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, FilePathSourceConstants.PATH);
   }
 
   @Test
@@ -134,7 +129,7 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, FilePathSourceConstants.PATH);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, FilePathSourceConstants.PATH);
   }
 
   @Test
@@ -158,24 +153,6 @@ public class FilePathConfigTest {
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    assertValidationFailed(failureCollector, FilePathSourceConstants.LAST_MODIFIED);
-  }
-
-  private static void assertValidationFailed(MockFailureCollector failureCollector, String paramName) {
-    List<ValidationFailure> failureList = failureCollector.getValidationFailures();
-    Assert.assertEquals(1, failureList.size());
-    ValidationFailure failure = failureList.get(0);
-    List<ValidationFailure.Cause> causeList = getCauses(failure, CauseAttributes.STAGE_CONFIG);
-    Assert.assertEquals(1, causeList.size());
-    ValidationFailure.Cause cause = causeList.get(0);
-    Assert.assertEquals(paramName, cause.getAttribute(CauseAttributes.STAGE_CONFIG));
-  }
-
-  @Nonnull
-  private static List<ValidationFailure.Cause> getCauses(ValidationFailure failure, String attribute) {
-    return failure.getCauses()
-      .stream()
-      .filter(cause -> cause.getAttribute(attribute) != null)
-      .collect(Collectors.toList());
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, FilePathSourceConstants.LAST_MODIFIED);
   }
 }

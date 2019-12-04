@@ -53,6 +53,17 @@ public class ImageExtractorConstants extends CloudVisionConstants {
   public static final String LANGUAGE_HINTS = "languageHints";
 
   /**
+   * Configuration property name used to specify ratio of the width to the height of the image.
+   */
+  public static final String ASPECT_RATIOS = "aspectRatios";
+
+  /**
+   * Configuration property name used to specify whether to include results derived from the geo information in the
+   * image.
+   */
+  public static final String INCLUDE_GEO_RESULTS = "includeGeoResults";
+
+  /**
    * Configuration property name used to specify resource name of a ProductSet to be searched for similar images.
    */
   public static final String PRODUCT_SET = "productSet";
@@ -61,6 +72,11 @@ public class ImageExtractorConstants extends CloudVisionConstants {
    * Configuration property name used to specify a product category to search in.
    */
   public static final String PRODUCT_CATEGORIES = "productCategories";
+
+  /**
+   * Configuration property name used to specify bounding polygon for the image detection.
+   */
+  public static final String BOUNDING_POLYGON = "boundingPolygon";
 
   /**
    * Configuration property name used to specify a filtering expression. This can be used to restrict search results

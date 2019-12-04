@@ -26,6 +26,7 @@ public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageE
   private String pathField;
   private String outputField;
   private String features;
+  private boolean includeGeoResults;
 
   @Nullable
   private String languageHints;
@@ -38,6 +39,12 @@ public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageE
 
   @Nullable
   private String filter;
+
+  @Nullable
+  private String boundingPolygon;
+
+  @Nullable
+  private String aspectRatios;
 
   @Nullable
   private String schema;
@@ -54,8 +61,11 @@ public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageE
       .setOutputField(original.getOutputField())
       .setFeatures(original.getFeatures())
       .setLanguageHints(original.getLanguageHints())
+      .setAspectRatios(original.getAspectRatios())
+      .setIncludeGeoResults(original.isIncludeGeoResults())
       .setProductSet(original.getProductSet())
       .setProductCategories(original.getProductCategories())
+      .setBoundingPolygon(original.getBoundingPolygon())
       .setFilter(original.getFilter())
       .setSchema(original.getSchema());
   }
@@ -100,8 +110,23 @@ public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageE
     return this;
   }
 
+  public ImageExtractorConfigBuilder setIncludeGeoResults(boolean includeGeoResults) {
+    this.includeGeoResults = includeGeoResults;
+    return this;
+  }
+
+  public ImageExtractorConfigBuilder setBoundingPolygon(@Nullable String boundingPolygon) {
+    this.boundingPolygon = boundingPolygon;
+    return this;
+  }
+
+  public ImageExtractorConfigBuilder setAspectRatios(@Nullable String aspectRatios) {
+    this.aspectRatios = aspectRatios;
+    return this;
+  }
+
   public ImageExtractorTransformConfig build() {
     return new ImageExtractorTransformConfig(project, serviceFilePath, pathField, outputField, features, languageHints,
-      productSet, productCategories, filter, schema);
+      aspectRatios, includeGeoResults, productSet, productCategories, boundingPolygon, filter, schema);
   }
 }
