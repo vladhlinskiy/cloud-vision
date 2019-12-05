@@ -36,81 +36,81 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 /**
- * Defines a {@link PluginConfig} that Image Extractor transform can use.
+ * Defines a {@link PluginConfig} that Image and Document Extractor transforms can use.
  */
-public class ImageExtractorTransformConfig extends CloudVisionConfig {
+public class ExtractorTransformConfig extends CloudVisionConfig {
 
   public static final Schema ERROR_SCHEMA = Schema.recordOf("error",
     Schema.Field.of("error", Schema.of(Schema.Type.STRING)));
 
-  @Name(ImageExtractorConstants.PATH_FIELD)
+  @Name(ExtractorTransformConstants.PATH_FIELD)
   @Description("Field in the input schema containing the path to the image.")
   @Macro
   private String pathField;
 
-  @Name(ImageExtractorConstants.OUTPUT_FIELD)
+  @Name(ExtractorTransformConstants.OUTPUT_FIELD)
   @Description("Field to store the extracted image features. If the specified output field name already exists " +
     "in the input record, it will be overwritten.")
   @Macro
   private String outputField;
 
-  @Name(ImageExtractorConstants.FEATURES)
+  @Name(ExtractorTransformConstants.FEATURES)
   @Description("Features to extract from images.")
   @Macro
   private String features;
 
-  @Name(ImageExtractorConstants.LANGUAGE_HINTS)
+  @Name(ExtractorTransformConstants.LANGUAGE_HINTS)
   @Description("Hints to detect the language of the text in the images.")
   @Macro
   @Nullable
   private String languageHints;
 
-  @Name(ImageExtractorConstants.ASPECT_RATIOS)
+  @Name(ExtractorTransformConstants.ASPECT_RATIOS)
   @Description("Ratio of the width to the height of the image. If not specified, the best possible crop is returned.")
   @Macro
   @Nullable
   private String aspectRatios;
 
-  @Name(ImageExtractorConstants.INCLUDE_GEO_RESULTS)
+  @Name(ExtractorTransformConstants.INCLUDE_GEO_RESULTS)
   @Description("Whether to include results derived from the geo information in the image.")
   @Macro
   @Nullable
   private Boolean includeGeoResults;
 
-  @Name(ImageExtractorConstants.PRODUCT_SET)
+  @Name(ExtractorTransformConstants.PRODUCT_SET)
   @Description("Resource name of a ProductSet to be searched for similar images.")
   @Macro
   @Nullable
   private String productSet;
 
-  @Name(ImageExtractorConstants.PRODUCT_CATEGORIES)
+  @Name(ExtractorTransformConstants.PRODUCT_CATEGORIES)
   @Description("List of product categories to search in.")
   @Macro
   @Nullable
   private String productCategories;
 
-  @Name(ImageExtractorConstants.BOUNDING_POLYGON)
+  @Name(ExtractorTransformConstants.BOUNDING_POLYGON)
   @Description("Bounding polygon for the image detection.")
   @Macro
   @Nullable
   private String boundingPolygon;
 
-  @Name(ImageExtractorConstants.FILTER)
+  @Name(ExtractorTransformConstants.FILTER)
   @Description("Filtering expression to restrict search results based on Product labels.")
   @Macro
   @Nullable
   private String filter;
 
-  @Name(ImageExtractorConstants.SCHEMA)
+  @Name(ExtractorTransformConstants.SCHEMA)
   @Description("Schema of records output by the transform.")
   @Nullable
   private String schema;
 
-  public ImageExtractorTransformConfig(String project, String serviceFilePath, String pathField, String outputField,
-                                       String features, @Nullable String languageHints, @Nullable String aspectRatios,
-                                       @Nullable Boolean includeGeoResults, @Nullable String productSet,
-                                       @Nullable String productCategories, @Nullable String boundingPolygon,
-                                       @Nullable String filter, @Nullable String schema) {
+  public ExtractorTransformConfig(String project, String serviceFilePath, String pathField, String outputField,
+                                  String features, @Nullable String languageHints, @Nullable String aspectRatios,
+                                  @Nullable Boolean includeGeoResults, @Nullable String productSet,
+                                  @Nullable String productCategories, @Nullable String boundingPolygon,
+                                  @Nullable String filter, @Nullable String schema) {
     super(project, serviceFilePath);
     this.pathField = pathField;
     this.outputField = outputField;
@@ -231,34 +231,34 @@ public class ImageExtractorTransformConfig extends CloudVisionConfig {
   }
 
   /**
-   * Validates {@link ImageExtractorTransformConfig} instance.
+   * Validates {@link ExtractorTransformConfig} instance.
    *
    * @param collector failure collector.
    */
   public void validate(FailureCollector collector) {
-    if (!containsMacro(ImageExtractorConstants.PATH_FIELD) && Strings.isNullOrEmpty(pathField)) {
+    if (!containsMacro(ExtractorTransformConstants.PATH_FIELD) && Strings.isNullOrEmpty(pathField)) {
       collector.addFailure("Path field must be specified", null)
-        .withConfigProperty(ImageExtractorConstants.PATH_FIELD);
+        .withConfigProperty(ExtractorTransformConstants.PATH_FIELD);
     }
-    if (!containsMacro(ImageExtractorConstants.OUTPUT_FIELD) && Strings.isNullOrEmpty(outputField)) {
+    if (!containsMacro(ExtractorTransformConstants.OUTPUT_FIELD) && Strings.isNullOrEmpty(outputField)) {
       collector.addFailure("Output field must be specified", null)
-        .withConfigProperty(ImageExtractorConstants.OUTPUT_FIELD);
+        .withConfigProperty(ExtractorTransformConstants.OUTPUT_FIELD);
     }
-    if (!containsMacro(ImageExtractorConstants.FEATURES)) {
+    if (!containsMacro(ExtractorTransformConstants.FEATURES)) {
       if (Strings.isNullOrEmpty(features)) {
         collector.addFailure("Features must be specified", null)
-          .withConfigProperty(ImageExtractorConstants.FEATURES);
+          .withConfigProperty(ExtractorTransformConstants.FEATURES);
       } else if (ImageFeature.fromDisplayName(features) == null) {
         collector.addFailure("Invalid image feature name", null)
-          .withConfigProperty(ImageExtractorConstants.FEATURES);
+          .withConfigProperty(ExtractorTransformConstants.FEATURES);
       }
     }
-    if (!containsMacro(ImageExtractorConstants.BOUNDING_POLYGON) && !Strings.isNullOrEmpty(boundingPolygon)) {
+    if (!containsMacro(ExtractorTransformConstants.BOUNDING_POLYGON) && !Strings.isNullOrEmpty(boundingPolygon)) {
       try {
         getBoundingPoly();
       } catch (IllegalStateException e) {
         collector.addFailure("Could not parse bounding polygon string.", null)
-          .withConfigProperty(ImageExtractorConstants.BOUNDING_POLYGON);
+          .withConfigProperty(ExtractorTransformConstants.BOUNDING_POLYGON);
       }
     }
   }

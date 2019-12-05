@@ -16,14 +16,14 @@
 package io.cdap.plugin.cloud.vision.transform.transformer;
 
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.plugin.cloud.vision.transform.ImageExtractorTransformConfig;
+import io.cdap.plugin.cloud.vision.transform.ExtractorTransformConfig;
 
 /**
  * A factory which creates instance of {@ImageAnnotationToRecordTransformer} in accordance to feature and output schema
  * configured in input config.
  */
 public class TransformerFactory {
-  public static ImageAnnotationToRecordTransformer createInstance(ImageExtractorTransformConfig config, Schema schema) {
+  public static ImageAnnotationToRecordTransformer createInstance(ExtractorTransformConfig config, Schema schema) {
     switch (config.getImageFeature()) {
       case FACE:
         return new FaceAnnotationsToRecordTransformer(schema, config.getOutputField());

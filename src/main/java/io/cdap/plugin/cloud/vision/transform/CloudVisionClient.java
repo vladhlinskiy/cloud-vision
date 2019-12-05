@@ -33,6 +33,7 @@ import com.google.cloud.vision.v1.ProductSearchParams;
 import com.google.cloud.vision.v1.WebDetectionParams;
 import io.cdap.plugin.cloud.vision.CredentialsHelper;
 import io.cdap.plugin.cloud.vision.exception.CloudVisionExecutionException;
+import java.io.IOException;
 import java.util.Collections;
 import javax.annotation.Nullable;
 
@@ -41,27 +42,21 @@ import javax.annotation.Nullable;
  */
 public class CloudVisionClient {
 
-  private static final int SINGLE_RESPONSE_INDEX = 0;
+  protected static final int SINGLE_RESPONSE_INDEX = 0;
 
-  private final ImageExtractorTransformConfig config;
+  private final ExtractorTransformConfig config;
 
-  public CloudVisionClient(ImageExtractorTransformConfig config) {
+  public CloudVisionClient(ExtractorTransformConfig config) {
     this.config = config;
   }
 
-  public AnnotateImageResponse extractFeature(String gcsPath) throws Exception {
-    String serviceAccountFilePath = config.getServiceAccountFilePath();
-    Credentials credentials = serviceAccountFilePath == null ? null
-      : CredentialsHelper.getCredentials(serviceAccountFilePath);
-    ImageAnnotatorSettings.Builder imageAnnotatorSettings = ImageAnnotatorSettings.newBuilder();
-    if (credentials != null) {
-      imageAnnotatorSettings.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
-    }
-    try (ImageAnnotatorClient client = ImageAnnotatorClient.create(imageAnnotatorSettings.build())) {
+  public AnnotateImageResponse extractImageFeature(String gcsPath) throws Exception {
+    try (ImageAnnotatorClient client = createImageAnnotatorClient()) {
       ImageSource imgSource = ImageSource.newBuilder().setGcsImageUri(gcsPath).build();
       Image img = Image.newBuilder().setSource(imgSource).build();
       Feature.Type featureType = config.getImageFeature().getFeatureType();
       Feature feature = Feature.newBuilder().setType(featureType).build();
+      // TODO should the plugin support extracting multiple features at once?
       AnnotateImageRequest.Builder request = AnnotateImageRequest.newBuilder().addFeatures(feature).setImage(img);
       ImageContext imageContext = getImageContext();
       if (imageContext != null) {
@@ -80,8 +75,18 @@ public class CloudVisionClient {
     }
   }
 
+  protected ImageAnnotatorClient createImageAnnotatorClient() throws IOException {
+    String serviceAccountPath = config.getServiceAccountFilePath();
+    Credentials credentials = serviceAccountPath == null ? null : CredentialsHelper.getCredentials(serviceAccountPath);
+    ImageAnnotatorSettings.Builder imageAnnotatorSettings = ImageAnnotatorSettings.newBuilder();
+    if (credentials != null) {
+      imageAnnotatorSettings.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
+    }
+    return ImageAnnotatorClient.create(imageAnnotatorSettings.build());
+  }
+
   @Nullable
-  private ImageContext getImageContext() {
+  protected ImageContext getImageContext() {
     switch (config.getImageFeature()) {
       case TEXT:
         return Strings.isNullOrEmpty(config.getLanguageHints()) ? null

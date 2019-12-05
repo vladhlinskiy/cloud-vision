@@ -28,7 +28,7 @@ import org.junit.Test;
 /**
  * Tests of {@link FilePathSourceConfig} methods.
  */
-public class ImageExtractorConfigTest {
+public class ExtractorTransformConfigTest {
 
   private static final String MOCK_STAGE = "mockstage";
   private static final Schema VALID_SCHEMA = Schema.recordOf(
@@ -37,7 +37,7 @@ public class ImageExtractorConfigTest {
     Schema.Field.of("extracted", ImageFeature.FACE.getSchema())
   );
 
-  private static final ImageExtractorTransformConfig VALID = ImageExtractorConfigBuilder.builder()
+  private static final ExtractorTransformConfig VALID = ExtractorTransformConfigBuilder.builder()
     .setPathField("path")
     .setOutputField("extracted")
     .setFeatures(ImageFeature.FACE.getDisplayName())
@@ -46,79 +46,79 @@ public class ImageExtractorConfigTest {
 
   @Test
   public void testValidatePathFieldNull() {
-    ImageExtractorTransformConfig config = ImageExtractorConfigBuilder.builder(VALID)
+    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
       .setPathField(null)
       .build();
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.PATH_FIELD);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ExtractorTransformConstants.PATH_FIELD);
   }
 
   @Test
   public void testValidatePathFieldEmpty() {
-    ImageExtractorTransformConfig config = ImageExtractorConfigBuilder.builder(VALID)
+    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
       .setPathField("")
       .build();
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.PATH_FIELD);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ExtractorTransformConstants.PATH_FIELD);
   }
 
   @Test
   public void testValidateOutputFieldNull() {
-    ImageExtractorTransformConfig config = ImageExtractorConfigBuilder.builder(VALID)
+    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
       .setOutputField(null)
       .build();
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.OUTPUT_FIELD);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ExtractorTransformConstants.OUTPUT_FIELD);
   }
 
   @Test
   public void testValidateOutputFieldEmpty() {
-    ImageExtractorTransformConfig config = ImageExtractorConfigBuilder.builder(VALID)
+    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
       .setOutputField("")
       .build();
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.OUTPUT_FIELD);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ExtractorTransformConstants.OUTPUT_FIELD);
   }
 
   @Test
   public void testValidateFeatureNull() {
-    ImageExtractorTransformConfig config = ImageExtractorConfigBuilder.builder(VALID)
+    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
       .setFeatures(null)
       .build();
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.FEATURES);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ExtractorTransformConstants.FEATURES);
   }
 
   @Test
   public void testValidateFeatureEmpty() {
-    ImageExtractorTransformConfig config = ImageExtractorConfigBuilder.builder(VALID)
+    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
       .setFeatures("")
       .build();
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.FEATURES);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ExtractorTransformConstants.FEATURES);
   }
 
   @Test
   public void testValidateFeatureInvalid() {
-    ImageExtractorTransformConfig config = ImageExtractorConfigBuilder.builder(VALID)
+    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
       .setFeatures("invalid-split-by")
       .build();
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.FEATURES);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ExtractorTransformConstants.FEATURES);
   }
 
 
@@ -130,7 +130,7 @@ public class ImageExtractorConfigTest {
       "{ \"x\": 2369, \"y\": 1729 }, " +
       "{ \"y\": 1729 } " +
       "] }";
-    ImageExtractorTransformConfig config = ImageExtractorConfigBuilder.builder(VALID)
+    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
       .setBoundingPolygon(polyJson)
       .build();
 
@@ -145,12 +145,12 @@ public class ImageExtractorConfigTest {
 
   @Test
   public void testValidateBoundingPolyInvalid() {
-    ImageExtractorTransformConfig config = ImageExtractorConfigBuilder.builder(VALID)
+    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
       .setBoundingPolygon("invalid json")
       .build();
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
-    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ImageExtractorConstants.BOUNDING_POLYGON);
+    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ExtractorTransformConstants.BOUNDING_POLYGON);
   }
 }

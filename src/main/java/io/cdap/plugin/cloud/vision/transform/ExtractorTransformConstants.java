@@ -21,16 +21,11 @@ import io.cdap.plugin.cloud.vision.CloudVisionConstants;
 /**
  * Cloud Vision Image Extractor constants.
  */
-public class ImageExtractorConstants extends CloudVisionConstants {
+public class ExtractorTransformConstants extends CloudVisionConstants {
 
-  private ImageExtractorConstants() {
+  protected ExtractorTransformConstants() {
     throw new AssertionError("Should not instantiate static utility class.");
   }
-
-  /**
-   * Image Extractor Transform plugin name.
-   */
-  public static final String PLUGIN_NAME = "ImageExtractor";
 
   /**
    * Configuration property name used to specify field in the input schema containing the path to the image.

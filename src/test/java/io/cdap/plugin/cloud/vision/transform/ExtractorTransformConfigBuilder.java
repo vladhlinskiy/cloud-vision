@@ -19,9 +19,9 @@ import io.cdap.plugin.cloud.vision.CloudVisionConfigBuilder;
 import javax.annotation.Nullable;
 
 /**
- * Builder class that provides handy methods to construct {@link ImageExtractorTransformConfig} for testing.
+ * Builder class that provides handy methods to construct {@link ExtractorTransformConfig} for testing.
  */
-public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageExtractorConfigBuilder> {
+public class ExtractorTransformConfigBuilder extends CloudVisionConfigBuilder<ExtractorTransformConfigBuilder> {
 
   private String pathField;
   private String outputField;
@@ -51,12 +51,12 @@ public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageE
   @Nullable
   private String schema;
 
-  public static ImageExtractorConfigBuilder builder() {
-    return new ImageExtractorConfigBuilder();
+  public static ExtractorTransformConfigBuilder builder() {
+    return new ExtractorTransformConfigBuilder();
   }
 
-  public static ImageExtractorConfigBuilder builder(ImageExtractorTransformConfig original) {
-    return new ImageExtractorConfigBuilder()
+  public static ExtractorTransformConfigBuilder builder(ExtractorTransformConfig original) {
+    return new ExtractorTransformConfigBuilder()
       .setProject(original.getProject())
       .setServiceFilePath(original.getServiceAccountFilePath())
       .setPathField(original.getPathField())
@@ -72,63 +72,63 @@ public class ImageExtractorConfigBuilder extends CloudVisionConfigBuilder<ImageE
       .setSchema(original.getSchema());
   }
 
-  public ImageExtractorConfigBuilder setPathField(String pathField) {
+  public ExtractorTransformConfigBuilder setPathField(String pathField) {
     this.pathField = pathField;
     return this;
   }
 
-  public ImageExtractorConfigBuilder setOutputField(String outputField) {
+  public ExtractorTransformConfigBuilder setOutputField(String outputField) {
     this.outputField = outputField;
     return this;
   }
 
-  public ImageExtractorConfigBuilder setFeatures(String features) {
+  public ExtractorTransformConfigBuilder setFeatures(String features) {
     this.features = features;
     return this;
   }
 
-  public ImageExtractorConfigBuilder setLanguageHints(@Nullable String languageHints) {
+  public ExtractorTransformConfigBuilder setLanguageHints(@Nullable String languageHints) {
     this.languageHints = languageHints;
     return this;
   }
 
-  public ImageExtractorConfigBuilder setProductSet(@Nullable String productSet) {
+  public ExtractorTransformConfigBuilder setProductSet(@Nullable String productSet) {
     this.productSet = productSet;
     return this;
   }
 
-  public ImageExtractorConfigBuilder setProductCategories(@Nullable String productCategories) {
+  public ExtractorTransformConfigBuilder setProductCategories(@Nullable String productCategories) {
     this.productCategories = productCategories;
     return this;
   }
 
-  public ImageExtractorConfigBuilder setFilter(@Nullable String filter) {
+  public ExtractorTransformConfigBuilder setFilter(@Nullable String filter) {
     this.filter = filter;
     return this;
   }
 
-  public ImageExtractorConfigBuilder setSchema(@Nullable String schema) {
+  public ExtractorTransformConfigBuilder setSchema(@Nullable String schema) {
     this.schema = schema;
     return this;
   }
 
-  public ImageExtractorConfigBuilder setIncludeGeoResults(@Nullable Boolean includeGeoResults) {
+  public ExtractorTransformConfigBuilder setIncludeGeoResults(@Nullable Boolean includeGeoResults) {
     this.includeGeoResults = includeGeoResults;
     return this;
   }
 
-  public ImageExtractorConfigBuilder setBoundingPolygon(@Nullable String boundingPolygon) {
+  public ExtractorTransformConfigBuilder setBoundingPolygon(@Nullable String boundingPolygon) {
     this.boundingPolygon = boundingPolygon;
     return this;
   }
 
-  public ImageExtractorConfigBuilder setAspectRatios(@Nullable String aspectRatios) {
+  public ExtractorTransformConfigBuilder setAspectRatios(@Nullable String aspectRatios) {
     this.aspectRatios = aspectRatios;
     return this;
   }
 
-  public ImageExtractorTransformConfig build() {
-    return new ImageExtractorTransformConfig(project, serviceFilePath, pathField, outputField, features, languageHints,
+  public ExtractorTransformConfig build() {
+    return new ExtractorTransformConfig(project, serviceFilePath, pathField, outputField, features, languageHints,
       aspectRatios, includeGeoResults, productSet, productCategories, boundingPolygon, filter, schema);
   }
 }
