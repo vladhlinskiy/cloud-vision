@@ -16,59 +16,29 @@
 
 package io.cdap.plugin.cloud.vision.transform;
 
-import com.google.cloud.vision.v1.BoundingPoly;
-import com.google.protobuf.util.JsonFormat;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.etl.mock.validation.MockFailureCollector;
 import io.cdap.plugin.cloud.vision.ValidationAssertions;
 import io.cdap.plugin.cloud.vision.source.FilePathSourceConfig;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * Tests of {@link FilePathSourceConfig} methods.
  */
-public class ExtractorTransformConfigTest {
+public abstract class ExtractorTransformConfigTest {
 
-  private static final String MOCK_STAGE = "mockstage";
-  private static final Schema VALID_SCHEMA = Schema.recordOf(
+  protected static final String MOCK_STAGE = "mockstage";
+  protected static final Schema VALID_SCHEMA = Schema.recordOf(
     "schema",
     Schema.Field.of("path", Schema.of(Schema.Type.STRING)),
     Schema.Field.of("extracted", ImageFeature.FACE.getSchema())
   );
 
-  private static final ExtractorTransformConfig VALID = ExtractorTransformConfigBuilder.builder()
-    .setPathField("path")
-    .setOutputField("extracted")
-    .setFeatures(ImageFeature.FACE.getDisplayName())
-    .setSchema(VALID_SCHEMA.toString())
-    .build();
-
-  @Test
-  public void testValidatePathFieldNull() {
-    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
-      .setPathField(null)
-      .build();
-
-    MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
-    config.validate(failureCollector);
-    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ExtractorTransformConstants.PATH_FIELD);
-  }
-
-  @Test
-  public void testValidatePathFieldEmpty() {
-    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
-      .setPathField("")
-      .build();
-
-    MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
-    config.validate(failureCollector);
-    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ExtractorTransformConstants.PATH_FIELD);
-  }
+  protected abstract ExtractorTransformConfigBuilder getValidConfigBuilder();
 
   @Test
   public void testValidateOutputFieldNull() {
-    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
+    ExtractorTransformConfig config = getValidConfigBuilder()
       .setOutputField(null)
       .build();
 
@@ -79,7 +49,7 @@ public class ExtractorTransformConfigTest {
 
   @Test
   public void testValidateOutputFieldEmpty() {
-    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
+    ExtractorTransformConfig config = getValidConfigBuilder()
       .setOutputField("")
       .build();
 
@@ -90,7 +60,7 @@ public class ExtractorTransformConfigTest {
 
   @Test
   public void testValidateFeatureNull() {
-    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
+    ExtractorTransformConfig config = getValidConfigBuilder()
       .setFeatures(null)
       .build();
 
@@ -101,7 +71,7 @@ public class ExtractorTransformConfigTest {
 
   @Test
   public void testValidateFeatureEmpty() {
-    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
+    ExtractorTransformConfig config = getValidConfigBuilder()
       .setFeatures("")
       .build();
 
@@ -112,45 +82,12 @@ public class ExtractorTransformConfigTest {
 
   @Test
   public void testValidateFeatureInvalid() {
-    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
+    ExtractorTransformConfig config = getValidConfigBuilder()
       .setFeatures("invalid-split-by")
       .build();
 
     MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
     config.validate(failureCollector);
     ValidationAssertions.assertPropertyValidationFailed(failureCollector, ExtractorTransformConstants.FEATURES);
-  }
-
-
-  @Test
-  public void testValidateBoundingPoly() throws Exception {
-    String polyJson = "{ \"vertices\": [ " +
-      "{ \"y\": 520 }, " +
-      "{ \"x\": 2369, \"y\": 520 }, " +
-      "{ \"x\": 2369, \"y\": 1729 }, " +
-      "{ \"y\": 1729 } " +
-      "] }";
-    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
-      .setBoundingPolygon(polyJson)
-      .build();
-
-    BoundingPoly.Builder builder = BoundingPoly.newBuilder();
-    JsonFormat.parser().ignoringUnknownFields().merge(polyJson, builder);
-    BoundingPoly expectedBoundingPoly = builder.build();
-
-    BoundingPoly actualBoundingPoly = config.getBoundingPoly();
-    Assert.assertNotNull(actualBoundingPoly);
-    Assert.assertEquals(expectedBoundingPoly, actualBoundingPoly);
-  }
-
-  @Test
-  public void testValidateBoundingPolyInvalid() {
-    ExtractorTransformConfig config = ExtractorTransformConfigBuilder.builder(VALID)
-      .setBoundingPolygon("invalid json")
-      .build();
-
-    MockFailureCollector failureCollector = new MockFailureCollector(MOCK_STAGE);
-    config.validate(failureCollector);
-    ValidationAssertions.assertPropertyValidationFailed(failureCollector, ExtractorTransformConstants.BOUNDING_POLYGON);
   }
 }

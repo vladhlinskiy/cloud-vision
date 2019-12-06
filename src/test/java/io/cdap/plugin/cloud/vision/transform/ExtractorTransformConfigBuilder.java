@@ -21,114 +21,59 @@ import javax.annotation.Nullable;
 /**
  * Builder class that provides handy methods to construct {@link ExtractorTransformConfig} for testing.
  */
-public class ExtractorTransformConfigBuilder extends CloudVisionConfigBuilder<ExtractorTransformConfigBuilder> {
+public abstract class ExtractorTransformConfigBuilder<T extends ExtractorTransformConfigBuilder>
+  extends CloudVisionConfigBuilder<T> {
 
-  private String pathField;
-  private String outputField;
-  private String features;
-
-  @Nullable
-  private Boolean includeGeoResults;
+  protected String pathField;
+  protected String outputField;
+  protected String features;
 
   @Nullable
-  private String languageHints;
+  protected Boolean includeGeoResults;
 
   @Nullable
-  private String productSet;
+  protected String languageHints;
 
   @Nullable
-  private String productCategories;
+  protected String aspectRatios;
 
   @Nullable
-  private String filter;
+  protected String schema;
 
-  @Nullable
-  private String boundingPolygon;
-
-  @Nullable
-  private String aspectRatios;
-
-  @Nullable
-  private String schema;
-
-  public static ExtractorTransformConfigBuilder builder() {
-    return new ExtractorTransformConfigBuilder();
-  }
-
-  public static ExtractorTransformConfigBuilder builder(ExtractorTransformConfig original) {
-    return new ExtractorTransformConfigBuilder()
-      .setProject(original.getProject())
-      .setServiceFilePath(original.getServiceAccountFilePath())
-      .setPathField(original.getPathField())
-      .setOutputField(original.getOutputField())
-      .setFeatures(original.getFeatures())
-      .setLanguageHints(original.getLanguageHints())
-      .setAspectRatios(original.getAspectRatios())
-      .setIncludeGeoResults(original.isIncludeGeoResults())
-      .setProductSet(original.getProductSet())
-      .setProductCategories(original.getProductCategories())
-      .setBoundingPolygon(original.getBoundingPolygon())
-      .setFilter(original.getFilter())
-      .setSchema(original.getSchema());
-  }
-
-  public ExtractorTransformConfigBuilder setPathField(String pathField) {
+  public T setPathField(String pathField) {
     this.pathField = pathField;
-    return this;
+    return (T) this;
   }
 
-  public ExtractorTransformConfigBuilder setOutputField(String outputField) {
+  public T setOutputField(String outputField) {
     this.outputField = outputField;
-    return this;
+    return (T) this;
   }
 
-  public ExtractorTransformConfigBuilder setFeatures(String features) {
+  public T setFeatures(String features) {
     this.features = features;
-    return this;
+    return (T) this;
   }
 
-  public ExtractorTransformConfigBuilder setLanguageHints(@Nullable String languageHints) {
+  public T setLanguageHints(@Nullable String languageHints) {
     this.languageHints = languageHints;
-    return this;
+    return (T) this;
   }
 
-  public ExtractorTransformConfigBuilder setProductSet(@Nullable String productSet) {
-    this.productSet = productSet;
-    return this;
-  }
-
-  public ExtractorTransformConfigBuilder setProductCategories(@Nullable String productCategories) {
-    this.productCategories = productCategories;
-    return this;
-  }
-
-  public ExtractorTransformConfigBuilder setFilter(@Nullable String filter) {
-    this.filter = filter;
-    return this;
-  }
-
-  public ExtractorTransformConfigBuilder setSchema(@Nullable String schema) {
+  public T setSchema(@Nullable String schema) {
     this.schema = schema;
-    return this;
+    return (T) this;
   }
 
-  public ExtractorTransformConfigBuilder setIncludeGeoResults(@Nullable Boolean includeGeoResults) {
+  public T setIncludeGeoResults(@Nullable Boolean includeGeoResults) {
     this.includeGeoResults = includeGeoResults;
-    return this;
+    return (T) this;
   }
 
-  public ExtractorTransformConfigBuilder setBoundingPolygon(@Nullable String boundingPolygon) {
-    this.boundingPolygon = boundingPolygon;
-    return this;
-  }
-
-  public ExtractorTransformConfigBuilder setAspectRatios(@Nullable String aspectRatios) {
+  public T setAspectRatios(@Nullable String aspectRatios) {
     this.aspectRatios = aspectRatios;
-    return this;
+    return (T) this;
   }
 
-  public ExtractorTransformConfig build() {
-    return new ExtractorTransformConfig(project, serviceFilePath, pathField, outputField, features, languageHints,
-      aspectRatios, includeGeoResults, productSet, productCategories, boundingPolygon, filter, schema);
-  }
+  public abstract ExtractorTransformConfig build();
 }

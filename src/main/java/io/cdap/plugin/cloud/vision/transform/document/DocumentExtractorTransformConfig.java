@@ -20,9 +20,11 @@ import com.google.common.base.Strings;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.annotation.Name;
+import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.api.plugin.PluginConfig;
 import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.plugin.cloud.vision.transform.ExtractorTransformConfig;
+import io.cdap.plugin.cloud.vision.transform.ExtractorTransformConstants;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -54,12 +56,10 @@ public class DocumentExtractorTransformConfig extends ExtractorTransformConfig {
   public DocumentExtractorTransformConfig(String project, String serviceFilePath, String pathField, String outputField,
                                           String features, @Nullable String languageHints,
                                           @Nullable String aspectRatios, @Nullable Boolean includeGeoResults,
-                                          @Nullable String productSet, @Nullable String productCategories,
-                                          @Nullable String boundingPolygon, @Nullable String filter,
                                           @Nullable String schema, @Nullable String contentField, String mimeType,
                                           String pages) {
     super(project, serviceFilePath, pathField, outputField, features, languageHints, aspectRatios, includeGeoResults,
-      productSet, productCategories, boundingPolygon, filter, schema);
+      schema);
     this.contentField = contentField;
     this.mimeType = mimeType;
     this.pages = pages;
@@ -95,7 +95,39 @@ public class DocumentExtractorTransformConfig extends ExtractorTransformConfig {
    */
   public void validate(FailureCollector collector) {
     super.validate(collector);
-    // TODO contentField + pathField
-    // TODO ensure that "features" field exists
+    if (!containsMacro(ExtractorTransformConstants.PATH_FIELD) &&
+      !containsMacro(DocumentExtractorTransformConstants.CONTENT_FIELD) &&
+      (Strings.isNullOrEmpty(getPathField()) && Strings.isNullOrEmpty(getContentField()) ||
+        !Strings.isNullOrEmpty(getPathField()) && !Strings.isNullOrEmpty(getContentField()))) {
+      collector.addFailure("Either path field or content field must be specified", null)
+        .withConfigProperty(ExtractorTransformConstants.PATH_FIELD)
+        .withConfigProperty(DocumentExtractorTransformConstants.CONTENT_FIELD);
+    }
+    if (!containsMacro(DocumentExtractorTransformConstants.MIME_TYPE) && Strings.isNullOrEmpty(getMimeType())) {
+      collector.addFailure("Mime type must be specified", null)
+        .withConfigProperty(DocumentExtractorTransformConstants.MIME_TYPE);
+    }
+  }
+
+  /**
+   * Validates specified schema and checks for required fields.
+   *
+   * @param providedSchema user-provided schema.
+   * @param collector      failure collector.
+   */
+  public void validateSchema(Schema providedSchema, FailureCollector collector) {
+    Schema.Field outputField = providedSchema.getField(getOutputField());
+    if (outputField == null) {
+      collector.addFailure(String.format("Schema must contain '%s' output field", getOutputField()), null)
+        .withConfigProperty(ExtractorTransformConstants.SCHEMA);
+    } else {
+      Schema outputFieldSchema = outputField.getSchema().isNullable() ? outputField.getSchema().getNonNullable()
+        : outputField.getSchema();
+      if (outputFieldSchema.getField(DocumentExtractorTransformConstants.FEATURE_FIELD_NAME) == null) {
+        String errorMessage = String.format("Schema of the output field '%s' must contain '%s' feature field",
+          getOutputField(), DocumentExtractorTransformConstants.FEATURE_FIELD_NAME);
+        collector.addFailure(errorMessage, null).withConfigProperty(ExtractorTransformConstants.SCHEMA);
+      }
+    }
   }
 }

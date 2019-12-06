@@ -16,10 +16,7 @@
 
 package io.cdap.plugin.cloud.vision.transform;
 
-import com.google.cloud.vision.v1.BoundingPoly;
 import com.google.common.base.Strings;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.util.JsonFormat;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.annotation.Name;
@@ -77,30 +74,6 @@ public class ExtractorTransformConfig extends CloudVisionConfig {
   @Nullable
   private Boolean includeGeoResults;
 
-  @Name(ExtractorTransformConstants.PRODUCT_SET)
-  @Description("Resource name of a ProductSet to be searched for similar images.")
-  @Macro
-  @Nullable
-  private String productSet;
-
-  @Name(ExtractorTransformConstants.PRODUCT_CATEGORIES)
-  @Description("List of product categories to search in.")
-  @Macro
-  @Nullable
-  private String productCategories;
-
-  @Name(ExtractorTransformConstants.BOUNDING_POLYGON)
-  @Description("Bounding polygon for the image detection.")
-  @Macro
-  @Nullable
-  private String boundingPolygon;
-
-  @Name(ExtractorTransformConstants.FILTER)
-  @Description("Filtering expression to restrict search results based on Product labels.")
-  @Macro
-  @Nullable
-  private String filter;
-
   @Name(ExtractorTransformConstants.SCHEMA)
   @Description("Schema of records output by the transform.")
   @Nullable
@@ -108,9 +81,7 @@ public class ExtractorTransformConfig extends CloudVisionConfig {
 
   public ExtractorTransformConfig(String project, String serviceFilePath, String pathField, String outputField,
                                   String features, @Nullable String languageHints, @Nullable String aspectRatios,
-                                  @Nullable Boolean includeGeoResults, @Nullable String productSet,
-                                  @Nullable String productCategories, @Nullable String boundingPolygon,
-                                  @Nullable String filter, @Nullable String schema) {
+                                  @Nullable Boolean includeGeoResults, @Nullable String schema) {
     super(project, serviceFilePath);
     this.pathField = pathField;
     this.outputField = outputField;
@@ -118,10 +89,6 @@ public class ExtractorTransformConfig extends CloudVisionConfig {
     this.languageHints = languageHints;
     this.aspectRatios = aspectRatios;
     this.includeGeoResults = includeGeoResults;
-    this.productSet = productSet;
-    this.productCategories = productCategories;
-    this.boundingPolygon = boundingPolygon;
-    this.filter = filter;
     this.schema = schema;
   }
 
@@ -151,25 +118,6 @@ public class ExtractorTransformConfig extends CloudVisionConfig {
     return schema;
   }
 
-  @Nullable
-  public String getProductSet() {
-    return productSet;
-  }
-
-  @Nullable
-  public String getProductCategories() {
-    return productCategories;
-  }
-
-  @Nullable
-  public String getFilter() {
-    return filter;
-  }
-
-  public ProductCategory getProductCategory() {
-    return Objects.requireNonNull(ProductCategory.fromDisplayName(productCategories));
-  }
-
   public ImageFeature getImageFeature() {
     return Objects.requireNonNull(ImageFeature.fromDisplayName(features));
   }
@@ -194,26 +142,6 @@ public class ExtractorTransformConfig extends CloudVisionConfig {
     return includeGeoResults;
   }
 
-  @Nullable
-  public String getBoundingPolygon() {
-    return boundingPolygon;
-  }
-
-  @Nullable
-  public BoundingPoly getBoundingPoly() {
-    if (Strings.isNullOrEmpty(boundingPolygon)) {
-      return null;
-    }
-
-    BoundingPoly.Builder builder = BoundingPoly.newBuilder();
-    try {
-      JsonFormat.parser().ignoringUnknownFields().merge(boundingPolygon, builder);
-      return builder.build();
-    } catch (InvalidProtocolBufferException e) {
-      throw new IllegalStateException(String.format("Could not parse schema string: '%s'", schema), e);
-    }
-  }
-
   /**
    * Parses the json representation into a schema object.
    *
@@ -236,10 +164,6 @@ public class ExtractorTransformConfig extends CloudVisionConfig {
    * @param collector failure collector.
    */
   public void validate(FailureCollector collector) {
-    if (!containsMacro(ExtractorTransformConstants.PATH_FIELD) && Strings.isNullOrEmpty(pathField)) {
-      collector.addFailure("Path field must be specified", null)
-        .withConfigProperty(ExtractorTransformConstants.PATH_FIELD);
-    }
     if (!containsMacro(ExtractorTransformConstants.OUTPUT_FIELD) && Strings.isNullOrEmpty(outputField)) {
       collector.addFailure("Output field must be specified", null)
         .withConfigProperty(ExtractorTransformConstants.OUTPUT_FIELD);
@@ -251,14 +175,6 @@ public class ExtractorTransformConfig extends CloudVisionConfig {
       } else if (ImageFeature.fromDisplayName(features) == null) {
         collector.addFailure("Invalid image feature name", null)
           .withConfigProperty(ExtractorTransformConstants.FEATURES);
-      }
-    }
-    if (!containsMacro(ExtractorTransformConstants.BOUNDING_POLYGON) && !Strings.isNullOrEmpty(boundingPolygon)) {
-      try {
-        getBoundingPoly();
-      } catch (IllegalStateException e) {
-        collector.addFailure("Could not parse bounding polygon string.", null)
-          .withConfigProperty(ExtractorTransformConstants.BOUNDING_POLYGON);
       }
     }
   }

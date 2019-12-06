@@ -38,7 +38,7 @@ public final class ValidationAssertions {
   }
 
   @Nonnull
-  private static List<ValidationFailure.Cause> getCauses(ValidationFailure failure, String stacktrace) {
+  public static List<ValidationFailure.Cause> getCauses(ValidationFailure failure, String stacktrace) {
     return failure.getCauses()
       .stream()
       .filter(cause -> cause.getAttribute(stacktrace) != null)

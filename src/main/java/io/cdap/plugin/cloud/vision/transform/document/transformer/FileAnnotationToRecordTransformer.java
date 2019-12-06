@@ -89,28 +89,34 @@ public class FileAnnotationToRecordTransformer {
   }
 
   /**
-   * TODO update doc
-   * Transforms input record {@link StructuredRecord} and {@link AnnotateImageResponse} to {@link StructuredRecord}
-   * including extracted image features to the result record according to the specified output field name and schema.
+   * Transforms input record {@link StructuredRecord} and {@link AnnotateFileResponse} to {@link StructuredRecord}
+   * including extracted file features to the result record according to the specified output field name and schema.
    * For example, given input record:
    * <pre>
-   *   image: "gs://some-bucket/child.jpg"
-   *   description: "Child's face"
+   *   document: "gs://some-bucket/logos.pdf"
+   *   description: "Google and CDAP logos"
    * </pre>
-   * with "image" output field will be transformed to the output record like(actual result depends on the feature type):
+   * with "document" output field will be transformed to the following output record(actual result depends on the
+   * feature type):
    * <pre>
-   *   image: [
-   *     anger: VERY_UNLIKELY,
-   *     joy: VERY_LIKELY,
-   *     surprise: VERY_UNLIKELY,
-   *     ...,
+   *   document: [
+   *     page: 1
+   *     feature:
+   *       mid: /g/120yr454",
+   *       description: "Google",
+   *       ...,
+   *     page: 2
+   *     feature:
+   *       mid: "/m/045c7b",
+   *       description: "CDAP",
+   *       ...,
    *   ]
-   *   description: "Child's face"
+   *   description: "Google and CDAP logos"
    * </pre>
    * If the specified output field name already exists in the input record, it will be overwritten.
    *
    * @param input                input record to transform.
-   * @param annotateFileResponse annotate image response which contains extracted features.
+   * @param annotateFileResponse annotate file response which contains extracted features.
    * @return transformed {@link StructuredRecord} which contains extracted features.
    */
   public StructuredRecord transform(StructuredRecord input, AnnotateFileResponse annotateFileResponse) {

@@ -41,7 +41,6 @@ public class LogoAnnotationsToRecordTransformer extends LandmarkAnnotationsToRec
       .build();
   }
 
-  // TODO make it public?
   private List<StructuredRecord> extractLogoAnnotations(AnnotateImageResponse annotateImageResponse) {
     return annotateImageResponse.getLogoAnnotationsList().stream()
       .map(this::extractAnnotation)

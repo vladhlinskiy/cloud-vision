@@ -30,7 +30,6 @@ import io.cdap.cdap.etl.api.StageConfigurer;
 import io.cdap.cdap.etl.api.StageSubmitterContext;
 import io.cdap.cdap.etl.api.Transform;
 import io.cdap.cdap.etl.api.TransformContext;
-import io.cdap.plugin.cloud.vision.transform.CloudVisionClient;
 import io.cdap.plugin.cloud.vision.transform.ExtractorTransformConfig;
 import io.cdap.plugin.cloud.vision.transform.transformer.ImageAnnotationToRecordTransformer;
 import io.cdap.plugin.cloud.vision.transform.transformer.TransformerFactory;
@@ -51,12 +50,12 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
    */
   public static final String PLUGIN_NAME = "ImageExtractor";
 
-  private CloudVisionClient cloudVisionClient;
+  private ImageAnnotatorClient imageAnnotatorClient;
   private ImageAnnotationToRecordTransformer transformer;
-  private ExtractorTransformConfig config;
+  private ImageExtractorTransformConfig config;
   private Schema inputSchema;
 
-  public ImageExtractorTransform(ExtractorTransformConfig config) {
+  public ImageExtractorTransform(ImageExtractorTransformConfig config) {
     this.config = config;
   }
 
@@ -93,14 +92,14 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
     super.initialize(context);
     Schema schema = context.getOutputSchema();
     transformer = TransformerFactory.createInstance(config.getImageFeature(), config.getOutputField(), schema);
-    cloudVisionClient = new CloudVisionClient(config);
+    imageAnnotatorClient = new ImageAnnotatorClient(config);
   }
 
   @Override
   public void transform(StructuredRecord input, Emitter<StructuredRecord> emitter) {
     String imagePath = input.get(config.getPathField());
     try {
-      AnnotateImageResponse response = cloudVisionClient.extractImageFeature(imagePath);
+      AnnotateImageResponse response = imageAnnotatorClient.extractImageFeature(imagePath);
       StructuredRecord transformed = transformer.transform(input, response);
       emitter.emit(transformed);
     } catch (Exception e) {

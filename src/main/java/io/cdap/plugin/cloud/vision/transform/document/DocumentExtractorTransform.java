@@ -72,6 +72,8 @@ public class DocumentExtractorTransform extends Transform<StructuredRecord, Stru
       configurer.getStageConfigurer().setOutputSchema(schema);
       return;
     }
+    config.validateSchema(configuredSchema, collector);
+    collector.getOrThrowException();
     ExtractorTransformConfig.validateFieldsMatch(schema, configuredSchema, collector);
     collector.getOrThrowException();
     configurer.getStageConfigurer().setOutputSchema(configuredSchema);
