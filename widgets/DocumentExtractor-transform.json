@@ -47,8 +47,7 @@
               "Logos",
               "Object Localization",
               "Explicit Content",
-              "Web Detection",
-              "Product Search"
+              "Web Detection"
             ]
           }
         },
@@ -415,34 +414,6 @@
               "label": "False"
             }
           }
-        },
-        {
-          "widget-type": "textbox",
-          "label": "Product Set",
-          "name": "productSet"
-        },
-        {
-          "name": "productCategories",
-          "label": "Product Categories",
-          "widget-type": "select",
-          "widget-attributes": {
-            "default": "Homegoods",
-            "values": [
-              "Homegoods",
-              "Apparel",
-              "Toys"
-            ]
-          }
-        },
-        {
-          "widget-type": "json-editor",
-          "label": "Bounding Polygon",
-          "name": "boundingPolygon"
-        },
-        {
-          "widget-type": "textbox",
-          "label": "Filter",
-          "name": "filter"
         }
       ]
     }
@@ -505,32 +476,6 @@
       "show": [
         {
           "name": "includeGeoResults",
-          "type": "property"
-        }
-      ]
-    },
-    {
-      "name": "Product Search Properties",
-      "condition": {
-        "property": "features",
-        "operator": "equal to",
-        "value": "Product Search"
-      },
-      "show": [
-        {
-          "name": "productSet",
-          "type": "property"
-        },
-        {
-          "name": "productCategories",
-          "type": "property"
-        },
-        {
-          "name": "filter",
-          "type": "property"
-        },
-        {
-          "name": "boundingPolygon",
           "type": "property"
         }
       ]
