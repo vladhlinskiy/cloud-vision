@@ -20,7 +20,6 @@ import com.google.cloud.vision.v1.BoundingPoly;
 import com.google.protobuf.util.JsonFormat;
 import io.cdap.cdap.etl.mock.validation.MockFailureCollector;
 import io.cdap.plugin.cloud.vision.ValidationAssertions;
-import io.cdap.plugin.cloud.vision.source.FilePathSourceConfig;
 import io.cdap.plugin.cloud.vision.transform.ExtractorTransformConfig;
 import io.cdap.plugin.cloud.vision.transform.ExtractorTransformConfigTest;
 import io.cdap.plugin.cloud.vision.transform.ExtractorTransformConstants;
@@ -29,7 +28,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Tests of {@link FilePathSourceConfig} methods.
+ * Tests of {@link ImageExtractorTransformConfig} methods.
  */
 public class ImageExtractorTransformConfigTest extends ExtractorTransformConfigTest {
 

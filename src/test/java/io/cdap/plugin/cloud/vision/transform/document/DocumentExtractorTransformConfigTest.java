@@ -20,7 +20,6 @@ import io.cdap.cdap.etl.api.validation.CauseAttributes;
 import io.cdap.cdap.etl.api.validation.ValidationFailure;
 import io.cdap.cdap.etl.mock.validation.MockFailureCollector;
 import io.cdap.plugin.cloud.vision.ValidationAssertions;
-import io.cdap.plugin.cloud.vision.source.FilePathSourceConfig;
 import io.cdap.plugin.cloud.vision.transform.ExtractorTransformConfig;
 import io.cdap.plugin.cloud.vision.transform.ExtractorTransformConfigTest;
 import io.cdap.plugin.cloud.vision.transform.ImageFeature;
@@ -29,7 +28,7 @@ import org.junit.Test;
 import java.util.List;
 
 /**
- * Tests of {@link FilePathSourceConfig} methods.
+ * Tests of {@link DocumentExtractorTransformConfig} methods.
  */
 public class DocumentExtractorTransformConfigTest extends ExtractorTransformConfigTest {
 

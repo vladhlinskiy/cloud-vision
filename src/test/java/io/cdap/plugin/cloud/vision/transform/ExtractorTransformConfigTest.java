@@ -19,11 +19,10 @@ package io.cdap.plugin.cloud.vision.transform;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.etl.mock.validation.MockFailureCollector;
 import io.cdap.plugin.cloud.vision.ValidationAssertions;
-import io.cdap.plugin.cloud.vision.source.FilePathSourceConfig;
 import org.junit.Test;
 
 /**
- * Tests of {@link FilePathSourceConfig} methods.
+ * Tests of {@link ExtractorTransformConfig} methods.
  */
 public abstract class ExtractorTransformConfigTest {
 
