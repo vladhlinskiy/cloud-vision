@@ -96,5 +96,6 @@ public class DocumentExtractorTransformConfig extends ExtractorTransformConfig {
   public void validate(FailureCollector collector) {
     super.validate(collector);
     // TODO contentField + pathField
+    // TODO ensure that "features" field exists
   }
 }

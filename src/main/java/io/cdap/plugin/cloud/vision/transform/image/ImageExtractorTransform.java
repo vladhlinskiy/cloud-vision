@@ -92,7 +92,7 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
   public void initialize(TransformContext context) throws Exception {
     super.initialize(context);
     Schema schema = context.getOutputSchema();
-    transformer = TransformerFactory.createInstance(config, schema);
+    transformer = TransformerFactory.createInstance(config.getImageFeature(), config.getOutputField(), schema);
     cloudVisionClient = new CloudVisionClient(config);
   }
 

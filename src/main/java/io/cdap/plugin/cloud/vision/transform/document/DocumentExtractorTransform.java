@@ -16,7 +16,7 @@
 
 package io.cdap.plugin.cloud.vision.transform.document;
 
-import com.google.cloud.vision.v1.AnnotateImageResponse;
+import com.google.cloud.vision.v1.AnnotateFileResponse;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
@@ -31,8 +31,7 @@ import io.cdap.cdap.etl.api.StageSubmitterContext;
 import io.cdap.cdap.etl.api.Transform;
 import io.cdap.cdap.etl.api.TransformContext;
 import io.cdap.plugin.cloud.vision.transform.ExtractorTransformConfig;
-import io.cdap.plugin.cloud.vision.transform.transformer.ImageAnnotationToRecordTransformer;
-import io.cdap.plugin.cloud.vision.transform.transformer.TransformerFactory;
+import io.cdap.plugin.cloud.vision.transform.document.transformer.FileAnnotationToRecordTransformer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +50,7 @@ public class DocumentExtractorTransform extends Transform<StructuredRecord, Stru
   public static final String PLUGIN_NAME = "DocumentExtractor";
 
   private DocumentAnnotatorClient documentAnnotatorClient;
-  private ImageAnnotationToRecordTransformer transformer;
+  private FileAnnotationToRecordTransformer transformer;
   private DocumentExtractorTransformConfig config;
   private Schema inputSchema;
 
@@ -91,7 +90,8 @@ public class DocumentExtractorTransform extends Transform<StructuredRecord, Stru
   public void initialize(TransformContext context) throws Exception {
     super.initialize(context);
     Schema schema = context.getOutputSchema();
-    transformer = TransformerFactory.createInstance(config, schema);
+    // create new document transformer
+    transformer = new FileAnnotationToRecordTransformer(config, schema);
     documentAnnotatorClient = new DocumentAnnotatorClient(config);
   }
 
@@ -99,7 +99,7 @@ public class DocumentExtractorTransform extends Transform<StructuredRecord, Stru
   public void transform(StructuredRecord input, Emitter<StructuredRecord> emitter) {
     String imagePath = input.get(config.getPathField());
     try {
-      AnnotateImageResponse response = documentAnnotatorClient.extractDocumentFeature(imagePath);
+      AnnotateFileResponse response = documentAnnotatorClient.extractDocumentFeature(imagePath);
       StructuredRecord transformed = transformer.transform(input, response);
       emitter.emit(transformed);
     } catch (Exception e) {
@@ -116,7 +116,21 @@ public class DocumentExtractorTransform extends Transform<StructuredRecord, Stru
       fields.addAll(inputSchema.getFields());
     }
 
-    fields.add(Schema.Field.of(config.getOutputField(), config.getImageFeature().getSchema()));
+    Schema pagesSchema = pagesSchema(config.getImageFeature().getSchema());
+    fields.add(Schema.Field.of(config.getOutputField(), pagesSchema));
     return Schema.recordOf("record", fields);
+  }
+
+  /**
+   * File Annotation mapped to record with field "page" for page number and "feature" field for extracted image feature.
+   *
+   * @param imageFeatureSchema extracted image feature schema.
+   * @return File Annotation page schema.
+   */
+  private Schema pagesSchema(Schema imageFeatureSchema) {
+    return Schema.arrayOf(
+      Schema.recordOf("page-record",
+        Schema.Field.of("page", Schema.of(Schema.Type.INT)),
+        Schema.Field.of("feature", imageFeatureSchema)));
   }
 }

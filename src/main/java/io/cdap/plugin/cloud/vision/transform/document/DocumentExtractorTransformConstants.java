@@ -43,4 +43,16 @@ public class DocumentExtractorTransformConstants extends ExtractorTransformConst
    * Configuration property name used to specify the pages in the file to perform image annotation.
    */
   public static final String PAGES = "pages";
+
+  /**
+   * File Annotation mapped to record with field {@value PAGE_FIELD_NAME} for page number and
+   * {@value FEATURE_FIELD_NAME} field for extracted image feature.
+   */
+  public static final String PAGE_FIELD_NAME = "page";
+
+  /**
+   * File Annotation mapped to record with field {@value PAGE_FIELD_NAME} for page number and
+   * {@value FEATURE_FIELD_NAME} field for extracted image feature.
+   */
+  public static final String FEATURE_FIELD_NAME = "feature";
 }

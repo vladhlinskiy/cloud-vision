@@ -23,10 +23,13 @@ import com.google.cloud.vision.v1.BatchAnnotateFilesResponse;
 import com.google.cloud.vision.v1.Feature;
 import com.google.cloud.vision.v1.GcsSource;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
+import com.google.cloud.vision.v1.ImageContext;
 import com.google.cloud.vision.v1.InputConfig;
 import io.cdap.plugin.cloud.vision.exception.CloudVisionExecutionException;
 import io.cdap.plugin.cloud.vision.transform.CloudVisionClient;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides handy methods to access Google Cloud Vision.
@@ -40,7 +43,7 @@ public class DocumentAnnotatorClient extends CloudVisionClient {
     this.config = config;
   }
 
-  public AnnotateImageResponse extractDocumentFeature(String gcsPath) throws Exception {
+  public AnnotateFileResponse extractDocumentFeature(String gcsPath) throws Exception {
     try (ImageAnnotatorClient client = createImageAnnotatorClient()) {
       Feature.Type featureType = config.getImageFeature().getFeatureType();
       Feature feature = Feature.newBuilder().setType(featureType).build();
@@ -50,27 +53,34 @@ public class DocumentAnnotatorClient extends CloudVisionClient {
         .setMimeType(config.getMimeType())
         .build();
 
-      // TODO image context
-      AnnotateFileRequest requestsElement =
+      AnnotateFileRequest.Builder request =
         AnnotateFileRequest.newBuilder()
           .setInputConfig(inputConfig)
           .addFeatures(feature)
-          .addAllPages(config.getPagesList())
-          .build();
-      BatchAnnotateFilesResponse response = client.batchAnnotateFiles(Collections.singletonList(requestsElement));
+          .addAllPages(config.getPagesList());
 
-      // TODO check response list
+      ImageContext imageContext = getImageContext();
+      if (imageContext != null) {
+        request.setImageContext(imageContext);
+      }
+
+      BatchAnnotateFilesResponse response = client.batchAnnotateFiles(Collections.singletonList(request.build()));
       AnnotateFileResponse annotateFileResponse = response.getResponses(SINGLE_RESPONSE_INDEX);
-      // TODO check response list
-      AnnotateImageResponse annotateImageResponse = annotateFileResponse.getResponses(SINGLE_RESPONSE_INDEX);
 
-      if (annotateImageResponse.hasError()) {
-        String errorMessage = String.format("Unable to extract '%s' feature of image '%s' due to: '%s'", featureType,
-          gcsPath, annotateImageResponse.getError().getMessage());
+      List<String> errors = annotateFileResponse.getResponsesList().stream()
+        .filter(AnnotateImageResponse::hasError)
+        .map(r -> {
+          return String.format("Page '%d' has error: '%s'.", r.getContext().getPageNumber(), r.getError().getMessage());
+        })
+        .collect(Collectors.toList());
+
+      if (!errors.isEmpty()) {
+        String errorMessage = String.format("Unable to extract '%s' feature of file '%s'. %s", featureType,
+          gcsPath, String.join(" ", errors));
         throw new CloudVisionExecutionException(errorMessage);
       }
 
-      return annotateImageResponse;
+      return annotateFileResponse;
     }
   }
 }
