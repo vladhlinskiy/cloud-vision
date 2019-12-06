@@ -17,9 +17,11 @@
 package io.cdap.plugin.cloud.vision.transform.document;
 
 import com.google.cloud.vision.v1.AnnotateFileResponse;
+import com.google.common.base.Strings;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
+import io.cdap.cdap.api.common.Bytes;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.etl.api.Emitter;
@@ -32,6 +34,7 @@ import io.cdap.cdap.etl.api.Transform;
 import io.cdap.cdap.etl.api.TransformContext;
 import io.cdap.plugin.cloud.vision.transform.ExtractorTransformConfig;
 import io.cdap.plugin.cloud.vision.transform.document.transformer.FileAnnotationToRecordTransformer;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,13 +69,15 @@ public class DocumentExtractorTransform extends Transform<StructuredRecord, Stru
     FailureCollector collector = stageConfigurer.getFailureCollector();
     config.validate(collector);
     collector.getOrThrowException();
+    config.validateInputSchema(inputSchema, collector);
+    collector.getOrThrowException();
     Schema schema = getSchema();
     Schema configuredSchema = config.getParsedSchema();
     if (configuredSchema == null) {
       configurer.getStageConfigurer().setOutputSchema(schema);
       return;
     }
-    config.validateSchema(configuredSchema, collector);
+    config.validateOutputSchema(configuredSchema, collector);
     collector.getOrThrowException();
     ExtractorTransformConfig.validateFieldsMatch(schema, configuredSchema, collector);
     collector.getOrThrowException();
@@ -99,17 +104,33 @@ public class DocumentExtractorTransform extends Transform<StructuredRecord, Stru
 
   @Override
   public void transform(StructuredRecord input, Emitter<StructuredRecord> emitter) {
-    String imagePath = input.get(config.getPathField());
     try {
-      AnnotateFileResponse response = documentAnnotatorClient.extractDocumentFeature(imagePath);
-      StructuredRecord transformed = transformer.transform(input, response);
-      emitter.emit(transformed);
+      if (!Strings.isNullOrEmpty(config.getPathField())) {
+        transformPath(input, emitter);
+      } else {
+        transformBytes(input, emitter);
+      }
     } catch (Exception e) {
       StructuredRecord errorRecord = StructuredRecord.builder(ExtractorTransformConfig.ERROR_SCHEMA)
         .set("error", e.getMessage())
         .build();
       emitter.emitError(new InvalidEntry<>(400, e.getMessage(), errorRecord));
     }
+  }
+
+  private void transformPath(StructuredRecord input, Emitter<StructuredRecord> emitter) throws Exception {
+    String documentPath = input.get(config.getPathField());
+    AnnotateFileResponse response = documentAnnotatorClient.extractDocumentFeature(documentPath);
+    StructuredRecord transformed = transformer.transform(input, response);
+    emitter.emit(transformed);
+  }
+
+  private void transformBytes(StructuredRecord input, Emitter<StructuredRecord> emitter) throws Exception {
+    Object content = input.get(config.getPathField());
+    byte[] contentBytes = content instanceof ByteBuffer ? Bytes.getBytes((ByteBuffer) content) : (byte[]) content;
+    AnnotateFileResponse response = documentAnnotatorClient.extractDocumentFeature(contentBytes);
+    StructuredRecord transformed = transformer.transform(input, response);
+    emitter.emit(transformed);
   }
 
   public Schema getSchema() {

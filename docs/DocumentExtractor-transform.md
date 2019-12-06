@@ -46,16 +46,3 @@ Wildcards are not supported.
 **Aspect Ratios**: Ratio of the width to the height of the image. If not specified, the best possible crop is returned.
 
 **Include Geo Results**: Whether to include results derived from the geo information in the image.
-
-**Product Set**: Resource name of a ProductSet to be searched for similar images. Format is: 
-`projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
-
-**Product Categories**: List of product categories to search in.
-
-**Bounding Polygon**: Bounding polygon for the image detection.
-
-**Filter**: Filtering expression. This can be used to restrict search results based on Product labels. An `AND` of `OR`
-of key-value expressions are currently supported, where each expression within an `OR` must have the same key.
-An `=` should be used to connect the key and value. For example, `(color = red OR color = blue) AND brand = Google` is
-acceptable, but `(color = red OR brand = Google)` is not acceptable. `color: red` is not acceptable because it uses a
-`:` instead of an `=`.

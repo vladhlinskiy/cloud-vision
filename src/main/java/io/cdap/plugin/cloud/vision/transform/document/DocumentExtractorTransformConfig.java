@@ -110,23 +110,47 @@ public class DocumentExtractorTransformConfig extends ExtractorTransformConfig {
   }
 
   /**
+   * Validates input schema and checks for type compatibility.
+   *
+   * @param inputSchema input schema.
+   * @param collector   failure collector.
+   */
+  public void validateInputSchema(Schema inputSchema, FailureCollector collector) {
+    Schema.Field contentField = inputSchema.getField(getContentField());
+    if (contentField != null) {
+      collector.addFailure(String.format("Content field '%s' is expected to be 'bytes'", getContentField()), null)
+        .withInputSchemaField(getContentField());
+    }
+    Schema.Field pathField = inputSchema.getField(getPathField());
+    if (pathField != null) {
+      collector.addFailure(String.format("Path field '%s' is expected to be a string", getPathField()), null)
+        .withInputSchemaField(getPathField());
+    }
+  }
+
+  /**
    * Validates specified schema and checks for required fields.
    *
    * @param providedSchema user-provided schema.
    * @param collector      failure collector.
    */
-  public void validateSchema(Schema providedSchema, FailureCollector collector) {
+  public void validateOutputSchema(Schema providedSchema, FailureCollector collector) {
     Schema.Field outputField = providedSchema.getField(getOutputField());
     if (outputField == null) {
       collector.addFailure(String.format("Schema must contain '%s' output field", getOutputField()), null)
         .withConfigProperty(ExtractorTransformConstants.SCHEMA);
     } else {
-      Schema outputFieldSchema = outputField.getSchema().isNullable() ? outputField.getSchema().getNonNullable()
-        : outputField.getSchema();
-      if (outputFieldSchema.getField(DocumentExtractorTransformConstants.FEATURE_FIELD_NAME) == null) {
-        String errorMessage = String.format("Schema of the output field '%s' must contain '%s' feature field",
-          getOutputField(), DocumentExtractorTransformConstants.FEATURE_FIELD_NAME);
-        collector.addFailure(errorMessage, null).withConfigProperty(ExtractorTransformConstants.SCHEMA);
+      Schema pagesSchema = outputField.getSchema();
+      if (pagesSchema.getType() != Schema.Type.ARRAY) {
+        collector.addFailure(String.format("Output field '%s' is expected to be an array", getOutputField()), null)
+          .withOutputSchemaField(getOutputField());
+      } else {
+        Schema pageSchema = pagesSchema.getComponentSchema();
+        if (pageSchema.getField(DocumentExtractorTransformConstants.FEATURE_FIELD_NAME) == null) {
+          String errorMessage = String.format("Schema of the output field '%s' must contain '%s' feature field",
+            getOutputField(), DocumentExtractorTransformConstants.FEATURE_FIELD_NAME);
+          collector.addFailure(errorMessage, null).withOutputSchemaField(getOutputField());
+        }
       }
     }
   }

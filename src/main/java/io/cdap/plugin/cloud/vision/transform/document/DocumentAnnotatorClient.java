@@ -25,6 +25,7 @@ import com.google.cloud.vision.v1.GcsSource;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.cloud.vision.v1.ImageContext;
 import com.google.cloud.vision.v1.InputConfig;
+import com.google.protobuf.ByteString;
 import io.cdap.plugin.cloud.vision.exception.CloudVisionExecutionException;
 import io.cdap.plugin.cloud.vision.transform.CloudVisionClient;
 import java.util.Collections;
@@ -43,15 +44,26 @@ public class DocumentAnnotatorClient extends CloudVisionClient {
     this.config = config;
   }
 
+  public AnnotateFileResponse extractDocumentFeature(byte[] content) throws Exception {
+    InputConfig inputConfig = InputConfig.newBuilder()
+      .setContent(ByteString.copyFrom(content))
+      .setMimeType(config.getMimeType())
+      .build();
+    return extractDocumentFeature(inputConfig);
+  }
+
   public AnnotateFileResponse extractDocumentFeature(String gcsPath) throws Exception {
+    InputConfig inputConfig = InputConfig.newBuilder()
+      .setGcsSource(GcsSource.newBuilder().setUri(gcsPath))
+      .setMimeType(config.getMimeType())
+      .build();
+    return extractDocumentFeature(inputConfig);
+  }
+
+  public AnnotateFileResponse extractDocumentFeature(InputConfig inputConfig) throws Exception {
     try (ImageAnnotatorClient client = createImageAnnotatorClient()) {
       Feature.Type featureType = config.getImageFeature().getFeatureType();
       Feature feature = Feature.newBuilder().setType(featureType).build();
-
-      InputConfig inputConfig = InputConfig.newBuilder()
-        .setGcsSource(GcsSource.newBuilder().setUri(gcsPath))
-        .setMimeType(config.getMimeType())
-        .build();
 
       AnnotateFileRequest.Builder request =
         AnnotateFileRequest.newBuilder()
@@ -75,8 +87,8 @@ public class DocumentAnnotatorClient extends CloudVisionClient {
         .collect(Collectors.toList());
 
       if (!errors.isEmpty()) {
-        String errorMessage = String.format("Unable to extract '%s' feature of file '%s'. %s", featureType,
-          gcsPath, String.join(" ", errors));
+        String errorMessage = String.format("Unable to extract '%s' feature. %s", featureType,
+          String.join(" ", errors));
         throw new CloudVisionExecutionException(errorMessage);
       }
 
