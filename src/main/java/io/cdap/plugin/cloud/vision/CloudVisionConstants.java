@@ -21,15 +21,9 @@ package io.cdap.plugin.cloud.vision;
  */
 public class CloudVisionConstants {
 
-  private CloudVisionConstants() {
+  protected CloudVisionConstants() {
     throw new AssertionError("Should not instantiate static utility class.");
   }
-
-  /**
-   * File Path Batch Source plugin name.
-   */
-  public static final String FILE_PATH_BATCH_SOURCE_PLUGIN_NAME = "FilePath";
-
 
   /**
    * Configuration property name used to specify Google Cloud Project ID, which uniquely identifies a project.
@@ -43,29 +37,6 @@ public class CloudVisionConstants {
   public static final String SERVICE_ACCOUNT_FILE_PATH = "serviceFilePath";
 
   /**
-   * Configuration property name used to specify path to the directory where the files whose paths are to be emitted
-   * are located.
-   */
-  public static final String PATH = "path";
-
-  /**
-   * Configuration property name used to specify whether the plugin should recursively traverse the directory for
-   * subdirectories.
-   */
-  public static final String RECURSIVE = "recursive";
-
-  /**
-   * Configuration property name used to specify a way to filter files to be returned based on their last modified
-   * timestamp.
-   */
-  public static final String LAST_MODIFIED = "lastModified";
-
-  /**
-   * Configuration property name used to specify a splitting mechanism.
-   */
-  public static final String SPLIT_BY = "splitBy";
-
-  /**
    * {@link CloudVisionConstants#SERVICE_ACCOUNT_FILE_PATH} configuration property used to specify path on the local
    * file system of the service account key used for authorization. Can be set to {@value AUTO_DETECT} when running on
    * a Dataproc cluster.
@@ -75,5 +46,16 @@ public class CloudVisionConstants {
   /**
    * File paths mapped to a record with a single {@value PATH_FIELD_NAME} string field.
    */
+
   public static final String PATH_FIELD_NAME = "path";
+
+  /**
+   * Configuration property name used to specify optional hints.
+   */
+  public static final String LANGUAGE_HINTS = "languageHints";
+
+  /**
+   * Configuration property name used to specify mime type.
+   */
+  public static final String MIME_TYPE = "mimeType";
 }

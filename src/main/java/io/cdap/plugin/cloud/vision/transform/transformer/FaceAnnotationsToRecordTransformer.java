@@ -18,11 +18,9 @@ package io.cdap.plugin.cloud.vision.transform.transformer;
 
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.FaceAnnotation;
-import com.google.cloud.vision.v1.Vertex;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
-
+import io.cdap.plugin.cloud.vision.transform.schema.FaceAnnotationSchema;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,65 +49,101 @@ public class FaceAnnotationsToRecordTransformer extends ImageAnnotationToRecordT
   }
 
   private StructuredRecord extractFaceAnnotationRecord(FaceAnnotation annotation) {
-    // here we retrieve face annotation schema instead of using constant schema since users are free to choose to not
-    // include some of the fields
     Schema faceSchema = getFaceAnnotationSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(faceSchema);
-
-    if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.ANGER_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.FaceAnnotation.ANGER_FIELD_NAME, annotation.getAngerLikelihood().name());
+    if (faceSchema.getField(FaceAnnotationSchema.ROLL_ANGLE_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.ROLL_ANGLE_FIELD_NAME, annotation.getRollAngle());
     }
-    if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.JOY_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.FaceAnnotation.JOY_FIELD_NAME, annotation.getJoyLikelihood().name());
+    if (faceSchema.getField(FaceAnnotationSchema.PAN_ANGLE_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.PAN_ANGLE_FIELD_NAME, annotation.getPanAngle());
     }
-    if (faceSchema.getField(ImageExtractorConstants.FaceAnnotation.SURPRISE_FIELD_NAME) != null) {
+    if (faceSchema.getField(FaceAnnotationSchema.TILT_ANGLE_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.TILT_ANGLE_FIELD_NAME, annotation.getTiltAngle());
+    }
+    if (faceSchema.getField(FaceAnnotationSchema.DETECTION_CONFIDENCE_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.DETECTION_CONFIDENCE_FIELD_NAME,
+        annotation.getDetectionConfidence());
+    }
+    if (faceSchema.getField(FaceAnnotationSchema.LANDMARKING_CONFIDENCE_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.LANDMARKING_CONFIDENCE_FIELD_NAME,
+        annotation.getLandmarkingConfidence());
+    }
+    if (faceSchema.getField(FaceAnnotationSchema.ANGER_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.ANGER_FIELD_NAME, annotation.getAngerLikelihood().name());
+    }
+    if (faceSchema.getField(FaceAnnotationSchema.JOY_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.JOY_FIELD_NAME, annotation.getJoyLikelihood().name());
+    }
+    if (faceSchema.getField(FaceAnnotationSchema.BLURRED_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.BLURRED_FIELD_NAME, annotation.getBlurredLikelihood().name());
+    }
+    if (faceSchema.getField(FaceAnnotationSchema.SORROW_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.SORROW_FIELD_NAME, annotation.getSorrowLikelihood().name());
+    }
+    if (faceSchema.getField(FaceAnnotationSchema.UNDER_EXPOSED_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.UNDER_EXPOSED_FIELD_NAME, annotation.getUnderExposedLikelihood().name());
+    }
+    if (faceSchema.getField(FaceAnnotationSchema.HEADWEAR_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.HEADWEAR_FIELD_NAME, annotation.getHeadwearLikelihood().name());
+    }
+    if (faceSchema.getField(FaceAnnotationSchema.SURPRISE_FIELD_NAME) != null) {
       String surprise = annotation.getSurpriseLikelihood().name();
-      builder.set(ImageExtractorConstants.FaceAnnotation.SURPRISE_FIELD_NAME, surprise);
+      builder.set(FaceAnnotationSchema.SURPRISE_FIELD_NAME, surprise);
     }
-    Schema.Field positionField = faceSchema.getField(ImageExtractorConstants.FaceAnnotation.POSITION_FIELD_NAME);
+    Schema.Field positionField = faceSchema.getField(FaceAnnotationSchema.POSITION_FIELD_NAME);
     if (positionField != null) {
-      // here we retrieve schema instead of using constant schema since users are free to choose to not include some of
-      // the fields
-      Schema positionArraySchema = positionField.getSchema().isNullable() ? positionField.getSchema().getNonNullable()
-        : positionField.getSchema();
-      Schema positionSchema = positionArraySchema.getComponentSchema().isNullable()
-        ? positionArraySchema.getComponentSchema().getNonNullable()
-        : positionArraySchema.getComponentSchema();
-
+      Schema positionSchema = getComponentSchema(positionField);
       List<StructuredRecord> position = annotation.getBoundingPoly().getVerticesList().stream()
         .map(v -> extractVertex(v, positionSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.FaceAnnotation.POSITION_FIELD_NAME, position);
+      builder.set(FaceAnnotationSchema.POSITION_FIELD_NAME, position);
+    }
+    Schema.Field fdPositionField = faceSchema.getField(FaceAnnotationSchema.FD_POSITION_FIELD_NAME);
+    if (fdPositionField != null) {
+      Schema positionSchema = getComponentSchema(fdPositionField);
+      List<StructuredRecord> position = annotation.getFdBoundingPoly().getVerticesList().stream()
+        .map(v -> extractVertex(v, positionSchema))
+        .collect(Collectors.toList());
+      builder.set(FaceAnnotationSchema.FD_POSITION_FIELD_NAME, position);
+    }
+    Schema.Field landmarksField = faceSchema.getField(FaceAnnotationSchema.LANDMARKS_FIELD_NAME);
+    if (landmarksField != null) {
+      Schema landmarkSchema = getComponentSchema(landmarksField);
+      List<StructuredRecord> position = annotation.getLandmarksList().stream()
+        .map(v -> extractLandmark(v, landmarkSchema))
+        .collect(Collectors.toList());
+      builder.set(FaceAnnotationSchema.LANDMARKS_FIELD_NAME, position);
     }
 
     return builder.build();
   }
 
-  private StructuredRecord extractVertex(Vertex vertex, Schema schema) {
+  private StructuredRecord extractLandmark(FaceAnnotation.Landmark landmark, Schema schema) {
     StructuredRecord.Builder builder = StructuredRecord.builder(schema);
-    if (schema.getField(ImageExtractorConstants.Vertex.X_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.Vertex.X_FIELD_NAME, vertex.getX());
+    if (schema.getField(FaceAnnotationSchema.FaceLandmark.TYPE_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.FaceLandmark.TYPE_FIELD_NAME, landmark.getType());
     }
-    if (schema.getField(ImageExtractorConstants.Vertex.Y_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.Vertex.Y_FIELD_NAME, vertex.getY());
+    if (schema.getField(FaceAnnotationSchema.FaceLandmark.X_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.FaceLandmark.X_FIELD_NAME, landmark.getPosition().getX());
+    }
+    if (schema.getField(FaceAnnotationSchema.FaceLandmark.Y_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.FaceLandmark.Y_FIELD_NAME, landmark.getPosition().getY());
+    }
+    if (schema.getField(FaceAnnotationSchema.FaceLandmark.Z_FIELD_NAME) != null) {
+      builder.set(FaceAnnotationSchema.FaceLandmark.Z_FIELD_NAME, landmark.getPosition().getZ());
     }
 
     return builder.build();
   }
 
   /**
-   * Retrieves Face Annotation's non-nullable component schema.
+   * Retrieves Face Annotation's non-nullable component schema. Face Annotation's schema is retrieved instead of using
+   * constant schema since users are free to choose to not include some of the fields.
    *
    * @return Face Annotation's non-nullable component schema.
    */
   private Schema getFaceAnnotationSchema() {
-    Schema faceAnnotationsFieldSchema = schema.getField(outputFieldName).getSchema();
-    Schema faceAnnotationsComponentSchema = faceAnnotationsFieldSchema.isNullable()
-      ? faceAnnotationsFieldSchema.getNonNullable().getComponentSchema()
-      : faceAnnotationsFieldSchema.getComponentSchema();
-
-    return faceAnnotationsComponentSchema.isNullable()
-      ? faceAnnotationsComponentSchema.getNonNullable()
-      : faceAnnotationsComponentSchema;
+    Schema.Field faceAnnotationsField = schema.getField(outputFieldName);
+    return getComponentSchema(faceAnnotationsField);
   }
 }

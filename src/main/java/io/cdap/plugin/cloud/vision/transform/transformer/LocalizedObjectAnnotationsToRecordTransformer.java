@@ -18,11 +18,9 @@ package io.cdap.plugin.cloud.vision.transform.transformer;
 
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.LocalizedObjectAnnotation;
-import com.google.cloud.vision.v1.Vertex;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
-
+import io.cdap.plugin.cloud.vision.transform.schema.LocalizedObjectAnnotationSchema;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,65 +49,43 @@ public class LocalizedObjectAnnotationsToRecordTransformer extends ImageAnnotati
   }
 
   private StructuredRecord extractLocalizedObjectAnnotationRecord(LocalizedObjectAnnotation annotation) {
-    // here we retrieve localized object annotation schema instead of using constant schema since users are free to
-    // choose to not include some of the fields
     Schema objSchema = getLocalizedObjectAnnotationSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(objSchema);
 
-    if (objSchema.getField(ImageExtractorConstants.LocalizedObjectAnnotation.MID_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.LocalizedObjectAnnotation.MID_FIELD_NAME, annotation.getMid());
+    if (objSchema.getField(LocalizedObjectAnnotationSchema.MID_FIELD_NAME) != null) {
+      builder.set(LocalizedObjectAnnotationSchema.MID_FIELD_NAME, annotation.getMid());
     }
-    if (objSchema.getField(ImageExtractorConstants.LocalizedObjectAnnotation.NAME_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.LocalizedObjectAnnotation.NAME_FIELD_NAME, annotation.getName());
+    if (objSchema.getField(LocalizedObjectAnnotationSchema.LANGUAGE_CODE_FIELD_NAME) != null) {
+      String languageCode = annotation.getLanguageCode();
+      builder.set(LocalizedObjectAnnotationSchema.LANGUAGE_CODE_FIELD_NAME, languageCode);
     }
-    if (objSchema.getField(ImageExtractorConstants.LocalizedObjectAnnotation.SCORE_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.LocalizedObjectAnnotation.SCORE_FIELD_NAME, annotation.getScore());
+    if (objSchema.getField(LocalizedObjectAnnotationSchema.NAME_FIELD_NAME) != null) {
+      builder.set(LocalizedObjectAnnotationSchema.NAME_FIELD_NAME, annotation.getName());
+    }
+    if (objSchema.getField(LocalizedObjectAnnotationSchema.SCORE_FIELD_NAME) != null) {
+      builder.set(LocalizedObjectAnnotationSchema.SCORE_FIELD_NAME, annotation.getScore());
     }
 
-    Schema.Field posField = objSchema.getField(ImageExtractorConstants.LocalizedObjectAnnotation.POSITION_FIELD_NAME);
+    Schema.Field posField = objSchema.getField(LocalizedObjectAnnotationSchema.POSITION_FIELD_NAME);
     if (posField != null) {
-      // here we retrieve schema instead of using constant schema since users are free to choose to not include some of
-      // the fields
-      Schema positionArraySchema = posField.getSchema().isNullable() ? posField.getSchema().getNonNullable()
-        : posField.getSchema();
-      Schema positionSchema = positionArraySchema.getComponentSchema().isNullable()
-        ? positionArraySchema.getComponentSchema().getNonNullable()
-        : positionArraySchema.getComponentSchema();
-
+      Schema positionSchema = getComponentSchema(posField);
       List<StructuredRecord> position = annotation.getBoundingPoly().getVerticesList().stream()
         .map(v -> extractVertex(v, positionSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.LocalizedObjectAnnotation.POSITION_FIELD_NAME, position);
-    }
-
-    return builder.build();
-  }
-
-  private StructuredRecord extractVertex(Vertex vertex, Schema schema) {
-    StructuredRecord.Builder builder = StructuredRecord.builder(schema);
-    if (schema.getField(ImageExtractorConstants.Vertex.X_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.Vertex.X_FIELD_NAME, vertex.getX());
-    }
-    if (schema.getField(ImageExtractorConstants.Vertex.Y_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.Vertex.Y_FIELD_NAME, vertex.getY());
+      builder.set(LocalizedObjectAnnotationSchema.POSITION_FIELD_NAME, position);
     }
 
     return builder.build();
   }
 
   /**
-   * Retrieves Localized Object Annotation's non-nullable component schema.
+   * Retrieves Localized Object Annotation's non-nullable component schema. Schema retrieved instead of using constant
+   * schema since users are free to choose to not include some of the fields
    *
    * @return Localized Object Annotation's non-nullable component schema.
    */
   private Schema getLocalizedObjectAnnotationSchema() {
-    Schema localizedObjectAnnotationsFieldSchema = schema.getField(outputFieldName).getSchema();
-    Schema localizedObjectAnnotationsComponentSchema = localizedObjectAnnotationsFieldSchema.isNullable()
-      ? localizedObjectAnnotationsFieldSchema.getNonNullable().getComponentSchema()
-      : localizedObjectAnnotationsFieldSchema.getComponentSchema();
-
-    return localizedObjectAnnotationsComponentSchema.isNullable()
-      ? localizedObjectAnnotationsComponentSchema.getNonNullable()
-      : localizedObjectAnnotationsComponentSchema;
+    Schema.Field localizedObjectAnnotationsField = schema.getField(outputFieldName);
+    return getComponentSchema(localizedObjectAnnotationsField);
   }
 }

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package io.cdap.plugin.cloud.vision;
+package io.cdap.plugin.cloud.vision.transform;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -23,28 +23,34 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 /**
- * Determines splitting mechanisms. Choose amongst default (uses the default splitting mechanism of file input format),
- * directory (by each sub directory).
+ * The list of product categories to search in.
  */
-public enum SplittingMechanism {
-  DEFAULT("default"),
-  DIRECTORY("directory");
+public enum ProductCategory {
+  HOMEGOODS("Homegoods", "homegoods"),
+  APPAREL("Apparel", "apparel"),
+  TOYS("Toys", "toys");
 
-  private static final Map<String, SplittingMechanism> byDisplayName = Arrays.stream(values())
-    .collect(Collectors.toMap(SplittingMechanism::getDisplayName, Function.identity()));
+  private static final Map<String, ProductCategory> byDisplayName = Arrays.stream(values())
+    .collect(Collectors.toMap(ProductCategory::getDisplayName, Function.identity()));
 
   private final String displayName;
+  private final String name;
 
-  SplittingMechanism(String displayName) {
+  ProductCategory(String displayName, String name) {
     this.displayName = displayName;
+    this.name = name;
   }
 
   @Nullable
-  public static SplittingMechanism fromDisplayName(String displayName) {
+  public static ProductCategory fromDisplayName(String displayName) {
     return byDisplayName.get(displayName);
   }
 
   public String getDisplayName() {
     return displayName;
+  }
+
+  public String getName() {
+    return name;
   }
 }

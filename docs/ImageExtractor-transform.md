@@ -19,4 +19,36 @@ must be readable by all users running the job.
 
 Properties
 ----------
-TODO
+
+**Service Account File Path**: Path on the local file system of the service account key used for
+authorization. Can be set to 'auto-detect' when running on a Dataproc cluster.
+When running on other clusters, the file must be present on every node in the cluster.
+
+**Project ID**: Google Cloud Project ID, which uniquely identifies a project. It can be found on the Dashboard in the
+Google Cloud Platform Console.
+
+**Path Field**: Field in the input schema containing the path to the image.
+
+**Output Field**: Field to store the extracted image features. If the specified output field name already exists in the
+input record, it will be overwritten.
+
+**Features**: Features to extract from images.
+
+**Language Hints**: Hints to detect the language of the text in the images.
+
+**Aspect Ratios**: Ratio of the width to the height of the image. If not specified, the best possible crop is returned.
+
+**Include Geo Results**: Whether to include results derived from the geo information in the image.
+
+**Product Set**: Resource name of a ProductSet to be searched for similar images. Format is: 
+`projects/PROJECT_ID/locations/LOC_ID/productSets/PRODUCT_SET_ID`.
+
+**Product Categories**: List of product categories to search in.
+
+**Bounding Polygon**: Bounding polygon for the image detection.
+
+**Filter**: Filtering expression. This can be used to restrict search results based on Product labels. An `AND` of `OR`
+of key-value expressions are currently supported, where each expression within an `OR` must have the same key.
+An `=` should be used to connect the key and value. For example, `(color = red OR color = blue) AND brand = Google` is
+acceptable, but `(color = red OR brand = Google)` is not acceptable. `color: red` is not acceptable because it uses a
+`:` instead of an `=`.

@@ -30,7 +30,7 @@ public class TransformerFactory {
       case TEXT:
         return new TextAnnotationsToRecordTransformer(schema, config.getOutputField());
       case HANDWRITING:
-        return new DocumentTextAnnotationsToRecordTransformer(schema, config.getOutputField());
+        return new FullTextAnnotationsToRecordTransformer(schema, config.getOutputField());
       case CROP_HINTS:
         return new CropHintsAnnotationsToRecordTransformer(schema, config.getOutputField());
       case IMAGE_PROPERTIES:
@@ -47,6 +47,8 @@ public class TransformerFactory {
         return new SafeSearchAnnotationsToRecordTransformer(schema, config.getOutputField());
       case WEB_DETECTION:
         return new WebDetectionToRecordTransformer(schema, config.getOutputField());
+      case PRODUCT_SEARCH:
+        return new ProductSearchResultToRecordTransformer(schema, config.getOutputField());
       default:
         throw new IllegalArgumentException(String.format("Unsupported image feature: '%s'", config.getImageFeature()));
     }

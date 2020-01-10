@@ -255,8 +255,13 @@
     </dependency>
     <dependency>
       <groupId>com.google.cloud</groupId>
-      <artifactId>google-cloud-storage</artifactId>
-      <version>${google.cloud.storage.version}</version>
+      <artifactId>google-cloud-vision</artifactId>
+      <version>${google.cloud.vision.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>

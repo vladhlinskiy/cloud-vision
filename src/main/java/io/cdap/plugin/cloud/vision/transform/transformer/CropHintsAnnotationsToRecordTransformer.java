@@ -18,11 +18,9 @@ package io.cdap.plugin.cloud.vision.transform.transformer;
 
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.CropHint;
-import com.google.cloud.vision.v1.Vertex;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
-
+import io.cdap.plugin.cloud.vision.transform.schema.CropHintAnnotationSchema;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,54 +49,35 @@ public class CropHintsAnnotationsToRecordTransformer extends ImageAnnotationToRe
   }
 
   private StructuredRecord extractCropHintRecord(CropHint hint) {
-    // here we retrieve crop hints annotation schema instead of using constant schema since users are free to choose
-    // to not include some of the fields
     Schema hintSchema = getCropHintsAnnotationSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(hintSchema);
-    Schema.Field positionField = hintSchema.getField(ImageExtractorConstants.CropHintAnnotation.POSITION_FIELD_NAME);
+    Schema.Field positionField = hintSchema.getField(CropHintAnnotationSchema.POSITION_FIELD_NAME);
     if (positionField != null) {
-      // here we retrieve schema instead of using constant schema since users are free to choose to not include some of
-      // the fields
-      Schema positionArraySchema = positionField.getSchema().isNullable() ? positionField.getSchema().getNonNullable()
-        : positionField.getSchema();
-      Schema positionSchema = positionArraySchema.getComponentSchema().isNullable()
-        ? positionArraySchema.getComponentSchema().getNonNullable()
-        : positionArraySchema.getComponentSchema();
-
+      Schema positionSchema = getComponentSchema(positionField);
       List<StructuredRecord> position = hint.getBoundingPoly().getVerticesList().stream()
         .map(v -> extractVertex(v, positionSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.CropHintAnnotation.POSITION_FIELD_NAME, position);
+      builder.set(CropHintAnnotationSchema.POSITION_FIELD_NAME, position);
     }
-
-    return builder.build();
-  }
-
-  private StructuredRecord extractVertex(Vertex vertex, Schema schema) {
-    StructuredRecord.Builder builder = StructuredRecord.builder(schema);
-    if (schema.getField(ImageExtractorConstants.Vertex.X_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.Vertex.X_FIELD_NAME, vertex.getX());
+    if (hintSchema.getField(CropHintAnnotationSchema.CONFIDENCE_FIELD_NAME) != null) {
+      builder.set(CropHintAnnotationSchema.CONFIDENCE_FIELD_NAME, hint.getConfidence());
     }
-    if (schema.getField(ImageExtractorConstants.Vertex.Y_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.Vertex.Y_FIELD_NAME, vertex.getY());
+    if (hintSchema.getField(CropHintAnnotationSchema.IMPORTANCE_FRACTION_FIELD_NAME) != null) {
+      builder.set(CropHintAnnotationSchema.IMPORTANCE_FRACTION_FIELD_NAME,
+        hint.getImportanceFraction());
     }
 
     return builder.build();
   }
 
   /**
-   * Retrieves Crop Hints Annotation's non-nullable component schema.
+   * Retrieves Crop Hints Annotation's non-nullable component schema. Crop Hints Annotation's schema is retrieved
+   * instead of using constant schema since users are free to choose to not include some of the fields.
    *
    * @return Crop Hints Annotation's non-nullable component schema.
    */
   private Schema getCropHintsAnnotationSchema() {
-    Schema cropHintsAnnotationsFieldSchema = schema.getField(outputFieldName).getSchema();
-    Schema cropHintsAnnotationsComponentSchema = cropHintsAnnotationsFieldSchema.isNullable()
-      ? cropHintsAnnotationsFieldSchema.getNonNullable().getComponentSchema()
-      : cropHintsAnnotationsFieldSchema.getComponentSchema();
-
-    return cropHintsAnnotationsComponentSchema.isNullable()
-      ? cropHintsAnnotationsComponentSchema.getNonNullable()
-      : cropHintsAnnotationsComponentSchema;
+    Schema.Field cropHintsAnnotationsField = schema.getField(outputFieldName);
+    return getComponentSchema(cropHintsAnnotationsField);
   }
 }

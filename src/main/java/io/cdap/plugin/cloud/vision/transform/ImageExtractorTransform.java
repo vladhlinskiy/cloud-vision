@@ -17,7 +17,6 @@
 package io.cdap.plugin.cloud.vision.transform;
 
 import com.google.cloud.vision.v1.AnnotateImageResponse;
-import com.google.cloud.vision.v1.Feature;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
@@ -25,6 +24,7 @@ import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.etl.api.Emitter;
 import io.cdap.cdap.etl.api.FailureCollector;
+import io.cdap.cdap.etl.api.InvalidEntry;
 import io.cdap.cdap.etl.api.PipelineConfigurer;
 import io.cdap.cdap.etl.api.StageConfigurer;
 import io.cdap.cdap.etl.api.StageSubmitterContext;
@@ -32,7 +32,6 @@ import io.cdap.cdap.etl.api.Transform;
 import io.cdap.cdap.etl.api.TransformContext;
 import io.cdap.plugin.cloud.vision.transform.transformer.ImageAnnotationToRecordTransformer;
 import io.cdap.plugin.cloud.vision.transform.transformer.TransformerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +70,7 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
     ImageExtractorTransformConfig.validateFieldsMatch(schema, configuredSchema, collector);
     collector.getOrThrowException();
     configurer.getStageConfigurer().setOutputSchema(configuredSchema);
-//    configurer.getStageConfigurer().setErrorSchema(ERROR_SCHEMA);
+    configurer.getStageConfigurer().setErrorSchema(ImageExtractorTransformConfig.ERROR_SCHEMA);
   }
 
   @Override
@@ -91,23 +90,17 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
   }
 
   @Override
-  public void transform(StructuredRecord input, Emitter<StructuredRecord> emitter) throws Exception {
+  public void transform(StructuredRecord input, Emitter<StructuredRecord> emitter) {
     String imagePath = input.get(config.getPathField());
-    Feature.Type featureType = config.getImageFeature().getFeatureType();
-    AnnotateImageResponse response = cloudVisionClient.extractFeature(imagePath, featureType);
-    StructuredRecord transformed = transformer.transform(input, response);
-    emitter.emit(transformed);
-  }
-
-  @Override
-  public void destroy() {
-    super.destroy();
-    if (cloudVisionClient != null) {
-      try {
-        cloudVisionClient.close();
-      } catch (Exception e) {
-        // no-op
-      }
+    try {
+      AnnotateImageResponse response = cloudVisionClient.extractFeature(imagePath);
+      StructuredRecord transformed = transformer.transform(input, response);
+      emitter.emit(transformed);
+    } catch (Exception e) {
+      StructuredRecord errorRecord = StructuredRecord.builder(ImageExtractorTransformConfig.ERROR_SCHEMA)
+        .set("error", e.getMessage())
+        .build();
+      emitter.emitError(new InvalidEntry<>(400, e.getMessage(), errorRecord));
     }
   }
 

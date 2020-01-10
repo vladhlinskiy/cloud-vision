@@ -20,7 +20,7 @@ import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.SafeSearchAnnotation;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
+import io.cdap.plugin.cloud.vision.transform.schema.SafeSearchAnnotationSchema;
 
 
 /**
@@ -42,31 +42,30 @@ public class SafeSearchAnnotationsToRecordTransformer extends ImageAnnotationToR
   }
 
   private StructuredRecord extractSafeSearchAnnotation(SafeSearchAnnotation annotation) {
-    // here we retrieve safe search annotation schema instead of using constant schema since users are free to choose
-    // to not include some of the fields
     Schema safeSearchAnnotationSchema = getSafeSearchAnnotationSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(safeSearchAnnotationSchema);
-    if (safeSearchAnnotationSchema.getField(ImageExtractorConstants.SafeSearchAnnotation.ADULT_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.SafeSearchAnnotation.ADULT_FIELD_NAME, annotation.getAdult().name());
+    if (safeSearchAnnotationSchema.getField(SafeSearchAnnotationSchema.ADULT_FIELD_NAME) != null) {
+      builder.set(SafeSearchAnnotationSchema.ADULT_FIELD_NAME, annotation.getAdult().name());
     }
-    if (safeSearchAnnotationSchema.getField(ImageExtractorConstants.SafeSearchAnnotation.SPOOF_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.SafeSearchAnnotation.SPOOF_FIELD_NAME, annotation.getSpoof().name());
+    if (safeSearchAnnotationSchema.getField(SafeSearchAnnotationSchema.SPOOF_FIELD_NAME) != null) {
+      builder.set(SafeSearchAnnotationSchema.SPOOF_FIELD_NAME, annotation.getSpoof().name());
     }
-    if (safeSearchAnnotationSchema.getField(ImageExtractorConstants.SafeSearchAnnotation.MEDICAL_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.SafeSearchAnnotation.MEDICAL_FIELD_NAME, annotation.getMedical().name());
+    if (safeSearchAnnotationSchema.getField(SafeSearchAnnotationSchema.MEDICAL_FIELD_NAME) != null) {
+      builder.set(SafeSearchAnnotationSchema.MEDICAL_FIELD_NAME, annotation.getMedical().name());
     }
-    if (safeSearchAnnotationSchema.getField(ImageExtractorConstants.SafeSearchAnnotation.VIOLENCE_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.SafeSearchAnnotation.VIOLENCE_FIELD_NAME, annotation.getViolence().name());
+    if (safeSearchAnnotationSchema.getField(SafeSearchAnnotationSchema.VIOLENCE_FIELD_NAME) != null) {
+      builder.set(SafeSearchAnnotationSchema.VIOLENCE_FIELD_NAME, annotation.getViolence().name());
     }
-    if (safeSearchAnnotationSchema.getField(ImageExtractorConstants.SafeSearchAnnotation.RACY_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.SafeSearchAnnotation.RACY_FIELD_NAME, annotation.getRacy().name());
+    if (safeSearchAnnotationSchema.getField(SafeSearchAnnotationSchema.RACY_FIELD_NAME) != null) {
+      builder.set(SafeSearchAnnotationSchema.RACY_FIELD_NAME, annotation.getRacy().name());
     }
 
     return builder.build();
   }
 
   /**
-   * Retrieves Safe Search Annotation's non-nullable component schema.
+   * Retrieves Safe Search Annotation's non-nullable component schema. Schema retrieved instead of using constant schema
+   * since users are free to choose to not include some of the fields
    *
    * @return Safe Search Annotation's non-nullable component schema.
    */

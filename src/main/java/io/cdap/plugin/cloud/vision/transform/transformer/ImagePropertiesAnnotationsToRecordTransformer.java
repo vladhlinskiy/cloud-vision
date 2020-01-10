@@ -20,8 +20,7 @@ import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.ColorInfo;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
-
+import io.cdap.plugin.cloud.vision.transform.schema.ColorInfoSchema;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,41 +49,39 @@ public class ImagePropertiesAnnotationsToRecordTransformer extends ImageAnnotati
   }
 
   private StructuredRecord extractColorInfoRecord(ColorInfo colorInfo) {
-    // here we retrieve color info schema instead of using constant schema since users are free to choose to not
-    // include some of the fields
     Schema faceSchema = getColorInfoSchema();
     StructuredRecord.Builder builder = StructuredRecord.builder(faceSchema);
 
-    if (faceSchema.getField(ImageExtractorConstants.ColorInfo.SCORE_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.ColorInfo.SCORE_FIELD_NAME, colorInfo.getScore());
+    if (faceSchema.getField(ColorInfoSchema.SCORE_FIELD_NAME) != null) {
+      builder.set(ColorInfoSchema.SCORE_FIELD_NAME, colorInfo.getScore());
     }
-    if (faceSchema.getField(ImageExtractorConstants.ColorInfo.PIXEL_FRACTION_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.ColorInfo.PIXEL_FRACTION_FIELD_NAME, colorInfo.getPixelFraction());
+    if (faceSchema.getField(ColorInfoSchema.PIXEL_FRACTION_FIELD_NAME) != null) {
+      builder.set(ColorInfoSchema.PIXEL_FRACTION_FIELD_NAME, colorInfo.getPixelFraction());
     }
-    if (faceSchema.getField(ImageExtractorConstants.ColorInfo.RED_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.ColorInfo.RED_FIELD_NAME, colorInfo.getColor().getRed());
+    if (faceSchema.getField(ColorInfoSchema.RED_FIELD_NAME) != null) {
+      builder.set(ColorInfoSchema.RED_FIELD_NAME, colorInfo.getColor().getRed());
     }
-    if (faceSchema.getField(ImageExtractorConstants.ColorInfo.GREEN_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.ColorInfo.GREEN_FIELD_NAME, colorInfo.getColor().getGreen());
+    if (faceSchema.getField(ColorInfoSchema.GREEN_FIELD_NAME) != null) {
+      builder.set(ColorInfoSchema.GREEN_FIELD_NAME, colorInfo.getColor().getGreen());
     }
-    if (faceSchema.getField(ImageExtractorConstants.ColorInfo.BLUE_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.ColorInfo.BLUE_FIELD_NAME, colorInfo.getColor().getBlue());
+    if (faceSchema.getField(ColorInfoSchema.BLUE_FIELD_NAME) != null) {
+      builder.set(ColorInfoSchema.BLUE_FIELD_NAME, colorInfo.getColor().getBlue());
+    }
+    if (faceSchema.getField(ColorInfoSchema.ALPHA_FIELD_NAME) != null) {
+      builder.set(ColorInfoSchema.ALPHA_FIELD_NAME, colorInfo.getColor().getAlpha().getValue());
     }
 
     return builder.build();
   }
 
   /**
-   * Retrieves Color Info's non-nullable component schema.
+   * Retrieves Color Info's non-nullable component schema. Color Info's schema retrieved instead of using constant
+   * schema since users are free to choose to not include some of the fields
    *
    * @return Color Info's non-nullable component schema.
    */
   private Schema getColorInfoSchema() {
-    Schema colorInfoFieldSchema = schema.getField(outputFieldName).getSchema();
-    Schema colorInfoComponentSchema = colorInfoFieldSchema.isNullable()
-      ? colorInfoFieldSchema.getNonNullable().getComponentSchema()
-      : colorInfoFieldSchema.getComponentSchema();
-
-    return colorInfoComponentSchema.isNullable() ? colorInfoComponentSchema.getNonNullable() : colorInfoComponentSchema;
+    Schema.Field colorInfoField = schema.getField(outputFieldName);
+    return getComponentSchema(colorInfoField);
   }
 }

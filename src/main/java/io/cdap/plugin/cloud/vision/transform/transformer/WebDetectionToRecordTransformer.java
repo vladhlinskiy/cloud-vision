@@ -20,8 +20,7 @@ import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.WebDetection;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
-import io.cdap.plugin.cloud.vision.transform.ImageExtractorConstants;
-
+import io.cdap.plugin.cloud.vision.transform.schema.WebDetectionSchema;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,106 +43,61 @@ public class WebDetectionToRecordTransformer extends ImageAnnotationToRecordTran
       .build();
   }
 
-  // TODO refactor.
   private StructuredRecord extractWebDetection(WebDetection webDetection) {
-    // here we retrieve web detection schema instead of using constant schema since users are free to choose
-    // to not include some of the fields
-    Schema webDetectionSchema = getWebDetectionSchema();
-    StructuredRecord.Builder builder = StructuredRecord.builder(webDetectionSchema);
+    Schema webSchema = getWebDetectionSchema();
+    StructuredRecord.Builder builder = StructuredRecord.builder(webSchema);
 
-    Schema.Field entitiesField = webDetectionSchema.getField(ImageExtractorConstants.WebDetection.ENTITIES_FIELD_NAME);
+    Schema.Field entitiesField = webSchema.getField(WebDetectionSchema.ENTITIES_FIELD_NAME);
     if (entitiesField != null) {
-      // here we retrieve schema instead of using constant schema since users are free to choose to not include some of
-      // the fields
-      Schema entitiesArraySchema = entitiesField.getSchema().isNullable() ? entitiesField.getSchema().getNonNullable()
-        : entitiesField.getSchema();
-      Schema entitySchema = entitiesArraySchema.getComponentSchema().isNullable()
-        ? entitiesArraySchema.getComponentSchema().getNonNullable()
-        : entitiesArraySchema.getComponentSchema();
-
+      Schema entitySchema = getComponentSchema(entitiesField);
       List<StructuredRecord> entities = webDetection.getWebEntitiesList().stream()
         .map(v -> extractEntity(v, entitySchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.WebDetection.ENTITIES_FIELD_NAME, entities);
+      builder.set(WebDetectionSchema.ENTITIES_FIELD_NAME, entities);
     }
 
-    Schema.Field fullMatchingImagesField =
-      webDetectionSchema.getField(ImageExtractorConstants.WebDetection.FULL_MATCHING_IMAGES_FIELD_NAME);
+    Schema.Field fullMatchingImagesField = webSchema.getField(WebDetectionSchema.FULL_MATCHING_IMAGES_FIELD_NAME);
     if (fullMatchingImagesField != null) {
-      Schema fullMatchingImagesArraySchema = fullMatchingImagesField.getSchema().isNullable()
-        ? fullMatchingImagesField.getSchema().getNonNullable()
-        : fullMatchingImagesField.getSchema();
-      Schema webImageSchema = fullMatchingImagesArraySchema.getComponentSchema().isNullable()
-        ? fullMatchingImagesArraySchema.getComponentSchema().getNonNullable()
-        : fullMatchingImagesArraySchema.getComponentSchema();
-
+      Schema webImageSchema = getComponentSchema(fullMatchingImagesField);
       List<StructuredRecord> webImages = webDetection.getFullMatchingImagesList().stream()
         .map(v -> extractWebImage(v, webImageSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.WebDetection.FULL_MATCHING_IMAGES_FIELD_NAME, webImages);
+      builder.set(WebDetectionSchema.FULL_MATCHING_IMAGES_FIELD_NAME, webImages);
     }
 
-    Schema.Field partialMatchingImagesField =
-      webDetectionSchema.getField(ImageExtractorConstants.WebDetection.PARTIAL_MATCHING_IMAGES_FIELD_NAME);
+    Schema.Field partialMatchingImagesField = webSchema.getField(WebDetectionSchema.PARTIAL_MATCHING_IMAGES_FIELD_NAME);
     if (partialMatchingImagesField != null) {
-      Schema partialMatchingImagesArraySchema = partialMatchingImagesField.getSchema().isNullable()
-        ? partialMatchingImagesField.getSchema().getNonNullable()
-        : partialMatchingImagesField.getSchema();
-      Schema webImageSchema = partialMatchingImagesArraySchema.getComponentSchema().isNullable()
-        ? partialMatchingImagesArraySchema.getComponentSchema().getNonNullable()
-        : partialMatchingImagesArraySchema.getComponentSchema();
-
+      Schema webImageSchema = getComponentSchema(partialMatchingImagesField);
       List<StructuredRecord> webImages = webDetection.getPartialMatchingImagesList().stream()
         .map(v -> extractWebImage(v, webImageSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.WebDetection.PARTIAL_MATCHING_IMAGES_FIELD_NAME, webImages);
+      builder.set(WebDetectionSchema.PARTIAL_MATCHING_IMAGES_FIELD_NAME, webImages);
     }
 
-    Schema.Field pagesField =
-      webDetectionSchema.getField(ImageExtractorConstants.WebDetection.PAGES_WITH_MATCHING_IMAGES_FIELD_NAME);
+    Schema.Field pagesField = webSchema.getField(WebDetectionSchema.PAGES_WITH_MATCHING_IMAGES_FIELD_NAME);
     if (pagesField != null) {
-      Schema pagesArraySchema = pagesField.getSchema().isNullable()
-        ? pagesField.getSchema().getNonNullable()
-        : pagesField.getSchema();
-      Schema pageSchema = pagesArraySchema.getComponentSchema().isNullable()
-        ? pagesArraySchema.getComponentSchema().getNonNullable()
-        : pagesArraySchema.getComponentSchema();
-
+      Schema pageSchema = getComponentSchema(pagesField);
       List<StructuredRecord> pages = webDetection.getPagesWithMatchingImagesList().stream()
         .map(v -> extractWebPage(v, pageSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.WebDetection.PAGES_WITH_MATCHING_IMAGES_FIELD_NAME, pages);
+      builder.set(WebDetectionSchema.PAGES_WITH_MATCHING_IMAGES_FIELD_NAME, pages);
     }
-    // TODO pages
-    Schema.Field visuallySimilarImagesField =
-      webDetectionSchema.getField(ImageExtractorConstants.WebDetection.VISUALLY_SIMILAR_IMAGES);
-    if (visuallySimilarImagesField != null) {
-      Schema visuallySimilarImagesArraySchema = visuallySimilarImagesField.getSchema().isNullable()
-        ? visuallySimilarImagesField.getSchema().getNonNullable()
-        : visuallySimilarImagesField.getSchema();
-      Schema webImageSchema = visuallySimilarImagesArraySchema.getComponentSchema().isNullable()
-        ? visuallySimilarImagesArraySchema.getComponentSchema().getNonNullable()
-        : visuallySimilarImagesArraySchema.getComponentSchema();
 
+    Schema.Field visuallySimilarImagesField = webSchema.getField(WebDetectionSchema.VISUALLY_SIMILAR_IMAGES);
+    if (visuallySimilarImagesField != null) {
+      Schema webImageSchema = getComponentSchema(visuallySimilarImagesField);
       List<StructuredRecord> webImages = webDetection.getVisuallySimilarImagesList().stream()
         .map(v -> extractWebImage(v, webImageSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.WebDetection.VISUALLY_SIMILAR_IMAGES, webImages);
+      builder.set(WebDetectionSchema.VISUALLY_SIMILAR_IMAGES, webImages);
     }
-    Schema.Field labelsField =
-      webDetectionSchema.getField(ImageExtractorConstants.WebDetection.BEST_GUESS_LABELS_FIELD_NAME);
+    Schema.Field labelsField = webSchema.getField(WebDetectionSchema.BEST_GUESS_LABELS_FIELD_NAME);
     if (labelsField != null) {
-      Schema labelsArraySchema = labelsField.getSchema().isNullable()
-        ? labelsField.getSchema().getNonNullable()
-        : labelsField.getSchema();
-      Schema labelSchema = labelsArraySchema.getComponentSchema().isNullable()
-        ? labelsArraySchema.getComponentSchema().getNonNullable()
-        : labelsArraySchema.getComponentSchema();
-
+      Schema labelSchema = getComponentSchema(labelsField);
       List<StructuredRecord> webLabels = webDetection.getBestGuessLabelsList().stream()
         .map(v -> extractWebLabel(v, labelSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.WebDetection.BEST_GUESS_LABELS_FIELD_NAME, webLabels);
+      builder.set(WebDetectionSchema.BEST_GUESS_LABELS_FIELD_NAME, webLabels);
     }
 
     return builder.build();
@@ -151,14 +105,14 @@ public class WebDetectionToRecordTransformer extends ImageAnnotationToRecordTran
 
   private StructuredRecord extractEntity(WebDetection.WebEntity webEntity, Schema schema) {
     StructuredRecord.Builder builder = StructuredRecord.builder(schema);
-    if (schema.getField(ImageExtractorConstants.WebEntity.ENTITY_ID_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.WebEntity.ENTITY_ID_FIELD_NAME, webEntity.getEntityId());
+    if (schema.getField(WebDetectionSchema.WebEntity.ENTITY_ID_FIELD_NAME) != null) {
+      builder.set(WebDetectionSchema.WebEntity.ENTITY_ID_FIELD_NAME, webEntity.getEntityId());
     }
-    if (schema.getField(ImageExtractorConstants.WebEntity.SCORE_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.WebEntity.SCORE_FIELD_NAME, webEntity.getScore());
+    if (schema.getField(WebDetectionSchema.WebEntity.SCORE_FIELD_NAME) != null) {
+      builder.set(WebDetectionSchema.WebEntity.SCORE_FIELD_NAME, webEntity.getScore());
     }
-    if (schema.getField(ImageExtractorConstants.WebEntity.DESCRIPTION_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.WebEntity.DESCRIPTION_FIELD_NAME, webEntity.getDescription());
+    if (schema.getField(WebDetectionSchema.WebEntity.DESCRIPTION_FIELD_NAME) != null) {
+      builder.set(WebDetectionSchema.WebEntity.DESCRIPTION_FIELD_NAME, webEntity.getDescription());
     }
 
     return builder.build();
@@ -166,11 +120,11 @@ public class WebDetectionToRecordTransformer extends ImageAnnotationToRecordTran
 
   private StructuredRecord extractWebImage(WebDetection.WebImage webImage, Schema schema) {
     StructuredRecord.Builder builder = StructuredRecord.builder(schema);
-    if (schema.getField(ImageExtractorConstants.WebImage.URL_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.WebImage.URL_FIELD_NAME, webImage.getUrl());
+    if (schema.getField(WebDetectionSchema.WebImage.URL_FIELD_NAME) != null) {
+      builder.set(WebDetectionSchema.WebImage.URL_FIELD_NAME, webImage.getUrl());
     }
-    if (schema.getField(ImageExtractorConstants.WebImage.SCORE_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.WebImage.SCORE_FIELD_NAME, webImage.getScore());
+    if (schema.getField(WebDetectionSchema.WebImage.SCORE_FIELD_NAME) != null) {
+      builder.set(WebDetectionSchema.WebImage.SCORE_FIELD_NAME, webImage.getScore());
     }
 
     return builder.build();
@@ -178,11 +132,11 @@ public class WebDetectionToRecordTransformer extends ImageAnnotationToRecordTran
 
   private StructuredRecord extractWebLabel(WebDetection.WebLabel webLabel, Schema schema) {
     StructuredRecord.Builder builder = StructuredRecord.builder(schema);
-    if (schema.getField(ImageExtractorConstants.BestGuessLabel.LABEL_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.BestGuessLabel.LABEL_FIELD_NAME, webLabel.getLabel());
+    if (schema.getField(WebDetectionSchema.BestGuessLabel.LABEL_FIELD_NAME) != null) {
+      builder.set(WebDetectionSchema.BestGuessLabel.LABEL_FIELD_NAME, webLabel.getLabel());
     }
-    if (schema.getField(ImageExtractorConstants.BestGuessLabel.LANGUAGE_CODE_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.BestGuessLabel.LANGUAGE_CODE_FIELD_NAME, webLabel.getLanguageCode());
+    if (schema.getField(WebDetectionSchema.BestGuessLabel.LANGUAGE_CODE_FIELD_NAME) != null) {
+      builder.set(WebDetectionSchema.BestGuessLabel.LANGUAGE_CODE_FIELD_NAME, webLabel.getLanguageCode());
     }
 
     return builder.build();
@@ -190,43 +144,46 @@ public class WebDetectionToRecordTransformer extends ImageAnnotationToRecordTran
 
   private StructuredRecord extractWebPage(WebDetection.WebPage webPage, Schema schema) {
     StructuredRecord.Builder builder = StructuredRecord.builder(schema);
-    if (schema.getField(ImageExtractorConstants.PageWithMatchingImages.URL_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.PageWithMatchingImages.URL_FIELD_NAME, webPage.getUrl());
+    if (schema.getField(WebDetectionSchema.WebPage.URL_FIELD_NAME) != null) {
+      builder.set(WebDetectionSchema.WebPage.URL_FIELD_NAME, webPage.getUrl());
     }
-    if (schema.getField(ImageExtractorConstants.PageWithMatchingImages.PAGE_TITLE_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.PageWithMatchingImages.PAGE_TITLE_FIELD_NAME, webPage.getPageTitle());
+    if (schema.getField(WebDetectionSchema.WebPage.PAGE_TITLE_FIELD_NAME) != null) {
+      builder.set(WebDetectionSchema.WebPage.PAGE_TITLE_FIELD_NAME, webPage.getPageTitle());
     }
-    if (schema.getField(ImageExtractorConstants.PageWithMatchingImages.SCORE_FIELD_NAME) != null) {
-      builder.set(ImageExtractorConstants.PageWithMatchingImages.SCORE_FIELD_NAME, webPage.getScore());
+    if (schema.getField(WebDetectionSchema.WebPage.SCORE_FIELD_NAME) != null) {
+      builder.set(WebDetectionSchema.WebPage.SCORE_FIELD_NAME, webPage.getScore());
     }
 
-    Schema.Field fullMatchingImagesField =
-      schema.getField(ImageExtractorConstants.PageWithMatchingImages.FULL_MATCHING_IMAGES_FIELD_NAME);
-    if (fullMatchingImagesField != null) {
-      Schema fullMatchingImagesArraySchema = fullMatchingImagesField.getSchema().isNullable()
-        ? fullMatchingImagesField.getSchema().getNonNullable()
-        : fullMatchingImagesField.getSchema();
-      Schema webImageSchema = fullMatchingImagesArraySchema.getComponentSchema().isNullable()
-        ? fullMatchingImagesArraySchema.getComponentSchema().getNonNullable()
-        : fullMatchingImagesArraySchema.getComponentSchema();
-
+    Schema.Field fullMatchingImgField = schema.getField(WebDetectionSchema.WebPage.FULL_MATCHING_IMAGES_FIELD_NAME);
+    if (fullMatchingImgField != null) {
+      Schema webImageSchema = getComponentSchema(fullMatchingImgField);
       List<StructuredRecord> webImages = webPage.getFullMatchingImagesList().stream()
         .map(v -> extractWebImage(v, webImageSchema))
         .collect(Collectors.toList());
-      builder.set(ImageExtractorConstants.PageWithMatchingImages.FULL_MATCHING_IMAGES_FIELD_NAME, webImages);
+      builder.set(WebDetectionSchema.WebPage.FULL_MATCHING_IMAGES_FIELD_NAME, webImages);
+    }
+
+    Schema.Field partMatchingImgField = schema.getField(WebDetectionSchema.WebPage.PARTIAL_MATCHING_IMAGES_FIELD_NAME);
+    if (partMatchingImgField != null) {
+      Schema webImageSchema = getComponentSchema(partMatchingImgField);
+      List<StructuredRecord> webImages = webPage.getPartialMatchingImagesList().stream()
+        .map(v -> extractWebImage(v, webImageSchema))
+        .collect(Collectors.toList());
+      builder.set(WebDetectionSchema.WebPage.PARTIAL_MATCHING_IMAGES_FIELD_NAME, webImages);
     }
 
     return builder.build();
   }
 
   /**
-   * Retrieves Handwriting Annotation's non-nullable component schema.
+   * Retrieves Web Detection's non-nullable component schema. Schema retrieved instead of using constant schema
+   * since users are free to choose to not include some of the fields
    *
-   * @return Handwriting Annotation's non-nullable component schema.
+   * @return Web Detection's non-nullable component schema.
    */
   private Schema getWebDetectionSchema() {
-    Schema handwritingAnnotationsFieldSchema = schema.getField(outputFieldName).getSchema();
-    return handwritingAnnotationsFieldSchema.isNullable() ? handwritingAnnotationsFieldSchema.getNonNullable()
-      : handwritingAnnotationsFieldSchema;
+    Schema webDetectionAnnotationsFieldSchema = schema.getField(outputFieldName).getSchema();
+    return webDetectionAnnotationsFieldSchema.isNullable() ? webDetectionAnnotationsFieldSchema.getNonNullable()
+      : webDetectionAnnotationsFieldSchema;
   }
 }

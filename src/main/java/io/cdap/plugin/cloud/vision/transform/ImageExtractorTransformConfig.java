@@ -16,55 +16,90 @@
 
 package io.cdap.plugin.cloud.vision.transform;
 
-import com.google.cloud.ServiceOptions;
+import com.google.cloud.vision.v1.BoundingPoly;
 import com.google.common.base.Strings;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.util.JsonFormat;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.api.plugin.PluginConfig;
 import io.cdap.cdap.etl.api.FailureCollector;
-import io.cdap.plugin.cloud.vision.CloudVisionConstants;
-
+import io.cdap.plugin.cloud.vision.CloudVisionConfig;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 /**
  * Defines a {@link PluginConfig} that Image Extractor transform can use.
  */
-public class ImageExtractorTransformConfig extends PluginConfig {
+public class ImageExtractorTransformConfig extends CloudVisionConfig {
 
-  @Name(CloudVisionConstants.PROJECT)
-  @Description("Google Cloud Project ID, which uniquely identifies a project. "
-    + "It can be found on the Dashboard in the Google Cloud Platform Console.")
-  @Macro
-  @Nullable
-  protected String project;
-
-  @Name(CloudVisionConstants.SERVICE_ACCOUNT_FILE_PATH)
-  @Description("Path on the local file system of the service account key used "
-    + "for authorization. Can be set to 'auto-detect' when running on a Dataproc cluster. "
-    + "When running on other clusters, the file must be present on every node in the cluster.")
-  @Macro
-  @Nullable
-  protected String serviceFilePath;
+  public static final Schema ERROR_SCHEMA = Schema.recordOf("error",
+    Schema.Field.of("error", Schema.of(Schema.Type.STRING)));
 
   @Name(ImageExtractorConstants.PATH_FIELD)
   @Description("Field in the input schema containing the path to the image.")
   @Macro
-  protected String pathField;
+  private String pathField;
 
   @Name(ImageExtractorConstants.OUTPUT_FIELD)
   @Description("Field to store the extracted image features. If the specified output field name already exists " +
     "in the input record, it will be overwritten.")
   @Macro
-  protected String outputField;
+  private String outputField;
 
   @Name(ImageExtractorConstants.FEATURES)
   @Description("Features to extract from images.")
   @Macro
-  protected String features;
+  private String features;
+
+  @Name(ImageExtractorConstants.LANGUAGE_HINTS)
+  @Description("Hints to detect the language of the text in the images.")
+  @Macro
+  @Nullable
+  private String languageHints;
+
+  @Name(ImageExtractorConstants.ASPECT_RATIOS)
+  @Description("Ratio of the width to the height of the image. If not specified, the best possible crop is returned.")
+  @Macro
+  @Nullable
+  private String aspectRatios;
+
+  @Name(ImageExtractorConstants.INCLUDE_GEO_RESULTS)
+  @Description("Whether to include results derived from the geo information in the image.")
+  @Macro
+  @Nullable
+  private Boolean includeGeoResults;
+
+  @Name(ImageExtractorConstants.PRODUCT_SET)
+  @Description("Resource name of a ProductSet to be searched for similar images.")
+  @Macro
+  @Nullable
+  private String productSet;
+
+  @Name(ImageExtractorConstants.PRODUCT_CATEGORIES)
+  @Description("List of product categories to search in.")
+  @Macro
+  @Nullable
+  private String productCategories;
+
+  @Name(ImageExtractorConstants.BOUNDING_POLYGON)
+  @Description("Bounding polygon for the image detection.")
+  @Macro
+  @Nullable
+  private String boundingPolygon;
+
+  @Name(ImageExtractorConstants.FILTER)
+  @Description("Filtering expression to restrict search results based on Product labels.")
+  @Macro
+  @Nullable
+  private String filter;
 
   @Name(ImageExtractorConstants.SCHEMA)
   @Description("Schema of records output by the transform.")
@@ -72,18 +107,22 @@ public class ImageExtractorTransformConfig extends PluginConfig {
   private String schema;
 
   public ImageExtractorTransformConfig(String project, String serviceFilePath, String pathField, String outputField,
-                                       String features, String schema) {
-    this.project = project;
-    this.serviceFilePath = serviceFilePath;
+                                       String features, @Nullable String languageHints, @Nullable String aspectRatios,
+                                       @Nullable Boolean includeGeoResults, @Nullable String productSet,
+                                       @Nullable String productCategories, @Nullable String boundingPolygon,
+                                       @Nullable String filter, @Nullable String schema) {
+    super(project, serviceFilePath);
     this.pathField = pathField;
     this.outputField = outputField;
     this.features = features;
+    this.languageHints = languageHints;
+    this.aspectRatios = aspectRatios;
+    this.includeGeoResults = includeGeoResults;
+    this.productSet = productSet;
+    this.productCategories = productCategories;
+    this.boundingPolygon = boundingPolygon;
+    this.filter = filter;
     this.schema = schema;
-  }
-
-  @Nullable
-  public String getServiceFilePath() {
-    return serviceFilePath;
   }
 
   public String getPathField() {
@@ -99,12 +138,80 @@ public class ImageExtractorTransformConfig extends PluginConfig {
   }
 
   @Nullable
+  public String getLanguageHints() {
+    return languageHints;
+  }
+
+  public List<String> getLanguages() {
+    return Strings.isNullOrEmpty(languageHints) ? Collections.emptyList() : Arrays.asList(languageHints.split(","));
+  }
+
+  @Nullable
   public String getSchema() {
     return schema;
   }
 
+  @Nullable
+  public String getProductSet() {
+    return productSet;
+  }
+
+  @Nullable
+  public String getProductCategories() {
+    return productCategories;
+  }
+
+  @Nullable
+  public String getFilter() {
+    return filter;
+  }
+
+  public ProductCategory getProductCategory() {
+    return Objects.requireNonNull(ProductCategory.fromDisplayName(productCategories));
+  }
+
   public ImageFeature getImageFeature() {
     return Objects.requireNonNull(ImageFeature.fromDisplayName(features));
+  }
+
+  @Nullable
+  public String getAspectRatios() {
+    return aspectRatios;
+  }
+
+  public List<Float> getAspectRatiosList() {
+    if (Strings.isNullOrEmpty(aspectRatios)) {
+      return Collections.emptyList();
+    }
+
+    return Arrays.stream(aspectRatios.split(","))
+      .map(Float::valueOf)
+      .collect(Collectors.toList());
+  }
+
+  @Nullable
+  public Boolean isIncludeGeoResults() {
+    return includeGeoResults;
+  }
+
+  @Nullable
+  public String getBoundingPolygon() {
+    return boundingPolygon;
+  }
+
+  @Nullable
+  public BoundingPoly getBoundingPoly() {
+    if (Strings.isNullOrEmpty(boundingPolygon)) {
+      return null;
+    }
+
+    BoundingPoly.Builder builder = BoundingPoly.newBuilder();
+    try {
+      JsonFormat.parser().ignoringUnknownFields().merge(boundingPolygon, builder);
+      return builder.build();
+    } catch (InvalidProtocolBufferException e) {
+      throw new IllegalStateException(String.format("Could not parse schema string: '%s'", schema), e);
+    }
   }
 
   /**
@@ -123,36 +230,6 @@ public class ImageExtractorTransformConfig extends PluginConfig {
     }
   }
 
-  public String getProject() {
-    String projectId = tryGetProject();
-    if (projectId == null) {
-      throw new IllegalArgumentException(
-        "Could not detect Google Cloud project id from the environment. Please specify a project id.");
-    }
-    return projectId;
-  }
-
-  @Nullable
-  public String tryGetProject() {
-    if (containsMacro(CloudVisionConstants.PROJECT) && Strings.isNullOrEmpty(project)) {
-      return null;
-    }
-    String projectId = project;
-    if (Strings.isNullOrEmpty(project) || CloudVisionConstants.AUTO_DETECT.equals(project)) {
-      projectId = ServiceOptions.getDefaultProjectId();
-    }
-    return projectId;
-  }
-
-  @Nullable
-  public String getServiceAccountFilePath() {
-    if (containsMacro(CloudVisionConstants.SERVICE_ACCOUNT_FILE_PATH) || Strings.isNullOrEmpty(serviceFilePath)
-      || CloudVisionConstants.AUTO_DETECT.equals(serviceFilePath)) {
-      return null;
-    }
-    return serviceFilePath;
-  }
-
   /**
    * Validates {@link ImageExtractorTransformConfig} instance.
    *
@@ -167,7 +244,23 @@ public class ImageExtractorTransformConfig extends PluginConfig {
       collector.addFailure("Output field must be specified", null)
         .withConfigProperty(ImageExtractorConstants.OUTPUT_FIELD);
     }
-    // TODO validate schema. it must contain path & output fields?
+    if (!containsMacro(ImageExtractorConstants.FEATURES)) {
+      if (Strings.isNullOrEmpty(features)) {
+        collector.addFailure("Features must be specified", null)
+          .withConfigProperty(ImageExtractorConstants.FEATURES);
+      } else if (ImageFeature.fromDisplayName(features) == null) {
+        collector.addFailure("Invalid image feature name", null)
+          .withConfigProperty(ImageExtractorConstants.FEATURES);
+      }
+    }
+    if (!containsMacro(ImageExtractorConstants.BOUNDING_POLYGON) && !Strings.isNullOrEmpty(boundingPolygon)) {
+      try {
+        getBoundingPoly();
+      } catch (IllegalStateException e) {
+        collector.addFailure("Could not parse bounding polygon string.", null)
+          .withConfigProperty(ImageExtractorConstants.BOUNDING_POLYGON);
+      }
+    }
   }
 
   /**
@@ -200,8 +293,8 @@ public class ImageExtractorTransformConfig extends PluginConfig {
       Schema.LogicalType providedLogicalType = providedFieldNonNullableSchema.getLogicalType();
       if (inferredType != providedType && inferredLogicalType != providedLogicalType) {
         String errorMessage = String.format("Expected field '%s' to be of type '%s', but it is of type '%s'",
-                                            field.getName(), inferredFieldNonNullableSchema.getDisplayName(),
-                                            providedFieldNonNullableSchema.getDisplayName());
+          field.getName(), inferredFieldNonNullableSchema.getDisplayName(),
+          providedFieldNonNullableSchema.getDisplayName());
 
         collector.addFailure(errorMessage, String.format("Change field '%s' to be a supported type", field.getName()))
           .withOutputSchemaField(field.getName(), null);

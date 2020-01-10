@@ -18,7 +18,17 @@ package io.cdap.plugin.cloud.vision.transform;
 
 import com.google.cloud.vision.v1.Feature;
 import io.cdap.cdap.api.data.schema.Schema;
-
+import io.cdap.plugin.cloud.vision.transform.schema.ColorInfoSchema;
+import io.cdap.plugin.cloud.vision.transform.schema.CropHintAnnotationSchema;
+import io.cdap.plugin.cloud.vision.transform.schema.EntityAnnotationSchema;
+import io.cdap.plugin.cloud.vision.transform.schema.EntityAnnotationWithPositionSchema;
+import io.cdap.plugin.cloud.vision.transform.schema.FaceAnnotationSchema;
+import io.cdap.plugin.cloud.vision.transform.schema.FullTextAnnotationSchema;
+import io.cdap.plugin.cloud.vision.transform.schema.LocalizedObjectAnnotationSchema;
+import io.cdap.plugin.cloud.vision.transform.schema.ProductSearchResultsSchema;
+import io.cdap.plugin.cloud.vision.transform.schema.SafeSearchAnnotationSchema;
+import io.cdap.plugin.cloud.vision.transform.schema.TextAnnotationSchema;
+import io.cdap.plugin.cloud.vision.transform.schema.WebDetectionSchema;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
@@ -30,43 +40,22 @@ import javax.annotation.Nullable;
  */
 public enum ImageFeature {
 
-  FACE("Face", Feature.Type.FACE_DETECTION, Schema.arrayOf(ImageExtractorConstants.FaceAnnotation.SCHEMA)),
-  TEXT("Text", Feature.Type.TEXT_DETECTION, Schema.arrayOf(ImageExtractorConstants.TextAnnotation.SCHEMA)),
-  CROP_HINTS("Crop Hints", Feature.Type.CROP_HINTS, Schema.arrayOf(ImageExtractorConstants.CropHintAnnotation.SCHEMA)),
-  HANDWRITING(
-    "Handwriting",
-    Feature.Type.DOCUMENT_TEXT_DETECTION,
-    ImageExtractorConstants.HandwritingAnnotation.SCHEMA
-  ),
-  IMAGE_PROPERTIES(
-    "Image Properties",
-    Feature.Type.IMAGE_PROPERTIES,
-    Schema.arrayOf(ImageExtractorConstants.ColorInfo.SCHEMA)
-  ),
-  LABELS(
-    "Labels",
-    Feature.Type.LABEL_DETECTION,
-    Schema.arrayOf(Schema.mapOf(Schema.of(Schema.Type.STRING), Schema.of(Schema.Type.STRING)))
-  ),
-  LANDMARKS(
-    "Landmarks",
-    Feature.Type.LANDMARK_DETECTION,
-    Schema.arrayOf(ImageExtractorConstants.LandmarkAnnotation.SCHEMA)
-  ),
-  LOGOS("Logos", Feature.Type.LOGO_DETECTION, Schema.arrayOf(ImageExtractorConstants.LogoAnnotation.SCHEMA)),
+  FACE("Face", Feature.Type.FACE_DETECTION, Schema.arrayOf(FaceAnnotationSchema.SCHEMA)),
+  TEXT("Text", Feature.Type.TEXT_DETECTION, Schema.arrayOf(TextAnnotationSchema.SCHEMA)),
+  CROP_HINTS("Crop Hints", Feature.Type.CROP_HINTS, Schema.arrayOf(CropHintAnnotationSchema.SCHEMA)),
+  HANDWRITING("Handwriting", Feature.Type.DOCUMENT_TEXT_DETECTION, FullTextAnnotationSchema.SCHEMA),
+  IMAGE_PROPERTIES("Image Properties", Feature.Type.IMAGE_PROPERTIES, Schema.arrayOf(ColorInfoSchema.SCHEMA)),
+  LABELS("Labels", Feature.Type.LABEL_DETECTION, Schema.arrayOf(EntityAnnotationSchema.SCHEMA)),
+  LANDMARKS("Landmarks", Feature.Type.LANDMARK_DETECTION, Schema.arrayOf(EntityAnnotationWithPositionSchema.SCHEMA)),
+  LOGOS("Logos", Feature.Type.LOGO_DETECTION, Schema.arrayOf(EntityAnnotationWithPositionSchema.SCHEMA)),
   // Object localization is used to detect multiple objects
+  EXPLICIT_CONTENT("Explicit Content", Feature.Type.SAFE_SEARCH_DETECTION, SafeSearchAnnotationSchema.SCHEMA),
+  WEB_DETECTION("Web Detection", Feature.Type.WEB_DETECTION, WebDetectionSchema.SCHEMA),
+  PRODUCT_SEARCH("Product Search", Feature.Type.PRODUCT_SEARCH, ProductSearchResultsSchema.SCHEMA),
   OBJECT_LOCALIZATION(
     "Object Localization",
     Feature.Type.OBJECT_LOCALIZATION,
-    Schema.arrayOf(ImageExtractorConstants.LocalizedObjectAnnotation.SCHEMA)
-  ),
-  EXPLICIT_CONTENT(
-    "Explicit Content",
-    Feature.Type.SAFE_SEARCH_DETECTION,
-    ImageExtractorConstants.SafeSearchAnnotation.SCHEMA
-  ),
-  WEB_DETECTION("Web Detection", Feature.Type.WEB_DETECTION, ImageExtractorConstants.WebDetection.SCHEMA),
-  PRODUCT_SEARCH("Product Search", Feature.Type.PRODUCT_SEARCH, null);
+    Schema.arrayOf(LocalizedObjectAnnotationSchema.SCHEMA));
 
   private static final Map<String, ImageFeature> byDisplayName = Arrays.stream(values())
     .collect(Collectors.toMap(ImageFeature::getDisplayName, Function.identity()));
