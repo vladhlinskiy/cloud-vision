@@ -43,4 +43,19 @@ public class CloudVisionConstants {
    */
   public static final String AUTO_DETECT = "auto-detect";
 
+  /**
+   * File paths mapped to a record with a single {@value PATH_FIELD_NAME} string field.
+   */
+
+  public static final String PATH_FIELD_NAME = "path";
+
+  /**
+   * Configuration property name used to specify optional hints.
+   */
+  public static final String LANGUAGE_HINTS = "languageHints";
+
+  /**
+   * Configuration property name used to specify mime type.
+   */
+  public static final String MIME_TYPE = "mimeType";
 }

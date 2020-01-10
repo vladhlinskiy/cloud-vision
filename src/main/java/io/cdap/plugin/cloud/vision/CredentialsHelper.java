@@ -27,7 +27,7 @@ import java.io.IOException;
 /**
  * Helper to provide credentials and project id.
  */
-public class CredentialsHelper {
+public final class CredentialsHelper {
 
   public static ServiceAccountCredentials getCredentials(String path) throws IOException {
     if (CloudVisionConstants.AUTO_DETECT.equals(path)) {
@@ -47,5 +47,4 @@ public class CredentialsHelper {
 
     return project;
   }
-
 }
