@@ -13,18 +13,19 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package io.cdap.plugin.cloud.vision;
 
 import io.cdap.cdap.etl.api.validation.CauseAttributes;
 import io.cdap.cdap.etl.api.validation.ValidationFailure;
 import io.cdap.cdap.etl.mock.validation.MockFailureCollector;
 import org.junit.Assert;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
+/**
+ * Common validation assertions.
+ */
 public final class ValidationAssertions {
 
   public static void assertPropertyValidationFailed(MockFailureCollector failureCollector, String paramName) {
