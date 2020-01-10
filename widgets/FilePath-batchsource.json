@@ -1,0 +1,122 @@
+{
+  "metadata": {
+    "spec-version": "1.5"
+  },
+  "display-name": "FilePath",
+  "configuration-groups": [
+    {
+      "label": "Basic",
+      "properties": [
+        {
+          "widget-type": "textbox",
+          "label": "Reference Name",
+          "name": "referenceName",
+          "widget-attributes": {
+            "placeholder": "Name used to identify this source for lineage"
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Service Account File Path",
+          "name": "serviceFilePath",
+          "widget-attributes": {
+            "default": "auto-detect"
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Project ID",
+          "name": "project",
+          "widget-attributes": {
+            "default": "auto-detect"
+          },
+          "plugin-function": {
+            "label": "Browse",
+            "widget": "connection-browser",
+            "widget-attributes": {
+              "connectionType": "GCS"
+            }
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Path",
+          "name": "path",
+          "widget-attributes": {
+            "placeholder": "gs://<bucket>/path/to/input/"
+          }
+        },
+        {
+          "widget-type": "toggle",
+          "label": "Recursive",
+          "name": "recursive",
+          "widget-attributes": {
+            "on": {
+              "value": "true",
+              "label": "Yes"
+            },
+            "off": {
+              "value": "false",
+              "label": "No"
+            },
+            "default": "false"
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Last Modified After",
+          "name": "lastModified",
+          "widget-attributes": {
+            "placeholder": "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+          }
+        }
+      ]
+    },
+    {
+      "label": "Advanced",
+      "properties": [
+        {
+          "widget-type": "radio-group",
+          "label": "Split By",
+          "name": "splitBy",
+          "widget-attributes": {
+            "layout": "inline",
+            "default": "default",
+            "options": [
+              {
+                "id": "default",
+                "label": "Default"
+              },
+              {
+                "id": "directory",
+                "label": "Directory"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "widget-type": "non-editable-schema-editor",
+      "schema": {
+        "name": "schema",
+        "type": "record",
+        "fields": [
+          {
+            "name": "path",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ],
+  "jump-config": {
+    "datasets": [
+      {
+        "ref-property-name": "referenceName"
+      }
+    ]
+  }
+}
