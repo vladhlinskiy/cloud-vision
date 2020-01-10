@@ -35,4 +35,24 @@ public class ActionConstants {
    * Configuration property name used to specify batch size.
    */
   public static final String BATCH_SIZE = "batchSize";
+
+  /**
+   * Configuration property name used to specify the features to extract from images.
+   */
+  public static final String FEATURES = "features";
+
+  /**
+   * Configuration property name used to specify optional hints.
+   */
+  public static final String LANGUAGE_HINTS = "languageHints";
+
+  /**
+   * Configuration property name used to specify aspect ratios.
+   */
+  public static final String ASPECT_RATIOS = "aspectRatios";
+
+  /**
+   * Configuration property name used to specify includeGeoResults.
+   */
+  public static final String INCLUDE_GEO_RESULTS = "includeGeoResults";
 }
