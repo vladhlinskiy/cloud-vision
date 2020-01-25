@@ -27,6 +27,7 @@ import javax.annotation.Nonnull;
  * Common validation assertions.
  */
 public final class ValidationAssertions {
+
   public static void assertPropertyValidationFailed(MockFailureCollector failureCollector, String paramName) {
     List<ValidationFailure> failureList = failureCollector.getValidationFailures();
     Assert.assertEquals(1, failureList.size());
@@ -38,7 +39,7 @@ public final class ValidationAssertions {
   }
 
   @Nonnull
-  private static List<ValidationFailure.Cause> getCauses(ValidationFailure failure, String stacktrace) {
+  public static List<ValidationFailure.Cause> getCauses(ValidationFailure failure, String stacktrace) {
     return failure.getCauses()
       .stream()
       .filter(cause -> cause.getAttribute(stacktrace) != null)

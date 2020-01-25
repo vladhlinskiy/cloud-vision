@@ -14,7 +14,7 @@
  * the License.
  */
 
-package io.cdap.plugin.cloud.vision.transform;
+package io.cdap.plugin.cloud.vision.transform.image;
 
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import io.cdap.cdap.api.annotation.Description;
@@ -30,6 +30,7 @@ import io.cdap.cdap.etl.api.StageConfigurer;
 import io.cdap.cdap.etl.api.StageSubmitterContext;
 import io.cdap.cdap.etl.api.Transform;
 import io.cdap.cdap.etl.api.TransformContext;
+import io.cdap.plugin.cloud.vision.transform.ExtractorTransformConfig;
 import io.cdap.plugin.cloud.vision.transform.transformer.ImageAnnotationToRecordTransformer;
 import io.cdap.plugin.cloud.vision.transform.transformer.TransformerFactory;
 import java.util.ArrayList;
@@ -40,11 +41,16 @@ import java.util.List;
  * extract enrichments from each image based on selected features.
  */
 @Plugin(type = Transform.PLUGIN_TYPE)
-@Name(ImageExtractorConstants.PLUGIN_NAME)
+@Name(ImageExtractorTransform.PLUGIN_NAME)
 @Description("Extracts enrichments from each image based on selected features.")
 public class ImageExtractorTransform extends Transform<StructuredRecord, StructuredRecord> {
 
-  private CloudVisionClient cloudVisionClient;
+  /**
+   * Image Extractor Transform plugin name.
+   */
+  public static final String PLUGIN_NAME = "ImageExtractor";
+
+  private ImageAnnotatorClient imageAnnotatorClient;
   private ImageAnnotationToRecordTransformer transformer;
   private ImageExtractorTransformConfig config;
   private Schema inputSchema;
@@ -67,10 +73,10 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
       configurer.getStageConfigurer().setOutputSchema(schema);
       return;
     }
-    ImageExtractorTransformConfig.validateFieldsMatch(schema, configuredSchema, collector);
+    ExtractorTransformConfig.validateFieldsMatch(schema, configuredSchema, collector);
     collector.getOrThrowException();
     configurer.getStageConfigurer().setOutputSchema(configuredSchema);
-    configurer.getStageConfigurer().setErrorSchema(ImageExtractorTransformConfig.ERROR_SCHEMA);
+    configurer.getStageConfigurer().setErrorSchema(ExtractorTransformConfig.ERROR_SCHEMA);
   }
 
   @Override
@@ -85,19 +91,19 @@ public class ImageExtractorTransform extends Transform<StructuredRecord, Structu
   public void initialize(TransformContext context) throws Exception {
     super.initialize(context);
     Schema schema = context.getOutputSchema();
-    transformer = TransformerFactory.createInstance(config, schema);
-    cloudVisionClient = new CloudVisionClient(config);
+    transformer = TransformerFactory.createInstance(config.getImageFeature(), config.getOutputField(), schema);
+    imageAnnotatorClient = new ImageAnnotatorClient(config);
   }
 
   @Override
   public void transform(StructuredRecord input, Emitter<StructuredRecord> emitter) {
     String imagePath = input.get(config.getPathField());
     try {
-      AnnotateImageResponse response = cloudVisionClient.extractFeature(imagePath);
+      AnnotateImageResponse response = imageAnnotatorClient.extractImageFeature(imagePath);
       StructuredRecord transformed = transformer.transform(input, response);
       emitter.emit(transformed);
     } catch (Exception e) {
-      StructuredRecord errorRecord = StructuredRecord.builder(ImageExtractorTransformConfig.ERROR_SCHEMA)
+      StructuredRecord errorRecord = StructuredRecord.builder(ExtractorTransformConfig.ERROR_SCHEMA)
         .set("error", e.getMessage())
         .build();
       emitter.emitError(new InvalidEntry<>(400, e.getMessage(), errorRecord));

@@ -6,6 +6,7 @@
 Following plugins are available in this repository.
 
   * Image Extractor Transform
+  * Document Extractor Transform
 
 # Contact
 
